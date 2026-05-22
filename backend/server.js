@@ -6,7 +6,6 @@ const bcrypt = require('bcryptjs');
 const { Low } = require('lowdb');
 const { JSONFile } = require('lowdb/node');
 const { v4: uuidv4 } = require('uuid');
-const nodemailer = require('nodemailer');
 const axios = require('axios');
 const path = require('path');
 const app = express();
@@ -15,7 +14,6 @@ const io = require('socket.io')(http, { cors: { origin: '*' } });
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
-// Serve frontend from the folder next to backend
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 // -------------------- DATABASE (lowdb) --------------------
@@ -33,19 +31,19 @@ const db = new Low(adapter, {});
     await db.write();
 })();
 
-// -------------------- EMAIL --------------------
-const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT) || 465,
-    secure: process.env.EMAIL_SECURE === 'true' || parseInt(process.env.EMAIL_PORT) === 465,
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-});
-
-async function sendEmail(to, subject, text) {
+// -------------------- TELEGRAM (without bot polling) --------------------
+// We only use the sendTelegram function below. The polling bot is not needed.
+async function sendTelegram(msg) {
     try {
-        await transporter.sendMail({ from: process.env.EMAIL_USER, to, subject, text });
-        console.log(`📧 Email sent to ${to}`);
-    } catch (e) { console.log(`⚠ Email to ${to} failed: ${e.message}`); }
+        const axios = require('axios');
+        const botToken = process.env.TELEGRAM_BOT_TOKEN;
+        const chatId = process.env.TELEGRAM_CHAT_ID;
+        if (!botToken || !chatId) return;
+        await axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            chat_id: chatId,
+            text: msg
+        });
+    } catch (e) { console.log('Telegram error:', e.message); }
 }
 
 // -------------------- MIDDLEWARE --------------------
@@ -62,19 +60,31 @@ const auth = async (req, res, next) => {
     } catch (e) { res.status(401).json({ error: 'Invalid token' }); }
 };
 
+const adminAuth = async (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'No token' });
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        await db.read();
+        const user = db.data.users.find(u => u.id === decoded.id);
+        if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+        req.user = user;
+        next();
+    } catch (e) { res.status(401).json({ error: 'Invalid token' }); }
+};
+
 // -------------------- PUBLIC ROUTES --------------------
 app.get('/api/tools', async (req, res) => {
     await db.read();
     res.json(db.data.tools);
 });
 
+// Signup – no access code required
 app.post('/api/signup', async (req, res) => {
-    const { username, email, password, accessCode, fingerprint } = req.body;
-    if (!username || !email || !password || !accessCode || !fingerprint)
+    const { username, email, password, fingerprint } = req.body;
+    if (!username || !email || !password || !fingerprint)
         return res.status(400).json({ error: 'All fields required' });
     await db.read();
-    const codeDoc = db.data.accessCodes.find(c => c.code === accessCode && c.isActive && !c.usedBy);
-    if (!codeDoc) return res.status(400).json({ error: 'Invalid or already used access code' });
     if (db.data.users.find(u => u.email === email))
         return res.status(400).json({ error: 'Email already registered' });
     const hashed = await bcrypt.hash(password, 10);
@@ -83,7 +93,7 @@ app.post('/api/signup', async (req, res) => {
         username,
         email,
         password: hashed,
-        accessCode,
+        accessCode: 'FREE-ENTRY',
         fingerprint,
         approved: true,
         banned: false,
@@ -92,8 +102,6 @@ app.post('/api/signup', async (req, res) => {
         createdAt: new Date().toISOString()
     };
     db.data.users.push(user);
-    codeDoc.usedBy = user.id;
-    codeDoc.usedAt = new Date().toISOString();
     await db.write();
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
     res.json({ token, user: { username, email } });
@@ -115,19 +123,13 @@ app.get('/api/verify', auth, (req, res) => {
     res.json({ user: { id: req.user.id, username: req.user.username, email: req.user.email, approved: req.user.approved, accessCode: req.user.accessCode, role: req.user.role } });
 });
 
-app.post('/api/request-access-code', async (req, res) => {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email required' });
-    await db.read();
-    let codeEntry = db.data.accessCodes.find(c => c.isActive && !c.usedBy);
-    if (!codeEntry) {
-        const newCode = 'GHOST-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-        codeEntry = { code: newCode, isActive: true, usedBy: null, usedAt: null };
-        db.data.accessCodes.push(codeEntry);
-        await db.write();
-    }
-    await sendEmail(email, 'Your GHOST SHELL Access Code', `Your access code is: ${codeEntry.code}\n\nUse this code to sign up.\n\n– GHOST SHELL Command`);
-    res.json({ success: true, message: 'Access code sent to your email.' });
+// Contact form – forwards to Telegram
+app.post('/api/contact', async (req, res) => {
+    const { name, email, subject, message, type } = req.body;
+    if (!email || !message) return res.status(400).json({ error: 'Email and message required' });
+    const telegramMsg = `📩 NEW CONTACT\nFrom: ${name || 'Unknown'} (${email})\nSubject: ${subject || 'N/A'}\nType: ${type || 'General'}\nMessage: ${message}`;
+    await sendTelegram(telegramMsg);
+    res.json({ success: true, message: 'Your message has been sent to the GHOST SHELL command.' });
 });
 
 // -------------------- TOOLS (REAL APIs) --------------------
@@ -146,7 +148,9 @@ app.get('/api/ip/:ip', auth, async (req, res) => {
         const [ipapi, ipinfo, abuse] = await Promise.all([
             axios.get(`https://ipapi.co/${req.params.ip}/json/`),
             axios.get(`https://ipinfo.io/${req.params.ip}/json?token=${process.env.IPINFO_TOKEN}`),
-            axios.get(`https://api.abuseipdb.com/api/v2/check?ipAddress=${req.params.ip}`, { headers: { 'Key': process.env.ABUSEIPDB_KEY } })
+            axios.get(`https://api.abuseipdb.com/api/v2/check?ipAddress=${req.params.ip}`, {
+                headers: { 'Key': process.env.ABUSEIPDB_KEY }
+            })
         ]);
         res.json({ geo: ipapi.data, asn: ipinfo.data, abuse: abuse.data.data });
     } catch (e) { res.json({ error: 'Lookup failed' }); }
@@ -291,10 +295,142 @@ app.post('/api/admin/login', async (req, res) => {
     res.json({ token });
 });
 
-app.get('/api/admin/users', auth, async (req, res) => {
+app.get('/api/admin/users', adminAuth, async (req, res) => {
     await db.read();
     const safeUsers = db.data.users.map(({ password, ...rest }) => rest);
     res.json(safeUsers);
+});
+
+// Add / promote admin
+app.post('/api/admin/add-admin', adminAuth, async (req, res) => {
+    const { email, password, adminRole } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    await db.read();
+    let user = db.data.users.find(u => u.email === email);
+    if (user) {
+        if (user.role === 'admin') return res.status(400).json({ error: 'Already an admin' });
+        user.role = 'admin';
+        user.adminRole = adminRole || 'full_admin';
+        await db.write();
+        sendTelegram(`⬆️ User promoted to admin: ${email}`);
+        return res.json({ message: 'User promoted to admin', email });
+    } else {
+        if (!password) return res.status(400).json({ error: 'Password required for new admin' });
+        const hashed = await bcrypt.hash(password, 10);
+        const newAdmin = {
+            id: uuidv4(),
+            username: email.split('@')[0],
+            email,
+            password: hashed,
+            accessCode: 'ADMIN-' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+            fingerprint: 'admin-created',
+            approved: true,
+            banned: false,
+            role: 'admin',
+            adminRole: adminRole || 'full_admin',
+            tools: [],
+            createdAt: new Date().toISOString()
+        };
+        db.data.users.push(newAdmin);
+        await db.write();
+        sendTelegram(`🆕 New admin created: ${email}`);
+        return res.json({ message: 'New admin created', email });
+    }
+});
+
+app.post('/api/admin/ban/:id', adminAuth, async (req, res) => {
+    await db.read();
+    const user = db.data.users.find(u => u.id === req.params.id);
+    if (user) { user.banned = true; await db.write(); }
+    res.json({ success: true });
+});
+
+app.post('/api/admin/unban/:id', adminAuth, async (req, res) => {
+    await db.read();
+    const user = db.data.users.find(u => u.id === req.params.id);
+    if (user) { user.banned = false; await db.write(); }
+    res.json({ success: true });
+});
+
+app.delete('/api/admin/delete/:id', adminAuth, async (req, res) => {
+    await db.read();
+    db.data.users = db.data.users.filter(u => u.id !== req.params.id);
+    await db.write();
+    res.json({ success: true });
+});
+
+app.post('/api/admin/generate-codes', adminAuth, async (req, res) => {
+    const count = req.body.count || 50;
+    const codes = [];
+    for (let i = 0; i < count; i++) {
+        const code = 'GHOST-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+        db.data.accessCodes.push({ code, isActive: true, usedBy: null, usedAt: null });
+        codes.push(code);
+    }
+    await db.write();
+    res.json({ codes });
+});
+
+app.get('/api/admin/codes', adminAuth, async (req, res) => {
+    await db.read();
+    const codes = db.data.accessCodes.map(c => {
+        const user = c.usedBy ? db.data.users.find(u => u.id === c.usedBy) : null;
+        return { ...c, usedBy: user ? { email: user.email } : null };
+    });
+    res.json(codes);
+});
+
+app.post('/api/admin/revoke-code', adminAuth, async (req, res) => {
+    await db.read();
+    db.data.accessCodes = db.data.accessCodes.filter(c => c.code !== req.body.codeId && c.id !== req.body.codeId);
+    await db.write();
+    res.json({ success: true });
+});
+
+app.post('/api/admin/tool', adminAuth, async (req, res) => {
+    const { name, description, priceUSD, category, downloadUrl } = req.body;
+    const tool = { id: uuidv4(), name, description, priceUSD, category, downloadUrl, createdAt: new Date().toISOString() };
+    db.data.tools.push(tool);
+    await db.write();
+    res.json(tool);
+});
+
+app.delete('/api/admin/tool/:id', adminAuth, async (req, res) => {
+    await db.read();
+    db.data.tools = db.data.tools.filter(t => t.id !== req.params.id);
+    await db.write();
+    res.json({ success: true });
+});
+
+app.get('/api/admin/payments', adminAuth, async (req, res) => {
+    await db.read();
+    const payments = db.data.payments.filter(p => p.status === 'pending').map(p => {
+        const user = db.data.users.find(u => u.id === p.userId);
+        const tool = db.data.tools.find(t => t.id === p.toolId);
+        return { ...p, userId: user ? { email: user.email } : null, toolId: tool || null };
+    });
+    res.json(payments);
+});
+
+app.post('/api/admin/confirm-payment', adminAuth, async (req, res) => {
+    await db.read();
+    const payment = db.data.payments.find(p => p.id === req.body.paymentId);
+    if (!payment) return res.status(404).json({ error: 'Not found' });
+    payment.status = 'confirmed';
+    if (payment.toolId) {
+        const user = db.data.users.find(u => u.id === payment.userId);
+        if (user) {
+            user.tools = user.tools || [];
+            user.tools.push({ toolId: payment.toolId, purchasedAt: new Date().toISOString() });
+        }
+    }
+    await db.write();
+    res.json({ success: true });
+});
+
+app.get('/api/admin/visitors', adminAuth, async (req, res) => {
+    await db.read();
+    res.json(db.data.visitors.slice(-100));
 });
 
 // -------------------- SOCKET.IO CHAT --------------------
@@ -330,6 +466,7 @@ io.on('connection', (socket) => {
             approved: true,
             banned: false,
             role: 'admin',
+            adminRole: 'full_admin',
             tools: [],
             createdAt: new Date().toISOString()
         });
