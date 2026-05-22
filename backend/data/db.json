@@ -1,0 +1,55 @@
+{
+  "users": [
+    {
+      "id": "203793b3-e93e-4b71-81b3-28f82a429ba6",
+      "username": "ghostshell.ops",
+      "email": "ghostshell.ops@gmail.com",
+      "password": "$2a$10$X2SHbrgscR09Wbclr/vr/OeNaKv5/OgaIcH38mZwKgJRto0x3dqve",
+      "accessCode": "ADMIN-MASTER",
+      "fingerprint": "admin-seed",
+      "approved": true,
+      "banned": false,
+      "role": "admin",
+      "tools": [],
+      "createdAt": "2026-05-22T08:43:03.889Z"
+    }
+  ],
+  "accessCodes": [
+    {
+      "code": "GHOST-ADMIN",
+      "isActive": true,
+      "usedBy": null,
+      "usedAt": null,
+      "requestedBy": "corinnakopfs.1995@gmail.com"
+    },
+    {
+      "code": "GHOST-ET8S5FJL",
+      "isActive": true,
+      "usedBy": null,
+      "usedAt": null,
+      "requestedBy": "cyberplughq@gmail.com"
+    }
+  ],
+  "tools": [
+    {
+      "id": "288ae1ae-b9fa-44da-afd5-6f6b5b9e8594",
+      "name": "NMAP Ghost Edition",
+      "description": "Advanced stealth scanner",
+      "priceUSD": 49,
+      "category": "Network",
+      "downloadUrl": "#",
+      "createdAt": "2026-05-22T08:43:03.804Z"
+    },
+    {
+      "id": "27246ba4-c6fc-4152-82c7-462af4fb5a2d",
+      "name": "Metasploit Pro Unlocked",
+      "description": "Full exploit framework",
+      "priceUSD": 199,
+      "category": "Exploit",
+      "downloadUrl": "#",
+      "createdAt": "2026-05-22T08:43:03.804Z"
+    }
+  ],
+  "payments": [],
+  "visitors": []
+}

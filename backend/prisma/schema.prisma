@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id
+  username    String   @unique
+  email       String   @unique
+  password    String
+  accessCode  String?
+  fingerprint String?
+  role        String   @default("user")
+  banned      Boolean  @default(false)
+  approved    Boolean  @default(true)
+  tools       UserTool[]
+  createdAt   DateTime @default(now())
+}
+
+model AccessCode {
+  code      String   @id
+  isActive  Boolean  @default(true)
+  usedBy    String?
+  usedAt    DateTime?
+}
+
+model Tool {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  priceUSD    Float
+  category    String?
+  downloadUrl String?
+  users       UserTool[]
+}
+
+model UserTool {
+  userId String
+  toolId String
+  user   User @relation(fields: [userId], references: [id])
+  tool   Tool @relation(fields: [toolId], references: [id])
+  purchasedAt DateTime @default(now())
+  @@id([userId, toolId])
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  userId          String
+  toolId          String?
+  amountUSD       Float
+  amountBTC       Float?
+  screenshotBase64 String?
+  status          String   @default("pending")
+  createdAt       DateTime @default(now())
+}

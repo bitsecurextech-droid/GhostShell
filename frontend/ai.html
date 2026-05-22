@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GHOST SHELL // AI ASSISTANT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <div id="mainDashboard" style="position:relative; z-index:2;">
+        <header class="header">
+            <div class="logo-area">
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
+                <span class="site-name">GHOST SHELL</span>
+            </div>
+            <nav class="nav-links" id="mainNav"></nav>
+        </header>
+
+        <div class="page active">
+            <h2 style="color:var(--red); font-family:var(--font-mono);">🧠 GHOST AI</h2>
+            <div class="ai-container">
+                <div class="ai-messages" id="aiMessages">
+                    <div class="ai-msg system">🤖 GHOST AI: I am online. Ask me any cybersecurity or technology question. ⚠ EDUCATIONAL USE ONLY.</div>
+                </div>
+                <div class="ai-input-area">
+                    <input type="text" id="aiInput" placeholder="Ask anything...">
+                    <button class="btn" id="sendAiBtn">QUERY</button>
+                </div>
+                <div class="ai-suggestions">
+                    <span>Suggestion:</span>
+                    <button class="ai-sugg-btn">How to detect phishing?</button>
+                    <button class="ai-sugg-btn">Explain AES-256 encryption</button>
+                    <button class="ai-sugg-btn">Best network security practices</button>
+                    <button class="ai-sugg-btn">What is a zero-day exploit?</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/matrix.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ai.js"></script>
+</body>
+</html>

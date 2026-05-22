@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GHOST SHELL // PRIVACY POLICY</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+    <style>
+        .legal-container { max-width:1000px; margin:0 auto; padding:40px 20px; position:relative; z-index:10; }
+        .legal-card { background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); border:1px solid rgba(255,0,64,0.6); border-radius:20px; padding:40px; box-shadow:0 0 30px rgba(255,0,0,0.2); }
+        h1 { font-size:2rem; color:var(--red); text-shadow:0 0 5px var(--red); margin-bottom:20px; border-left:4px solid var(--red); padding-left:20px; }
+        h2 { font-size:1.3rem; margin:25px 0 15px; color:#ffaa66; }
+        p, li { font-family:var(--font-mono); font-size:0.9rem; line-height:1.6; margin-bottom:12px; color:#ccffcc; }
+        ul { margin-left:30px; margin-bottom:20px; }
+        .back-btn { display:inline-block; margin-top:20px; border:1px solid var(--green); padding:8px 20px; border-radius:30px; color:var(--green); text-decoration:none; }
+        .back-btn:hover { background:var(--green); color:black; }
+        .footer-links { margin-top:40px; text-align:center; border-top:1px solid rgba(255,0,64,0.4); padding-top:20px; }
+        .footer-links a { color:var(--green); margin:0 15px; text-decoration:none; font-size:0.8rem; }
+        .footer-links a:hover { color:var(--red); }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+    <div class="legal-container">
+        <div class="legal-card">
+            <h1>🔐 PRIVACY & DATA POLICY</h1>
+            <p><strong>EFFECTIVE DATE: 2026-05-10</strong></p>
+            <p>This policy explains how GHOST SHELL collects, uses, and protects your information. By using our service, you consent to the practices described.</p>
+
+            <h2>1. INFORMATION WE COLLECT</h2>
+            <ul>
+                <li><strong>Account Data:</strong> Username, email, hashed password, access code, device fingerprint.</li>
+                <li><strong>Payment Data:</strong> Screenshot proof of BTC transactions, transaction details.</li>
+                <li><strong>Usage Data:</strong> IP address, geolocation, VPN/proxy status, device fingerprint, browser type, pages visited, time of access.</li>
+                <li><strong>Communications:</strong> Messages sent through our forms or support channels.</li>
+            </ul>
+
+            <h2>2. HOW WE USE YOUR INFORMATION</h2>
+            <ul>
+                <li>To provide, maintain, and improve our services.</li>
+                <li>To process payments and deliver digital tools.</li>
+                <li>To detect, prevent, and address security incidents, fraud, and illegal activities.</li>
+                <li>To send Telegram alerts to our administrators (no third parties).</li>
+                <li>To comply with legal obligations and law enforcement requests.</li>
+            </ul>
+
+            <h2>3. DATA SHARING & LEGAL COMPLIANCE</h2>
+            <p>We do <strong>not</strong> sell, rent, or share your personal data with third parties for marketing purposes. We may share data only:</p>
+            <ul>
+                <li>With service providers (e.g., MongoDB, Telegram) that help us operate.</li>
+                <li>When required by law, court order, or to protect our legal rights.</li>
+                <li>If we suspect illegal activity, we will fully cooperate with law enforcement agencies and provide all necessary data, including IP logs, device fingerprints, and payment records.</li>
+            </ul>
+
+            <h2>4. SECURITY MEASURES</h2>
+            <p>We implement industry‑standard security: bcrypt hashed passwords, JWT tokens, HTTPS (once deployed), and limited access to sensitive data. However, no method of transmission is 100% secure.</p>
+
+            <h2>5. YOUR RIGHTS</h2>
+            <p>Depending on your location, you may have rights under GDPR, CCPA, or other privacy laws, including the right to access, correct, or delete your personal data. To exercise these rights, contact us.</p>
+
+            <h2>6. CHILDREN’S PRIVACY</h2>
+            <p>Our services are not intended for persons under 18. We do not knowingly collect data from minors.</p>
+
+            <h2>7. CHANGES TO THIS POLICY</h2>
+            <p>We may update this policy. Continued use after changes constitutes acceptance.</p>
+
+            <div style="text-align:center; margin-top:30px;">
+                <a href="javascript:history.back()" class="back-btn">← RETURN</a>
+            </div>
+        </div>
+        <div class="footer-links">
+            <a href="disclaimer.html">DISCLAIMER</a> | 
+            <a href="privacy.html">PRIVACY</a> | 
+            <a href="agreement.html">EDUCATIONAL AGREEMENT</a> |
+            <a href="index.html">LOGIN</a>
+        </div>
+    </div>
+    <script src="js/matrix.js"></script>
+</body>
+</html>

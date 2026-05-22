@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GHOST SHELL // MARKETPLACE</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+    <style>
+        .tool-shop-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:15px; }
+        .shop-card { text-align:center; }
+        .shop-card .price { font-size:1.3rem; color:var(--green); margin:8px 0; }
+        .shop-card .btn { margin:4px; }
+        .my-tools-table { width:100%; margin-top:20px; }
+        .btc-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); justify-content:center; align-items:center; z-index:2000; }
+        .btc-modal-content { background:#0a0a15; border:2px solid var(--red); border-radius:20px; padding:25px; max-width:450px; width:90%; text-align:center; }
+        .btc-modal-content img { width:160px; margin:15px 0; border:2px solid var(--green); }
+        .btc-address { background:#000; padding:10px; border-radius:8px; word-break:break-all; margin:15px 0; font-family:var(--font-mono); }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <div id="mainDashboard" style="position:relative; z-index:2;">
+        <header class="header">
+            <div class="logo-area">
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
+                <span class="site-name">GHOST SHELL</span>
+            </div>
+            <nav class="nav-links" id="mainNav"></nav>
+        </header>
+
+        <div class="page active">
+            <h2 style="color:var(--red); font-family:var(--font-mono);">🛒 MARKETPLACE</h2>
+
+            <!-- Available tools -->
+            <div class="card">
+                <h3>🔧 AVAILABLE TOOLS</h3>
+                <div id="shopTools" class="tool-shop-grid">
+                    <p>Loading tools...</p>
+                </div>
+            </div>
+
+            <!-- My Tools -->
+            <div class="card" style="margin-top:20px;">
+                <h3>📦 MY PURCHASES</h3>
+                <div id="myTools">
+                    <p>Loading your tools...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BTC Payment Modal -->
+    <div id="btcModal" class="btc-modal">
+        <div class="btc-modal-content">
+            <h3 style="color:var(--red);">₿ BITCOIN PAYMENT</h3>
+            <p id="modalToolName"></p>
+            <p>Amount: <strong id="modalUSD"></strong> USD = <strong id="modalBTC"></strong> BTC</p>
+            <div class="btc-address" id="btcAddress">1E2ABcbtFuegsq5ymYD36VWFb6cZSEVe5Y</div>
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394570/btc_qr_code_srgptt.png" alt="BTC QR">
+            <label>Upload Payment Screenshot:</label>
+            <input type="file" id="paymentScreenshot" accept="image/*">
+            <button class="btn" id="confirmPaymentBtn">CONFIRM PAYMENT</button>
+            <button class="btn" onclick="closeBTCModal()">CANCEL</button>
+        </div>
+    </div>
+
+    <script src="js/matrix.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/marketplace.js"></script>
+</body>
+</html>

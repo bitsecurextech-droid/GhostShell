@@ -1,0 +1,105 @@
+(async () => {
+    const loggedIn = await initAuth('ai');
+    if (!loggedIn) return;
+
+    const messages = document.getElementById('aiMessages');
+    const input = document.getElementById('aiInput');
+    const sendBtn = document.getElementById('sendAiBtn');
+
+    // Disclaimer
+    const disc = document.createElement('div');
+    disc.className = 'ai-msg system';
+    disc.style.borderLeft = '3px solid #ffab00';
+    disc.innerHTML = '<strong>⚠ EDUCATIONAL USE ONLY:</strong> All advice is for authorised security research.';
+    messages.appendChild(disc);
+
+    function addMessage(sender, text, cls) {
+        const div = document.createElement('div');
+        div.className = `ai-msg ${cls}`;
+        div.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    // ── Large, keyword‑matched response database ──
+    const responses = {
+        phishing: [
+            "Phishing detection: check for mismatched URLs, urgent language, requests for credentials. Implement DMARC, DKIM, and SPF to prevent spoofing. Train users to hover over links before clicking.",
+            "Look for red flags: domain registered recently, free SSL, missing HTTPS on login pages. Use anti‑phishing toolbars and email filters. Always verify the sender's address.",
+            "Advanced phishing techniques use homograph attacks (e.g., 'g00gle.com'). Check the SSL certificate details. Report phishing attempts to the Anti‑Phishing Working Group (APWG)."
+        ],
+        encryption: [
+            "AES‑256 is the gold standard for symmetric encryption. It's quantum‑resistant for symmetric ciphers, but asymmetric algorithms like RSA are vulnerable to Shor's algorithm. Consider migrating to post‑quantum cryptography (CRYSTALS‑Kyber).",
+            "End‑to‑end encryption (E2EE) ensures only the communicating users can read the messages. Signal Protocol is a widely adopted E2EE implementation. For data at rest, use AES‑256‑GCM with a secure key management system.",
+            "Always use authenticated encryption (AEAD) like AES‑GCM or ChaCha20‑Poly1305. Never reuse IVs/nonces. Derive keys with PBKDF2, bcrypt, or Argon2."
+        ],
+        network: [
+            "Network segmentation isolates critical systems. Use VLANs, firewalls, and zero‑trust principles. Monitor traffic with IDS/IPS (Snort, Suricata). Regular penetration tests are essential.",
+            "Best network security practices: disable unused ports, use strong SSH keys, enable 2FA on all admin interfaces, keep firmware updated, and log all access attempts.",
+            "Implement a demilitarised zone (DMZ) for public‑facing services. Use VPN for remote access. Apply the principle of least privilege to all network devices."
+        ],
+        password: [
+            "Password strength: aim for 80+ bits of entropy. Use passphrases (e.g., 'correct horse battery staple') or a password manager. Enable multi‑factor authentication everywhere.",
+            "Check passwords against known breach databases (Have I Been Pwned). Avoid dictionary words, sequential numbers, and personal information. Regular rotation is debatable, but change on suspicion of compromise."
+        ],
+        malware: [
+            "Malware analysis: static analysis examines the binary without executing it (strings, PE headers). Dynamic analysis runs the sample in a sandbox (Cuckoo, Any.Run). Use YARA rules for pattern matching.",
+            "Ransomware prevention: offline backups, application whitelisting, user education. Disable macros in Office documents. Keep systems patched against known exploits."
+        ],
+        exploit: [
+            "Exploit development requires deep knowledge of assembly, memory layout, and OS internals. Start with buffer overflows, then progress to ROP chains. Use tools like Immunity Debugger, GDB, and pwntools.",
+            "Public exploit databases: Exploit‑DB, CVE Details, NVD. Always test exploits in a controlled lab environment. Understand the Metasploit framework for rapid exploit development."
+        ],
+        web: [
+            "Web application security: OWASP Top 10 is the bible. SQL injection, XSS, CSRF, SSRF, and insecure deserialisation are the most common flaws. Use prepared statements, output encoding, and CSRF tokens.",
+            "Secure headers: Content‑Security‑Policy, X‑Frame‑Options, X‑Content‑Type‑Options, Strict‑Transport‑Security. Test your site with Mozilla Observatory."
+        ],
+        general: [
+            "I'm GHOST AI, your cybersecurity advisor. Ask me about phishing, encryption, network security, password policies, malware analysis, exploit development, or web security.",
+            "Cybersecurity is a continuous process. Stay updated with threat intelligence feeds, subscribe to CVEs, and participate in CTFs (Capture The Flag) to sharpen your skills.",
+            "For educational resources, I recommend Cybrary, TryHackMe, Hack The Box, and the SANS Institute. Always practice on systems you own or have explicit permission to test."
+        ]
+    };
+
+    function getResponse(query) {
+        const q = query.toLowerCase();
+        if (q.includes('phish')) return randomFrom(responses.phishing);
+        if (q.includes('encrypt') || q.includes('aes') || q.includes('crypto')) return randomFrom(responses.encryption);
+        if (q.includes('network') || q.includes('firewall') || q.includes('vlan')) return randomFrom(responses.network);
+        if (q.includes('password') || q.includes('passphrase')) return randomFrom(responses.password);
+        if (q.includes('malware') || q.includes('virus') || q.includes('ransomware')) return randomFrom(responses.malware);
+        if (q.includes('exploit') || q.includes('cve') || q.includes('vulnerab')) return randomFrom(responses.exploit);
+        if (q.includes('web') || q.includes('xss') || q.includes('sql injection')) return randomFrom(responses.web);
+        return randomFrom(responses.general);
+    }
+
+    function randomFrom(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    sendBtn.addEventListener('click', () => {
+        const msg = input.value.trim();
+        if (!msg) return;
+        addMessage('YOU', msg, 'user');
+        input.value = '';
+
+        const typing = document.createElement('div');
+        typing.className = 'ai-msg system';
+        typing.textContent = '⏳ GHOST AI analyzing...';
+        messages.appendChild(typing);
+        messages.scrollTop = messages.scrollHeight;
+
+        setTimeout(() => {
+            typing.remove();
+            const answer = getResponse(msg);
+            addMessage('GHOST AI', answer, 'system');
+        }, 800 + Math.random() * 1200);
+    });
+
+    document.querySelectorAll('.ai-sugg-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            input.value = btn.textContent;
+            sendBtn.click();
+        });
+    });
+})();

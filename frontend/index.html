@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GHOST SHELL // CLASSIFIED ACCESS NODE</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+    <style>
+        .toggle-group { display:flex; justify-content:center; gap:25px; margin-bottom:30px; border-bottom:1px dashed rgba(0,255,170,0.3); padding-bottom:15px; }
+        .toggle-btn { background:none; border:none; color:#88ffcc; font-size:1.1rem; cursor:pointer; padding:8px 20px; transition:0.2s; font-family:var(--font-mono); letter-spacing:1px; }
+        .toggle-btn.active { color:var(--red); text-shadow:0 0 8px var(--red); position:relative; }
+        .toggle-btn.active::after { content:''; position:absolute; bottom:-5px; left:0; width:100%; height:2px; background:var(--red); box-shadow:0 0 8px var(--red); }
+        .hidden { display: none !important; }
+        .scan-feedback { margin-top:20px; text-align:center; font-size:0.75rem; font-family:var(--font-mono); background:rgba(0,0,0,0.6); padding:12px; border-radius:5px; border-left:3px solid var(--red); }
+        .danger-message { color:#ff3366; text-shadow:0 0 3px red; }
+        .ip-tracker { margin-top:20px; background:rgba(0,0,0,0.55); border-top:1px solid var(--red); padding:12px 8px; font-size:0.7rem; text-align:center; border-radius:6px; font-family:var(--font-mono); }
+        .audio-control { position:fixed; bottom:20px; right:20px; background:rgba(0,0,0,0.6); backdrop-filter:blur(5px); padding:8px 12px; border-radius:30px; border:1px solid var(--red); cursor:pointer; font-size:0.75rem; z-index:50; }
+        .warning-flash { position:fixed; inset:0; background:rgba(255,0,0,0.15); pointer-events:none; animation:redFlash 0.3s ease-out; opacity:0; z-index:100; }
+        @keyframes redFlash { 0%{opacity:0;} 15%{opacity:0.7;} 100%{opacity:0;} }
+        .footer-links { text-align:center; margin-top:30px; font-size:0.7rem; border-top:1px solid rgba(255,0,64,0.4); padding-top:15px; }
+        .footer-links a { color:var(--green); margin:0 10px; text-decoration:none; }
+        .footer-links a:hover { color:var(--red); }
+        #bootScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--font-mono); transition: opacity 0.8s ease; }
+        #bootScreen.hidden { opacity: 0; pointer-events: none; }
+        .boot-title { font-size: 2.2rem; color: var(--red); letter-spacing: 6px; text-shadow: var(--red-glow); animation: flickerText 1.5s infinite; }
+        @keyframes flickerText { 0%,100%{ opacity:1; } 8%{ opacity:0.4; } 10%{ opacity:1; } 30%{ opacity:0.7; } 33%{ opacity:1; } }
+        .boot-log { color: #4a4; font-size: 0.7rem; max-width: 500px; text-align: left; line-height: 1.6; height: 140px; overflow: hidden; padding: 0 20px; }
+        .boot-progress { width: 320px; height: 3px; background: #1a1a1a; border-radius: 2px; margin-top: 20px; overflow: hidden; }
+        .boot-progress-bar { height: 100%; background: var(--red); width: 0%; transition: width 0.3s; box-shadow: var(--red-glow); }
+        .boot-warning { color: var(--red); font-size: 0.75rem; margin-top: 15px; animation: blink 0.7s infinite; display: none; }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <!-- BOOT SEQUENCE -->
+    <div id="bootScreen">
+        <div class="boot-title">⚡ GHOST SHELL</div>
+        <div class="boot-subtitle" style="color:#888; letter-spacing:3px; margin-bottom:30px;">TACTICAL CYBER SYSTEM v2.0</div>
+        <div class="boot-log" id="bootLog"></div>
+        <div class="boot-progress"><div class="boot-progress-bar" id="bootBar"></div></div>
+        <div class="boot-percent" id="bootPercent" style="color:var(--red); margin-top:6px; letter-spacing:2px;">0%</div>
+        <div class="boot-warning" id="bootWarning">⚠ SECURITY CHECK ACTIVE</div>
+    </div>
+
+    <!-- MAIN AUTH CONTAINER -->
+    <div id="authContainer" style="display:none; position:relative; z-index:10; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+        <div class="card auth-card">
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:60px; margin-bottom:10px; display:block; margin-left:auto; margin-right:auto;">
+            <h2>GHOST SHELL</h2>
+
+            <div class="toggle-group">
+                <button id="loginToggleBtn" class="toggle-btn active">▸ LOGIN ▸</button>
+                <button id="signupToggleBtn" class="toggle-btn">▸ SIGNUP ▸</button>
+                <button id="requestToggleBtn" class="toggle-btn">▸ REQUEST CODE ▸</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button class="btn" id="loginBtn" style="width:100%; margin-top:15px;">⚡ ACCESS NODE ⚡</button>
+            </div>
+
+            <!-- SIGNUP FORM -->
+            <div id="signupForm" class="hidden">
+                <input type="text" id="signupUser" placeholder="Username" required>
+                <input type="email" id="signupEmail" placeholder="Email" required>
+                <input type="password" id="signupPass" placeholder="Password" required>
+                <input type="text" id="signupCode" placeholder="Access Code (GHOST-XXXXXX)" required>
+                <button class="btn" id="signupBtn" style="width:100%; margin-top:15px;">⚡ INITIALIZE ENTRY ⚡</button>
+            </div>
+
+            <!-- REQUEST ACCESS CODE FORM -->
+            <div id="requestForm" class="hidden">
+                <p style="margin-bottom:15px;">Enter your email to request a free access code.</p>
+                <input type="email" id="requestEmail" placeholder="Your Email" required>
+                <button class="btn" id="requestCodeBtn" style="width:100%;">REQUEST CODE</button>
+                <div id="requestMsg" style="margin-top:10px; color:var(--green);"></div>
+            </div>
+
+            <div id="systemFeedback" class="scan-feedback">SYSTEM IDLE // AWAITING OPERATOR</div>
+            <div id="ipTracker" class="ip-tracker">🌍 TRACING OPERATOR NETWORK...</div>
+        </div>
+    </div>
+
+    <div class="footer-links">
+        <a href="disclaimer.html">DISCLAIMER</a> | 
+        <a href="privacy.html">PRIVACY POLICY</a> | 
+        <a href="agreement.html">EDUCATIONAL AGREEMENT</a>
+    </div>
+
+    <script src="js/matrix.js"></script>
+    <script>
+        const API = '/api';
+
+        // Boot sequence
+        (function boot() {
+            const boot = document.getElementById('bootScreen');
+            const log = document.getElementById('bootLog');
+            const bar = document.getElementById('bootBar');
+            const pct = document.getElementById('bootPercent');
+            const warn = document.getElementById('bootWarning');
+            const auth = document.getElementById('authContainer');
+
+            const msgs = ['Initializing Tactical System...','Loading kernel modules... [OK]','Mounting encrypted volumes... [OK]','Connecting to Satellite Grid...','Handshake established','Decrypting Intelligence Files...','Verifying secure enclave... [OK]','Loading AI inference engine...','Establishing dark net relay... [OK]','Arming cyber defense matrix...','All systems nominal'];
+            let step = 0, prog = 0;
+            const iv = setInterval(() => {
+                if (step < msgs.length) {
+                    log.innerHTML += '> ' + msgs[step] + '<br>';
+                    step++; log.scrollTop = log.scrollHeight;
+                    prog = Math.min(100, Math.floor((step/msgs.length)*100));
+                    bar.style.width = prog + '%'; pct.textContent = prog + '%';
+                    warn.style.display = prog > 60 && prog < 80 ? 'block' : 'none';
+                } else {
+                    clearInterval(iv); bar.style.width = '100%'; pct.textContent = '100%';
+                    setTimeout(() => { boot.classList.add('hidden'); auth.style.display = 'flex'; init(); }, 600);
+                }
+            }, 300);
+        })();
+
+        function init() {
+            detectIP();
+            switchMode('login');
+            document.getElementById('loginToggleBtn').addEventListener('click', () => switchMode('login'));
+            document.getElementById('signupToggleBtn').addEventListener('click', () => switchMode('signup'));
+            document.getElementById('requestToggleBtn').addEventListener('click', () => switchMode('request'));
+
+            document.getElementById('loginBtn').addEventListener('click', async () => {
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                if (!email || !password) return updateFeedback('❌ All fields required', true);
+                try {
+                    const res = await fetch(`${API}/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email, password }) });
+                    const data = await res.json();
+                    if (data.token) {
+                        localStorage.setItem('ghost_token', data.token);
+                        updateFeedback('✅ ACCESS GRANTED. REDIRECTING...');
+                        setTimeout(() => window.location.href = 'dashboard.html', 1200);
+                    } else updateFeedback('❌ ' + (data.error||'Invalid credentials'), true);
+                } catch(e) { updateFeedback('❌ Connection failed', true); }
+            });
+
+            document.getElementById('signupBtn').addEventListener('click', async () => {
+                const username = document.getElementById('signupUser').value.trim();
+                const email = document.getElementById('signupEmail').value.trim();
+                const password = document.getElementById('signupPass').value;
+                const accessCode = document.getElementById('signupCode').value.trim();
+                if (!username || !email || !password || !accessCode) return updateFeedback('❌ All fields required', true);
+                try {
+                    updateFeedback('⚡ Generating device fingerprint...');
+                    const fingerprint = await getFingerprint();
+                    const res = await fetch(`${API}/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ username, email, password, accessCode, fingerprint }) });
+                    const data = await res.json();
+                    if (data.token) {
+                        localStorage.setItem('ghost_token', data.token);
+                        updateFeedback('✅ SIGNUP SUCCESSFUL. REDIRECTING...');
+                        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                    } else updateFeedback('❌ ' + (data.error||'Signup failed'), true);
+                } catch(e) { updateFeedback('❌ Connection failed', true); }
+            });
+
+            document.getElementById('requestCodeBtn').addEventListener('click', async () => {
+                const email = document.getElementById('requestEmail').value.trim();
+                if (!email) { document.getElementById('requestMsg').textContent = '❌ Email required.'; return; }
+                try {
+                    const res = await fetch(`${API}/request-access-code`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email }) });
+                    const data = await res.json();
+                    document.getElementById('requestMsg').textContent = data.success ? '✅ Access code sent to your email.' : '❌ Request failed.';
+                } catch(e) { document.getElementById('requestMsg').textContent = '❌ Connection error.'; }
+            });
+        }
+
+        function switchMode(mode) {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('requestForm').classList.add('hidden');
+            if (mode === 'login') document.getElementById('loginForm').classList.remove('hidden');
+            if (mode === 'signup') document.getElementById('signupForm').classList.remove('hidden');
+            if (mode === 'request') document.getElementById('requestForm').classList.remove('hidden');
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`${mode}ToggleBtn`).classList.add('active');
+        }
+
+        function updateFeedback(msg, isError) {
+            const fb = document.getElementById('systemFeedback');
+            fb.innerHTML = msg;
+            fb.className = 'scan-feedback' + (isError ? ' danger-message' : '');
+        }
+
+        async function detectIP() {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                document.getElementById('ipTracker').innerHTML = `🌍 IP: ${data.ip} | ${data.city}, ${data.country_name}`;
+            } catch(e) { document.getElementById('ipTracker').innerHTML = '🌍 Location detection failed.'; }
+        }
+
+        function getFingerprint() {
+            const data = [navigator.userAgent, navigator.language, screen.width, screen.height, new Date().getTimezoneOffset(), navigator.platform, navigator.hardwareConcurrency || 1].join('###');
+            let hash = 0;
+            for (let i = 0; i < data.length; i++) { const char = data.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash |= 0; }
+            return 'fp_' + Math.abs(hash).toString(16);
+        }
+    </script>
+</body>
+</html>

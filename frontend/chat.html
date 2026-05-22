@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GHOST SHELL // SECURE COMMS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <div id="mainDashboard" style="position:relative; z-index:2;">
+        <header class="header">
+            <div class="logo-area">
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
+                <span class="site-name">GHOST SHELL</span>
+            </div>
+            <nav class="nav-links" id="mainNav"></nav>
+        </header>
+
+        <div class="page active">
+            <h2 style="color:var(--red); font-family:var(--font-mono);">💬 SECURE COMMS</h2>
+            <div class="chat-container">
+                <div class="chat-sidebar">
+                    <div class="chat-users-title">ONLINE OPERATORS</div>
+                    <div id="onlineUsers">
+                        <div class="online-user"><span class="dot green-dot"></span> Cipher</div>
+                        <div class="online-user"><span class="dot green-dot"></span> ZeroDay</div>
+                        <div class="online-user"><span class="dot green-dot"></span> ShadowOp</div>
+                    </div>
+                </div>
+                <div class="chat-main">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" placeholder="Type secure message...">
+                        <button class="btn" id="sendChatBtn">SEND</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/matrix.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>

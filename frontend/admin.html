@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GHOST SHELL // ADMIN COMMAND</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+    <style>
+        .admin-section { display:none; }
+        .admin-section.active { display:block; }
+        .admin-nav { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+        .admin-nav-btn { background:rgba(20,0,0,0.6); border:1px solid #330000; color:#999; cursor:pointer; font-family:var(--font-mono); font-size:0.75rem; padding:8px 14px; border-radius:4px; transition:all 0.3s; }
+        .admin-nav-btn:hover, .admin-nav-btn.active { border-color:var(--red); color:#fff; box-shadow:var(--red-glow); background:rgba(255,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; z-index:2000;">
+        <div class="card auth-card" style="text-align:center;">
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:55px; margin-bottom:10px;">
+            <h2>ADMIN COMMAND</h2>
+            <input type="email" id="adminEmail" placeholder="Admin Email" required>
+            <input type="password" id="adminPassword" placeholder="Admin Password" required>
+            <button class="btn" id="adminLoginBtn" style="width:100%;">AUTHENTICATE</button>
+            <div id="adminLoginError" style="color:var(--red); margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" style="display:none; position:relative; z-index:10;">
+        <header class="header">
+            <div class="logo-area">
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
+                <span class="site-name">GHOST SHELL</span>
+            </div>
+            <nav class="nav-links" id="mainNav">
+                <button class="nav-link active" onclick="window.location.href='admin.html'">⚙️ Admin</button>
+                <button class="nav-link" onclick="window.location.href='dashboard.html'">⌖ Ops Center</button>
+            </nav>
+        </header>
+
+        <div class="page active">
+            <h2 style="color:var(--red); font-family:var(--font-mono);">⚙️ ADMIN COMMAND CENTER</h2>
+
+            <div class="admin-nav">
+                <button class="admin-nav-btn active" data-section="users">👥 Users</button>
+                <button class="admin-nav-btn" data-section="codes">🔑 Access Codes</button>
+                <button class="admin-nav-btn" data-section="payments">💸 Payments</button>
+                <button class="admin-nav-btn" data-section="tools">🔧 Manage Tools</button>
+                <button class="admin-nav-btn" data-section="visitors">🌍 Visitors</button>
+            </div>
+
+            <div id="section-users" class="admin-section active">
+                <div class="card">
+                    <h3>👥 User Management</h3>
+                    <div id="userTableContainer" style="max-height:500px;overflow-y:auto;"></div>
+                </div>
+            </div>
+
+            <div id="section-codes" class="admin-section">
+                <div class="card">
+                    <h3>🔑 Access Codes</h3>
+                    <button class="btn" id="generateCodesBtn">Generate 50 Codes</button>
+                    <div id="codesTableContainer" style="margin-top:15px; max-height:400px;overflow-y:auto;"></div>
+                </div>
+            </div>
+
+            <div id="section-payments" class="admin-section">
+                <div class="card">
+                    <h3>💸 Pending Payments</h3>
+                    <div id="paymentsContainer"></div>
+                </div>
+            </div>
+
+            <div id="section-tools" class="admin-section">
+                <div class="card">
+                    <h3>🔧 Manage Marketplace Tools</h3>
+                    <button class="btn" id="addToolBtn">+ Add New Tool</button>
+                    <div id="adminToolsContainer" style="margin-top:15px;"></div>
+                </div>
+                <div id="toolFormModal" style="display:none; margin-top:15px;" class="card">
+                    <h3 id="toolFormTitle">Add New Tool</h3>
+                    <input type="text" id="toolName" placeholder="Tool Name">
+                    <textarea id="toolDesc" placeholder="Description" rows="3"></textarea>
+                    <input type="number" id="toolPrice" placeholder="Price (USD)">
+                    <input type="text" id="toolCategory" placeholder="Category">
+                    <input type="text" id="toolDownloadUrl" placeholder="Download URL">
+                    <button class="btn" id="saveToolBtn">Save Tool</button>
+                    <button class="btn" onclick="document.getElementById('toolFormModal').style.display='none'">Cancel</button>
+                </div>
+            </div>
+
+            <div id="section-visitors" class="admin-section">
+                <div class="card">
+                    <h3>🌍 Visitor Logs</h3>
+                    <div id="visitorsTableContainer" style="max-height:400px;overflow-y:auto;"></div>
+                </div>
+            </div>
+
+            <button class="btn" id="logoutAdminBtn" style="margin-top:20px;">Logout Admin</button>
+        </div>
+    </div>
+
+    <script src="js/matrix.js"></script>
+    <script>
+        const API = '/api';
+        let adminToken = '';
+
+        // Admin Login
+        document.getElementById('adminLoginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
+            const errorEl = document.getElementById('adminLoginError');
+            try {
+                const res = await fetch(`${API}/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.token) {
+                    adminToken = data.token;
+                    localStorage.setItem('adminToken', adminToken);
+                    showAdminDashboard();
+                } else {
+                    errorEl.textContent = data.error || 'Invalid admin credentials';
+                }
+            } catch (e) {
+                errorEl.textContent = 'Connection failed – is the server running?';
+            }
+        });
+
+        function showAdminDashboard() {
+            document.getElementById('adminLoginModal').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            loadSection('users');
+
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const section = btn.dataset.section;
+                    loadSection(section);
+                    document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+
+            document.getElementById('generateCodesBtn').addEventListener('click', generateCodes);
+            document.getElementById('addToolBtn').addEventListener('click', () => {
+                document.getElementById('toolFormModal').style.display = 'block';
+                document.getElementById('toolFormTitle').textContent = 'Add New Tool';
+                document.getElementById('toolName').value = '';
+                document.getElementById('toolDesc').value = '';
+                document.getElementById('toolPrice').value = '';
+                document.getElementById('toolCategory').value = '';
+                document.getElementById('toolDownloadUrl').value = '';
+                document.getElementById('saveToolBtn').onclick = saveNewTool;
+            });
+
+            document.getElementById('logoutAdminBtn').addEventListener('click', () => {
+                localStorage.removeItem('adminToken');
+                window.location.href = 'admin.html';
+            });
+        }
+
+        function loadSection(section) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`section-${section}`).classList.add('active');
+            if (section === 'users') loadUsers();
+            else if (section === 'codes') loadCodes();
+            else if (section === 'payments') loadPayments();
+            else if (section === 'tools') loadAdminTools();
+            else if (section === 'visitors') loadVisitors();
+        }
+
+        async function loadUsers() {
+            const res = await fetch(`${API}/admin/users`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+            const users = await res.json();
+            let html = `<table class="admin-table"><tr><th>Email</th><th>Username</th><th>Access Code</th><th>Status</th><th>Actions</th></tr>`;
+            users.forEach(u => {
+                const status = u.banned ? '🚫 BANNED' : '✅ ACTIVE';
+                html += `<tr>
+                    <td>${u.email}</td><td>${u.username}</td><td>${u.accessCode || '—'}</td>
+                    <td>${status}</td>
+                    <td>
+                        ${u.banned ? `<button class="btn" onclick="unbanUser('${u.id}')">UNBAN</button>` : `<button class="btn" onclick="banUser('${u.id}')">BAN</button>`}
+                        <button class="btn" onclick="deleteUser('${u.id}')" style="border-color:var(--red);color:var(--red);">DELETE</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</table>';
+            document.getElementById('userTableContainer').innerHTML = html;
+        }
+
+        async function banUser(id) { await fetch(`${API}/admin/ban/${id}`, { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` } }); loadUsers(); }
+        async function unbanUser(id) { await fetch(`${API}/admin/unban/${id}`, { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` } }); loadUsers(); }
+        async function deleteUser(id) { if (confirm('Delete permanently?')) { await fetch(`${API}/admin/delete/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } }); loadUsers(); } }
+
+        async function loadCodes() {
+            const res = await fetch(`${API}/admin/codes`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+            const codes = await res.json();
+            let html = `<table class="admin-table"><tr><th>Code</th><th>Status</th><th>Used By</th><th>Action</th></tr>`;
+            codes.forEach(c => {
+                html += `<tr><td>${c.code}</td><td>${c.usedBy ? 'USED' : 'ACTIVE'}</td><td>${c.usedBy ? c.usedBy.email : '—'}</td>
+                <td><button class="btn" onclick="revokeCode('${c.id || c._id}')">REVOKE</button></td></tr>`;
+            });
+            html += '</table>';
+            document.getElementById('codesTableContainer').innerHTML = html;
+        }
+
+        async function generateCodes() {
+            await fetch(`${API}/admin/generate-codes`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` }, body: JSON.stringify({ count: 50 }) });
+            alert('50 codes generated.');
+            loadCodes();
+        }
+
+        async function revokeCode(id) {
+            await fetch(`${API}/admin/revoke-code`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` }, body: JSON.stringify({ codeId: id }) });
+            loadCodes();
+        }
+
+        async function loadPayments() {
+            const res = await fetch(`${API}/admin/payments`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+            const payments = await res.json();
+            let html = payments.length ? '<table class="admin-table"><tr><th>User</th><th>Tool</th><th>Amount</th><th>Proof</th><th>Action</th></tr>' : '<p>No pending payments.</p>';
+            if (payments.length) {
+                payments.forEach(p => {
+                    html += `<tr><td>${p.userId?.email || '—'}</td><td>${p.toolId?.name || 'Access Code'}</td><td>$${p.amountUSD}</td>
+                    <td><img src="data:image/png;base64,${p.screenshotBase64}" style="width:40px;cursor:pointer;" onclick="window.open(this.src)"></td>
+                    <td><button class="btn" onclick="confirmPayment('${p.id}')">CONFIRM</button></td></tr>`;
+                });
+                html += '</table>';
+            }
+            document.getElementById('paymentsContainer').innerHTML = html;
+        }
+
+        async function confirmPayment(id) {
+            await fetch(`${API}/admin/confirm-payment`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` }, body: JSON.stringify({ paymentId: id }) });
+            loadPayments();
+        }
+
+        async function loadAdminTools() {
+            const res = await fetch(`${API}/tools`);
+            const tools = await res.json();
+            let html = `<table class="admin-table"><tr><th>Name</th><th>Price</th><th>Category</th><th>Actions</th></tr>`;
+            tools.forEach(t => {
+                html += `<tr><td>${t.name}</td><td>$${t.priceUSD}</td><td>${t.category}</td>
+                <td><button class="btn" onclick="editTool('${t.id}')">EDIT</button>
+                <button class="btn" onclick="deleteTool('${t.id}')" style="border-color:var(--red);color:var(--red);">DELETE</button></td></tr>`;
+            });
+            html += '</table>';
+            document.getElementById('adminToolsContainer').innerHTML = html;
+        }
+
+        async function saveNewTool() {
+            const name = document.getElementById('toolName').value;
+            const priceUSD = parseFloat(document.getElementById('toolPrice').value);
+            if (!name || !priceUSD) return alert('Name and price required.');
+            await fetch(`${API}/admin/tool`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+                body: JSON.stringify({
+                    name,
+                    description: document.getElementById('toolDesc').value,
+                    priceUSD,
+                    category: document.getElementById('toolCategory').value,
+                    downloadUrl: document.getElementById('toolDownloadUrl').value
+                })
+            });
+            document.getElementById('toolFormModal').style.display = 'none';
+            loadAdminTools();
+        }
+
+        async function editTool(id) { alert('Edit functionality coming soon.'); }
+        async function deleteTool(id) {
+            if (!confirm('Delete this tool?')) return;
+            await fetch(`${API}/admin/tool/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
+            loadAdminTools();
+        }
+
+        async function loadVisitors() {
+            const res = await fetch(`${API}/admin/visitors`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+            const visitors = await res.json();
+            let html = `<table class="admin-table"><tr><th>IP</th><th>Location</th><th>VPN</th><th>Page</th><th>Time</th></tr>`;
+            visitors.forEach(v => {
+                html += `<tr><td>${v.ip}</td><td>${v.location}</td><td>${v.vpn ? '⚠️ YES' : 'NO'}</td><td>${v.page}</td><td>${new Date(v.timestamp).toLocaleString()}</td></tr>`;
+            });
+            html += '</table>';
+            document.getElementById('visitorsTableContainer').innerHTML = html;
+        }
+
+        window.banUser = banUser;
+        window.unbanUser = unbanUser;
+        window.deleteUser = deleteUser;
+        window.revokeCode = revokeCode;
+        window.confirmPayment = confirmPayment;
+        window.editTool = editTool;
+        window.deleteTool = deleteTool;
+    </script>
+</body>
+</html>
