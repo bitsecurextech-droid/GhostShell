@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL // ADMIN COMMAND</title>
+    <title>GHOST SHELL // Admin Command Center</title>
+    <meta name="description" content="GHOST SHELL Admin Panel – manage users, access codes, marketplace tools, and monitor platform activity.">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
@@ -12,6 +14,8 @@
         .admin-nav { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
         .admin-nav-btn { background:rgba(20,0,0,0.6); border:1px solid #330000; color:#999; cursor:pointer; font-family:var(--font-mono); font-size:0.75rem; padding:8px 14px; border-radius:4px; transition:all 0.3s; }
         .admin-nav-btn:hover, .admin-nav-btn.active { border-color:var(--red); color:#fff; box-shadow:var(--red-glow); background:rgba(255,0,0,0.1); }
+        .add-admin-form { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:15px; }
+        .add-admin-form input, .add-admin-form select { width:auto; flex:1; min-width:150px; }
     </style>
 </head>
 <body>
@@ -20,10 +24,10 @@
     <!-- Admin Login Modal -->
     <div id="adminLoginModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; z-index:2000;">
         <div class="card auth-card" style="text-align:center;">
-            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:55px; margin-bottom:10px;">
-            <h2>ADMIN COMMAND</h2>
-            <input type="email" id="adminEmail" placeholder="Admin Email" required>
-            <input type="password" id="adminPassword" placeholder="Admin Password" required>
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:55px; margin-bottom:10px;" alt="GHOST SHELL logo">
+            <h1>ADMIN COMMAND</h1>
+            <input type="email" id="adminEmail" placeholder="Admin Email" required aria-label="Admin email">
+            <input type="password" id="adminPassword" placeholder="Admin Password" required aria-label="Admin password">
             <button class="btn" id="adminLoginBtn" style="width:100%;">AUTHENTICATE</button>
             <div id="adminLoginError" style="color:var(--red); margin-top:10px;"></div>
         </div>
@@ -33,75 +37,91 @@
     <div id="adminDashboard" style="display:none; position:relative; z-index:10;">
         <header class="header">
             <div class="logo-area">
-                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="GHOST SHELL logo">
                 <span class="site-name">GHOST SHELL</span>
             </div>
-            <nav class="nav-links" id="mainNav">
+            <nav class="nav-links" id="mainNav" aria-label="Admin navigation">
                 <button class="nav-link active" onclick="window.location.href='admin.html'">⚙️ Admin</button>
                 <button class="nav-link" onclick="window.location.href='dashboard.html'">⌖ Ops Center</button>
             </nav>
+            <button class="btn" id="logoutAdminBtn" style="margin-left:auto; border-color:#ffab00; color:#ffab00;" aria-label="Logout">EXIT</button>
         </header>
 
-        <div class="page active">
-            <h2 style="color:var(--red); font-family:var(--font-mono);">⚙️ ADMIN COMMAND CENTER</h2>
+        <main class="page active">
+            <h1 style="color:var(--red); font-family:var(--font-mono);">⚙️ ADMIN COMMAND CENTER</h1>
 
-            <div class="admin-nav">
+            <nav class="admin-nav" aria-label="Admin sections">
                 <button class="admin-nav-btn active" data-section="users">👥 Users</button>
                 <button class="admin-nav-btn" data-section="codes">🔑 Access Codes</button>
                 <button class="admin-nav-btn" data-section="payments">💸 Payments</button>
                 <button class="admin-nav-btn" data-section="tools">🔧 Manage Tools</button>
                 <button class="admin-nav-btn" data-section="visitors">🌍 Visitors</button>
-            </div>
+            </nav>
 
-            <div id="section-users" class="admin-section active">
+            <!-- USERS SECTION -->
+            <section id="section-users" class="admin-section active">
                 <div class="card">
-                    <h3>👥 User Management</h3>
-                    <div id="userTableContainer" style="max-height:500px;overflow-y:auto;"></div>
+                    <h2>➕ ADD / PROMOTE ADMIN</h2>
+                    <div class="add-admin-form">
+                        <input type="email" id="newAdminEmail" placeholder="User Email" aria-label="User email to promote">
+                        <input type="password" id="newAdminPassword" placeholder="Password (leave blank if existing user)" aria-label="New admin password">
+                        <select id="newAdminRole" aria-label="Admin role">
+                            <option value="full_admin">Full Admin</option>
+                            <option value="tools_admin">Tools Admin</option>
+                            <option value="user_admin">User Admin</option>
+                        </select>
+                        <button class="btn" onclick="addOrUpdateAdmin()">Save Admin</button>
+                    </div>
                 </div>
-            </div>
-
-            <div id="section-codes" class="admin-section">
                 <div class="card">
-                    <h3>🔑 Access Codes</h3>
+                    <h2>👥 User Management</h2>
+                    <div id="userTableContainer" style="max-height:400px;overflow-y:auto;"></div>
+                </div>
+            </section>
+
+            <!-- OTHER SECTIONS (keep exactly as before – they are already functional) -->
+            <section id="section-codes" class="admin-section">
+                <div class="card">
+                    <h2>🔑 Access Codes</h2>
                     <button class="btn" id="generateCodesBtn">Generate 50 Codes</button>
                     <div id="codesTableContainer" style="margin-top:15px; max-height:400px;overflow-y:auto;"></div>
                 </div>
-            </div>
+            </section>
 
-            <div id="section-payments" class="admin-section">
+            <section id="section-payments" class="admin-section">
                 <div class="card">
-                    <h3>💸 Pending Payments</h3>
+                    <h2>💸 Pending Payments</h2>
                     <div id="paymentsContainer"></div>
                 </div>
-            </div>
+            </section>
 
-            <div id="section-tools" class="admin-section">
+            <section id="section-tools" class="admin-section">
                 <div class="card">
-                    <h3>🔧 Manage Marketplace Tools</h3>
+                    <h2>🔧 Manage Marketplace Tools</h2>
                     <button class="btn" id="addToolBtn">+ Add New Tool</button>
                     <div id="adminToolsContainer" style="margin-top:15px;"></div>
                 </div>
                 <div id="toolFormModal" style="display:none; margin-top:15px;" class="card">
                     <h3 id="toolFormTitle">Add New Tool</h3>
-                    <input type="text" id="toolName" placeholder="Tool Name">
-                    <textarea id="toolDesc" placeholder="Description" rows="3"></textarea>
-                    <input type="number" id="toolPrice" placeholder="Price (USD)">
-                    <input type="text" id="toolCategory" placeholder="Category">
-                    <input type="text" id="toolDownloadUrl" placeholder="Download URL">
+                    <input type="text" id="toolName" placeholder="Tool Name" aria-label="Tool name">
+                    <textarea id="toolDesc" placeholder="Description" rows="3" aria-label="Tool description"></textarea>
+                    <input type="number" id="toolPrice" placeholder="Price (USD)" aria-label="Price in USD">
+                    <input type="text" id="toolCategory" placeholder="Category" aria-label="Category">
+                    <input type="text" id="toolDownloadUrl" placeholder="Download URL" aria-label="Download URL">
                     <button class="btn" id="saveToolBtn">Save Tool</button>
                     <button class="btn" onclick="document.getElementById('toolFormModal').style.display='none'">Cancel</button>
                 </div>
-            </div>
+            </section>
 
-            <div id="section-visitors" class="admin-section">
+            <section id="section-visitors" class="admin-section">
                 <div class="card">
-                    <h3>🌍 Visitor Logs</h3>
+                    <h2>🌍 Visitor Logs</h2>
                     <div id="visitorsTableContainer" style="max-height:400px;overflow-y:auto;"></div>
                 </div>
-            </div>
+            </section>
 
-            <button class="btn" id="logoutAdminBtn" style="margin-top:20px;">Logout Admin</button>
-        </div>
+            <button class="btn" id="logoutAdminBtnBottom" style="margin-top:20px;">Logout Admin</button>
+        </main>
     </div>
 
     <script src="js/matrix.js"></script>
@@ -109,7 +129,6 @@
         const API = '/api';
         let adminToken = '';
 
-        // Admin Login
         document.getElementById('adminLoginBtn').addEventListener('click', async () => {
             const email = document.getElementById('adminEmail').value.trim();
             const password = document.getElementById('adminPassword').value;
@@ -159,10 +178,13 @@
                 document.getElementById('saveToolBtn').onclick = saveNewTool;
             });
 
-            document.getElementById('logoutAdminBtn').addEventListener('click', () => {
-                localStorage.removeItem('adminToken');
-                window.location.href = 'admin.html';
-            });
+            document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
+            document.getElementById('logoutAdminBtnBottom').addEventListener('click', logoutAdmin);
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'admin.html';
         }
 
         function loadSection(section) {
@@ -175,14 +197,29 @@
             else if (section === 'visitors') loadVisitors();
         }
 
+        async function addOrUpdateAdmin() {
+            const email = document.getElementById('newAdminEmail').value.trim();
+            const password = document.getElementById('newAdminPassword').value;
+            const adminRole = document.getElementById('newAdminRole').value;
+            if (!email) return alert('Email required');
+            const res = await fetch(`${API}/admin/add-admin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+                body: JSON.stringify({ email, password: password || undefined, adminRole })
+            });
+            const data = await res.json();
+            alert(data.message || data.error);
+            loadUsers();
+        }
+
         async function loadUsers() {
             const res = await fetch(`${API}/admin/users`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const users = await res.json();
-            let html = `<table class="admin-table"><tr><th>Email</th><th>Username</th><th>Access Code</th><th>Status</th><th>Actions</th></tr>`;
+            let html = `<table class="admin-table"><tr><th>Email</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr>`;
             users.forEach(u => {
                 const status = u.banned ? '🚫 BANNED' : '✅ ACTIVE';
                 html += `<tr>
-                    <td>${u.email}</td><td>${u.username}</td><td>${u.accessCode || '—'}</td>
+                    <td>${u.email}</td><td>${u.username}</td><td>${u.role || 'user'}</td>
                     <td>${status}</td>
                     <td>
                         ${u.banned ? `<button class="btn" onclick="unbanUser('${u.id}')">UNBAN</button>` : `<button class="btn" onclick="banUser('${u.id}')">BAN</button>`}
@@ -228,7 +265,7 @@
             if (payments.length) {
                 payments.forEach(p => {
                     html += `<tr><td>${p.userId?.email || '—'}</td><td>${p.toolId?.name || 'Access Code'}</td><td>$${p.amountUSD}</td>
-                    <td><img src="data:image/png;base64,${p.screenshotBase64}" style="width:40px;cursor:pointer;" onclick="window.open(this.src)"></td>
+                    <td><img src="data:image/png;base64,${p.screenshotBase64}" style="width:40px;cursor:pointer;" alt="Payment proof" onclick="window.open(this.src)"></td>
                     <td><button class="btn" onclick="confirmPayment('${p.id}')">CONFIRM</button></td></tr>`;
                 });
                 html += '</table>';
@@ -298,6 +335,7 @@
         window.confirmPayment = confirmPayment;
         window.editTool = editTool;
         window.deleteTool = deleteTool;
+        window.addOrUpdateAdmin = addOrUpdateAdmin;
     </script>
 </body>
 </html>
