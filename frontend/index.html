@@ -3,9 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL // CLASSIFIED ACCESS NODE</title>
+    <title>GHOST SHELL | Tactical Cyber Operations Platform</title>
+    
+    <!-- SEO Meta -->
+    <meta name="description" content="GHOST SHELL — Tactical cyber operations platform. 34+ real tools &amp; tech marketplace: IP lookup, phishing, OSINT, vuln scanner, exploit search. Free access.">
+    <meta name="keywords" content="cyber tools, penetration testing, red team, blue team, security, hacking, ethical hacking, GHOST SHELL, tech marketplace">
+    <meta name="author" content="GHOST SHELL">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Social Preview -->
+    <meta property="og:title" content="GHOST SHELL | Tactical Cyber Operations Platform">
+    <meta property="og:description" content="GHOST SHELL — Tactical cyber operations platform. 34+ real tools &amp; tech marketplace: IP lookup, phishing, OSINT, vuln scanner, exploit search. Free access.">
+    <meta property="og:image" content="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+    <meta property="og:url" content="https://ghostshell-whe8.onrender.com">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GHOST SHELL | Tactical Cyber Operations">
+    <meta name="twitter:description" content="GHOST SHELL — Tactical cyber operations platform. 34+ real tools &amp; tech marketplace: IP lookup, phishing, OSINT, vuln scanner, exploit search. Free access.">
+    <meta name="twitter:image" content="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+    
     <style>
         .toggle-group { display:flex; justify-content:center; gap:25px; margin-bottom:30px; border-bottom:1px dashed rgba(0,255,170,0.3); padding-bottom:15px; }
         .toggle-btn { background:none; border:none; color:#88ffcc; font-size:1.1rem; cursor:pointer; padding:8px 20px; transition:0.2s; font-family:var(--font-mono); letter-spacing:1px; }
@@ -48,13 +69,12 @@
     <!-- MAIN AUTH CONTAINER -->
     <div id="authContainer" style="display:none; position:relative; z-index:10; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
         <div class="card auth-card">
-            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:60px; margin-bottom:10px; display:block; margin-left:auto; margin-right:auto;">
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:60px; margin-bottom:10px; display:block; margin-left:auto; margin-right:auto;" alt="GHOST SHELL logo">
             <h2>GHOST SHELL</h2>
 
             <div class="toggle-group">
                 <button id="loginToggleBtn" class="toggle-btn active">▸ LOGIN ▸</button>
                 <button id="signupToggleBtn" class="toggle-btn">▸ SIGNUP ▸</button>
-                <button id="requestToggleBtn" class="toggle-btn">▸ REQUEST CODE ▸</button>
             </div>
 
             <!-- LOGIN FORM -->
@@ -64,21 +84,12 @@
                 <button class="btn" id="loginBtn" style="width:100%; margin-top:15px;">⚡ ACCESS NODE ⚡</button>
             </div>
 
-            <!-- SIGNUP FORM -->
+            <!-- SIGNUP FORM (no access code) -->
             <div id="signupForm" class="hidden">
                 <input type="text" id="signupUser" placeholder="Username" required>
                 <input type="email" id="signupEmail" placeholder="Email" required>
                 <input type="password" id="signupPass" placeholder="Password" required>
-                <input type="text" id="signupCode" placeholder="Access Code (GHOST-XXXXXX)" required>
                 <button class="btn" id="signupBtn" style="width:100%; margin-top:15px;">⚡ INITIALIZE ENTRY ⚡</button>
-            </div>
-
-            <!-- REQUEST ACCESS CODE FORM -->
-            <div id="requestForm" class="hidden">
-                <p style="margin-bottom:15px;">Enter your email to request a free access code.</p>
-                <input type="email" id="requestEmail" placeholder="Your Email" required>
-                <button class="btn" id="requestCodeBtn" style="width:100%;">REQUEST CODE</button>
-                <div id="requestMsg" style="margin-top:10px; color:var(--green);"></div>
             </div>
 
             <div id="systemFeedback" class="scan-feedback">SYSTEM IDLE // AWAITING OPERATOR</div>
@@ -126,7 +137,6 @@
             switchMode('login');
             document.getElementById('loginToggleBtn').addEventListener('click', () => switchMode('login'));
             document.getElementById('signupToggleBtn').addEventListener('click', () => switchMode('signup'));
-            document.getElementById('requestToggleBtn').addEventListener('click', () => switchMode('request'));
 
             document.getElementById('loginBtn').addEventListener('click', async () => {
                 const email = document.getElementById('loginEmail').value.trim();
@@ -147,12 +157,12 @@
                 const username = document.getElementById('signupUser').value.trim();
                 const email = document.getElementById('signupEmail').value.trim();
                 const password = document.getElementById('signupPass').value;
-                const accessCode = document.getElementById('signupCode').value.trim();
-                if (!username || !email || !password || !accessCode) return updateFeedback('❌ All fields required', true);
+                if (!username || !email || !password) return updateFeedback('❌ All fields required', true);
+
                 try {
                     updateFeedback('⚡ Generating device fingerprint...');
                     const fingerprint = await getFingerprint();
-                    const res = await fetch(`${API}/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ username, email, password, accessCode, fingerprint }) });
+                    const res = await fetch(`${API}/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ username, email, password, fingerprint }) });
                     const data = await res.json();
                     if (data.token) {
                         localStorage.setItem('ghost_token', data.token);
@@ -161,25 +171,13 @@
                     } else updateFeedback('❌ ' + (data.error||'Signup failed'), true);
                 } catch(e) { updateFeedback('❌ Connection failed', true); }
             });
-
-            document.getElementById('requestCodeBtn').addEventListener('click', async () => {
-                const email = document.getElementById('requestEmail').value.trim();
-                if (!email) { document.getElementById('requestMsg').textContent = '❌ Email required.'; return; }
-                try {
-                    const res = await fetch(`${API}/request-access-code`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email }) });
-                    const data = await res.json();
-                    document.getElementById('requestMsg').textContent = data.success ? '✅ Access code sent to your email.' : '❌ Request failed.';
-                } catch(e) { document.getElementById('requestMsg').textContent = '❌ Connection error.'; }
-            });
         }
 
         function switchMode(mode) {
             document.getElementById('loginForm').classList.add('hidden');
             document.getElementById('signupForm').classList.add('hidden');
-            document.getElementById('requestForm').classList.add('hidden');
             if (mode === 'login') document.getElementById('loginForm').classList.remove('hidden');
             if (mode === 'signup') document.getElementById('signupForm').classList.remove('hidden');
-            if (mode === 'request') document.getElementById('requestForm').classList.remove('hidden');
             document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`${mode}ToggleBtn`).classList.add('active');
         }
