@@ -594,33 +594,41 @@ io.on('connection', (socket) => {
 const port = process.env.PORT || 5000;
 http.listen(port, () => console.log(`🚀 GHOST SHELL running on port ${port}`));
 
-// AI Chat via DeepSeek
+// AI Chat – 100% local FAQ bot (no API required)
 app.post('/api/ai/chat', auth, async (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'Message required' });
 
-    try {
-        const { data } = await axios.post(
-            'https://api.deepseek.com/v1/chat/completions',
-            {
-                model: 'deepseek-chat',
-                messages: [
-                    { role: 'system', content: 'You are GHOST AI, a cybersecurity expert. Answer only tech/security questions. If asked about illegal activity, refuse politely. Always include an educational disclaimer.' },
-                    { role: 'user', content: message }
-                ],
-                stream: false
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
-        const reply = data.choices[0].message.content;
-        res.json({ reply });
-    } catch (e) {
-        console.error('DeepSeek error:', e.message);
-        res.json({ reply: 'AI service is currently unavailable. Please try again later.' });
-    }
+    const reply = getLocalAIResponse(message);
+    res.json({ reply });
 });
+
+// Local AI knowledge base
+function getLocalAIResponse(query) {
+    const q = query.toLowerCase();
+
+    if (q.includes('phish')) return 'Phishing detection: check for mismatched URLs, urgent language, and requests for credentials. Implement DMARC, DKIM, and SPF to prevent email spoofing.';
+    if (q.includes('encrypt') || q.includes('aes')) return 'AES‑256 is the gold standard for symmetric encryption. Use authenticated encryption (AES‑GCM). For asymmetric, migrate to post‑quantum algorithms like CRYSTALS‑Kyber.';
+    if (q.includes('hack')) return 'Hacking refers to gaining unauthorized access to a computer system or network. Ethical hacking (white‑hat) is done with permission to improve security. Always obtain written consent before testing.';
+    if (q.includes('password')) return 'Strong passwords have 80+ bits of entropy. Use a password manager and enable multi‑factor authentication (MFA) wherever possible. Avoid reusing passwords across sites.';
+    if (q.includes('malware') || q.includes('virus')) return 'Malware includes viruses, worms, ransomware, and trojans. Prevent it by keeping systems patched, using antivirus, and educating users. Regular backups are essential against ransomware.';
+    if (q.includes('network')) return 'Network security involves firewalls, IDS/IPS, segmentation, and zero‑trust principles. Monitor traffic and conduct regular penetration tests. Disable unused ports and services.';
+    if (q.includes('exploit')) return 'An exploit takes advantage of a vulnerability in software or hardware. Keep systems updated, use intrusion detection systems, and apply the principle of least privilege to mitigate exploit risks.';
+    if (q.includes('web') || q.includes('xss') || q.includes('sql')) return 'Web security: prevent SQL injection with prepared statements, XSS with output encoding, CSRF with anti‑CSRF tokens, and use Content‑Security‑Policy headers. Follow the OWASP Top 10.';
+    if (q.includes('cve')) return 'CVE (Common Vulnerabilities and Exposures) is a list of publicly known cybersecurity vulnerabilities. Each CVE has a unique ID and a severity score (CVSS). You can search CVEs at nvd.nist.gov.';
+    if (q.includes('vpn')) return 'A VPN (Virtual Private Network) encrypts your internet traffic and hides your IP address. Use a reputable no‑log VPN for privacy. It does not make you anonymous if you log into personal accounts.';
+    if (q.includes('tor')) return 'Tor (The Onion Router) is a free, open‑source browser that routes your traffic through multiple relays to hide your location. It is used for anonymous browsing but can be slower than a VPN.';
+    if (q.includes('ddos')) return 'A DDoS (Distributed Denial of Service) attack floods a server with traffic to make it unavailable. Mitigation: use a CDN, rate limiting, and dedicated DDoS protection services.';
+    if (q.includes('ransomware')) return 'Ransomware encrypts your files and demands payment for decryption. Prevention: offline backups, application whitelisting, user training, and keeping systems patched. Never pay the ransom.';
+    if (q.includes('firewall')) return 'A firewall monitors and controls incoming/outgoing network traffic based on security rules. It is the first line of defense. Use both network‑based and host‑based firewalls.';
+    if (q.includes('2fa') || q.includes('mfa')) return 'Multi‑Factor Authentication (MFA) adds an extra layer of security by requiring a second form of verification (e.g., code from an app, biometrics). Enable MFA on all critical accounts.';
+    if (q.includes('sql injection')) return 'SQL injection occurs when an attacker inserts malicious SQL code into a query. Prevent it by using parameterized queries (prepared statements) and validating all user input.';
+    if (q.includes('xss')) return 'Cross‑Site Scripting (XSS) allows attackers to inject client‑side scripts into web pages. Prevent XSS by escaping output, validating input, and using Content‑Security‑Policy headers.';
+    if (q.includes('csrf')) return 'Cross‑Site Request Forgery (CSRF) tricks a user into performing unwanted actions on a web app. Mitigation: use anti‑CSRF tokens, SameSite cookies, and verify the Referer header.';
+    if (q.includes('ssl') || q.includes('tls')) return 'SSL/TLS encrypts data between a client and a server. Always use HTTPS. Check certificate validity, use strong ciphers, and keep your TLS version up to date (TLS 1.3).';
+    if (q.includes('whois')) return 'WHOIS is a protocol used to query databases that store registered users of a domain. You can use it to find a domain’s owner, registration date, and expiry date.';
+    if (q.includes('dns')) return 'DNS (Domain Name System) translates domain names to IP addresses. You can query DNS records (A, AAAA, MX, NS, TXT) using tools like nslookup or online services.';
+
+    // default reply
+    return 'I am GHOST AI, your cybersecurity advisor. Ask me about phishing, encryption, network security, password policies, malware, exploits, web security, VPNs, DDoS, firewalls, and more.';
+}
