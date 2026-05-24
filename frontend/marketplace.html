@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL // CYBER TOOLS MARKETPLACE</title>
-    <meta name="description" content="Buy premium cybersecurity tools, request custom tools, or sell your own. Payments via Bitcoin, bank transfer, or card.">
+    <title>GHOST SHELL // MARKETPLACE</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
         .tool-shop-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:15px; }
         .shop-card { text-align:center; }
+        .shop-card img.tool-preview { width:100%; height:180px; object-fit:cover; border-radius:6px; margin-bottom:10px; border:1px solid var(--red); }
         .shop-card .price { font-size:1.3rem; color:var(--green); margin:8px 0; }
         .shop-card .btn, .shop-card a.btn { margin:4px; display:inline-block; text-decoration:none; }
         .my-tools-table { width:100%; margin-top:20px; }
@@ -25,7 +25,6 @@
 </head>
 <body>
     <canvas id="matrixCanvas"></canvas>
-
     <div id="mainDashboard" style="position:relative; z-index:2;">
         <header class="header">
             <div class="logo-area">
@@ -61,22 +60,18 @@
             <!-- Available tools -->
             <section class="card">
                 <h2>🔧 AVAILABLE TOOLS</h2>
-                <div id="shopTools" class="tool-shop-grid">
-                    <p>Loading tools...</p>
-                </div>
+                <div id="shopTools" class="tool-shop-grid"><p>Loading tools...</p></div>
             </section>
 
             <!-- My Tools -->
             <section class="card" style="margin-top:20px;">
                 <h2>📦 MY PURCHASES</h2>
-                <div id="myTools">
-                    <p>Loading your tools...</p>
-                </div>
+                <div id="myTools"><p>Loading your tools...</p></div>
             </section>
         </main>
     </div>
 
-    <!-- Payment Modal -->
+    <!-- Payment Modal – BTC + Paystack, no PayPal -->
     <div id="btcModal" class="btc-modal" role="dialog" aria-modal="true" aria-labelledby="btcModalTitle">
         <div class="btc-modal-content">
             <h3 id="btcModalTitle" style="color:var(--red);">💳 COMPLETE YOUR PURCHASE</h3>
@@ -88,12 +83,8 @@
                 <div class="btc-address">1E2ABcbtFuegsq5ymYD36VWFb6cZSEVe5Y</div>
                 <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394570/btc_qr_code_srgptt.png" alt="BTC QR code">
 
-                <p style="margin-top:15px;"><strong>Option 2 – Card / PayPal:</strong></p>
-                <p style="font-size:0.8rem;">Use our secure payment link (works worldwide):</p>
-                <a href="https://paypal.me/ghostshell" target="_blank" rel="noopener" style="color:var(--green); font-size:1rem;">👉 Pay with Card or PayPal</a>
-
                 <div style="margin-top:15px; padding-top:10px; border-top:1px solid #333;">
-                    <p><strong>Option 3 – Bank Transfer (Nigeria):</strong></p>
+                    <p><strong>Option 2 – Bank Transfer (Nigeria):</strong></p>
                     <p style="font-size:0.8rem;">Get a virtual Wema Bank account to pay directly from your bank app.</p>
                     <button class="btn" id="getVirtualAccountBtn" style="margin-top:5px;">GET VIRTUAL ACCOUNT</button>
                     <div id="virtualAccountDetails" style="margin-top:10px; background:#111; padding:10px; border-radius:6px; display:none;"></div>
@@ -110,14 +101,10 @@
     <script src="js/matrix.js"></script>
     <script>
         const API = '/api';
-        let currentUser = null;
-        let currentTool = null;
-        let btcRate = 62000;
+        let currentUser = null, currentTool = null, btcRate = 62000;
 
-        // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('ghost_token');
-            window.location.href = 'index.html';
+            localStorage.removeItem('ghost_token'); window.location.href = 'index.html';
         });
 
         (async () => {
@@ -126,14 +113,9 @@
             try {
                 const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (!res.ok) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; return; }
-                const data = await res.json();
-                currentUser = data.user;
-                buildNav();
-                await fetchBTCPrice();
-                loadShopTools();
-                loadMyTools();
+                const data = await res.json(); currentUser = data.user;
+                buildNav(); await fetchBTCPrice(); loadShopTools(); loadMyTools();
 
-                // Contact form
                 document.getElementById('sendContactBtn').addEventListener('click', async () => {
                     const name = document.getElementById('contactName').value.trim();
                     const email = document.getElementById('contactEmail').value.trim();
@@ -142,8 +124,7 @@
                     const message = document.getElementById('contactMessage').value.trim();
                     if (!email || !message) return alert('Email and message are required.');
                     const res = await fetch(`${API}/contact`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ name, email, subject, type, message })
                     });
                     const result = await res.json();
@@ -181,34 +162,31 @@
         async function fetchBTCPrice() {
             try {
                 const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-                const data = await res.json();
-                btcRate = data.bitcoin.usd;
-            } catch(e) { console.log('BTC price error'); }
+                btcRate = (await res.json()).bitcoin.usd;
+            } catch(e) {}
         }
 
         async function loadShopTools() {
             const container = document.getElementById('shopTools');
             try {
-                const res = await fetch(`${API}/tools`);
-                const tools = await res.json();
+                const tools = await (await fetch(`${API}/tools`)).json();
                 if (!tools.length) { container.innerHTML = '<p>No tools available yet.</p>'; return; }
                 container.innerHTML = '';
                 tools.forEach(tool => {
                     const card = document.createElement('div');
                     card.className = 'card shop-card';
-                    card.innerHTML = `
+                    if (tool.imageUrl) {
+                        card.innerHTML += `<img src="${tool.imageUrl}" class="tool-preview" alt="${tool.name}">`;
+                    }
+                    card.innerHTML += `
                         <h3>${tool.name}</h3>
                         <p style="font-size:0.8rem;color:#888;">${tool.description || ''}</p>
                         <div class="price">$${tool.priceUSD}</div>
                     `;
                     if (tool.paymentLink) {
-                        card.innerHTML += `
-                            <a href="${tool.paymentLink}" target="_blank" rel="noopener" class="btn" style="background:rgba(0,180,255,0.1); border-color:#00b4ff; color:#00b4ff;">BUY ON SELAR</a>
-                        `;
+                        card.innerHTML += `<a href="${tool.paymentLink}" target="_blank" rel="noopener" class="btn" style="background:rgba(0,180,255,0.1); border-color:#00b4ff; color:#00b4ff;">BUY ON SELAR</a>`;
                     } else {
-                        card.innerHTML += `
-                            <button class="btn" onclick="openBuyModal('${tool.id}', '${tool.name.replace(/'/g, "\\'")}', ${tool.priceUSD})">BUY NOW</button>
-                        `;
+                        card.innerHTML += `<button class="btn" onclick="openBuyModal('${tool.id}', '${tool.name.replace(/'/g, "\\'")}', ${tool.priceUSD})">BUY NOW</button>`;
                     }
                     container.appendChild(card);
                 });
@@ -219,8 +197,7 @@
             const container = document.getElementById('myTools');
             try {
                 const token = localStorage.getItem('ghost_token');
-                const res = await fetch(`${API}/my-tools`, { headers: { 'Authorization': `Bearer ${token}` } });
-                const tools = await res.json();
+                const tools = await (await fetch(`${API}/my-tools`, { headers: { 'Authorization': `Bearer ${token}` } })).json();
                 if (!tools.length) { container.innerHTML = '<p>No purchases yet.</p>'; return; }
                 let html = '<table class="admin-table my-tools-table"><tr><th>Tool</th><th>Purchased</th><th>Download</th></tr>';
                 tools.forEach(item => {
@@ -238,11 +215,9 @@
             document.getElementById('modalToolName').innerText = name;
             document.getElementById('modalUSD').innerText = priceUSD;
             document.getElementById('btcModal').style.display = 'flex';
-            // Reset
             document.getElementById('virtualAccountDetails').style.display = 'none';
             document.getElementById('paymentScreenshot').value = '';
 
-            // Virtual account button
             document.getElementById('getVirtualAccountBtn').onclick = async () => {
                 const token = localStorage.getItem('ghost_token');
                 const amountNGN = Math.round(priceUSD * 1800);
