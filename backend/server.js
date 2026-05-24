@@ -593,3 +593,34 @@ io.on('connection', (socket) => {
 
 const port = process.env.PORT || 5000;
 http.listen(port, () => console.log(`🚀 GHOST SHELL running on port ${port}`));
+
+// AI Chat via DeepSeek
+app.post('/api/ai/chat', auth, async (req, res) => {
+    const { message } = req.body;
+    if (!message) return res.status(400).json({ error: 'Message required' });
+
+    try {
+        const { data } = await axios.post(
+            'https://api.deepseek.com/v1/chat/completions',
+            {
+                model: 'deepseek-chat',
+                messages: [
+                    { role: 'system', content: 'You are GHOST AI, a cybersecurity expert. Answer only tech/security questions. If asked about illegal activity, refuse politely. Always include an educational disclaimer.' },
+                    { role: 'user', content: message }
+                ],
+                stream: false
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        const reply = data.choices[0].message.content;
+        res.json({ reply });
+    } catch (e) {
+        console.error('DeepSeek error:', e.message);
+        res.json({ reply: 'AI service is currently unavailable. Please try again later.' });
+    }
+});
