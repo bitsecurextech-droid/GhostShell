@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL // MARKETPLACE</title>
+    <title>GHOST SHELL // CYBER TOOLS MARKETPLACE</title>
     <meta name="description" content="Buy premium cybersecurity tools, request custom tools, or sell your own. Payments via Bitcoin, bank transfer, or card.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
@@ -202,12 +202,10 @@
                         <div class="price">$${tool.priceUSD}</div>
                     `;
                     if (tool.paymentLink) {
-                        // PDF tool → direct Selar link
                         card.innerHTML += `
                             <a href="${tool.paymentLink}" target="_blank" rel="noopener" class="btn" style="background:rgba(0,180,255,0.1); border-color:#00b4ff; color:#00b4ff;">BUY ON SELAR</a>
                         `;
                     } else {
-                        // Normal tool → open payment modal
                         card.innerHTML += `
                             <button class="btn" onclick="openBuyModal('${tool.id}', '${tool.name.replace(/'/g, "\\'")}', ${tool.priceUSD})">BUY NOW</button>
                         `;
@@ -237,12 +235,10 @@
 
         function openBuyModal(id, name, priceUSD) {
             currentTool = { id, name, priceUSD };
-            const btcAmount = (priceUSD / btcRate).toFixed(6);
             document.getElementById('modalToolName').innerText = name;
             document.getElementById('modalUSD').innerText = priceUSD;
-            document.getElementById('modalBTC').innerText = btcAmount;
             document.getElementById('btcModal').style.display = 'flex';
-            // Reset virtual account
+            // Reset
             document.getElementById('virtualAccountDetails').style.display = 'none';
             document.getElementById('paymentScreenshot').value = '';
 
