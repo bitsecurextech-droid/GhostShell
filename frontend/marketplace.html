@@ -3,28 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL // Marketplace – Buy & Sell Cyber Tools</title>
-    <meta name="description" content="GHOST SHELL Marketplace – purchase premium cybersecurity tools, request custom tools, and submit your own tools for sale.">
-    <meta name="keywords" content="cyber tools, marketplace, exploit, penetration testing, red team, blue team, security software">
-    <meta name="author" content="GHOST SHELL">
-    <meta name="robots" content="index, follow">
+    <title>GHOST SHELL // MARKETPLACE</title>
+    <meta name="description" content="Buy premium cybersecurity tools, request custom tools, or sell your own. Payments via Bitcoin, bank transfer, or card.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
         .tool-shop-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:15px; }
         .shop-card { text-align:center; }
         .shop-card .price { font-size:1.3rem; color:var(--green); margin:8px 0; }
-        .shop-card .btn { margin:4px; }
+        .shop-card .btn, .shop-card a.btn { margin:4px; display:inline-block; text-decoration:none; }
         .my-tools-table { width:100%; margin-top:20px; }
         .btc-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); justify-content:center; align-items:center; z-index:2000; }
-        .btc-modal-content { background:#0a0a15; border:2px solid var(--red); border-radius:20px; padding:25px; max-width:450px; width:90%; text-align:center; }
-        .btc-modal-content img { width:160px; margin:15px 0; border:2px solid var(--green); }
-        .btc-address { background:#000; padding:10px; border-radius:8px; word-break:break-all; margin:15px 0; font-family:var(--font-mono); }
+        .btc-modal-content { background:#0a0a15; border:2px solid var(--red); border-radius:20px; padding:25px; max-width:500px; width:90%; text-align:center; max-height:90vh; overflow-y:auto; }
+        .btc-modal-content img { width:120px; margin:10px auto; display:block; border:2px solid var(--green); }
+        .btc-address { background:#000; padding:10px; border-radius:8px; word-break:break-all; margin:15px 0; font-family:var(--font-mono); font-size:0.75rem; }
         .contact-note { background:rgba(0,255,65,0.05); border:1px solid var(--green); border-radius:8px; padding:15px; margin-bottom:20px; font-size:0.85rem; }
         .contact-note a { color:var(--green); text-decoration:underline; }
         .contact-form { display:flex; flex-direction:column; gap:10px; margin-top:15px; }
         .contact-form input, .contact-form textarea, .contact-form select { background:#111; border:1px solid #333; color:#fff; padding:10px; font-family:var(--font-mono); }
-        .contact-form button { align-self:flex-start; }
     </style>
 </head>
 <body>
@@ -43,19 +39,20 @@
         <main class="page active">
             <h1 style="color:var(--red); font-family:var(--font-mono);">🛒 MARKETPLACE</h1>
 
+            <!-- Contact & Sell note -->
             <section class="contact-note">
                 <h2 style="font-size:1rem; margin-bottom:8px;">📢 Sell Your Tools / Request Custom Tools</h2>
-                <p>To list your own tools for sale, or to request a custom‑built tool, fill out the form below. Your message is sent directly to the GHOST SHELL Admin.</p>
+                <p>To list your own tools for sale, or to request a custom‑built tool, fill out the form below. Your message is sent directly to the GHOST SHELL command via Telegram.</p>
                 <div class="contact-form" id="contactForm">
-                    <input type="text" id="contactName" placeholder="Your Name (optional)">
-                    <input type="email" id="contactEmail" placeholder="Your Email *" required>
-                    <input type="text" id="contactSubject" placeholder="Subject (e.g., Tool Submission)">
-                    <select id="contactType">
+                    <input type="text" id="contactName" placeholder="Your Name (optional)" aria-label="Your name">
+                    <input type="email" id="contactEmail" placeholder="Your Email *" required aria-label="Your email">
+                    <input type="text" id="contactSubject" placeholder="Subject (e.g., Tool Submission)" aria-label="Subject">
+                    <select id="contactType" aria-label="Contact type">
                         <option value="Sell Tool">I want to sell my tool</option>
                         <option value="Custom Tool">I need a custom tool</option>
                         <option value="Other">Other</option>
                     </select>
-                    <textarea id="contactMessage" rows="5" placeholder="Describe your tool or request in detail..." required></textarea>
+                    <textarea id="contactMessage" rows="5" placeholder="Describe your tool or request in detail..." required aria-label="Message"></textarea>
                     <button class="btn" id="sendContactBtn">SEND TO COMMAND</button>
                 </div>
                 <p style="margin-top:10px; font-size:0.8rem;">Alternatively, email us directly at <a href="mailto:ghostshell.ops@gmail.com">ghostshell.ops@gmail.com</a>.</p>
@@ -79,16 +76,32 @@
         </main>
     </div>
 
-    <!-- BTC Payment Modal -->
+    <!-- Payment Modal -->
     <div id="btcModal" class="btc-modal" role="dialog" aria-modal="true" aria-labelledby="btcModalTitle">
         <div class="btc-modal-content">
-            <h3 id="btcModalTitle" style="color:var(--red);">₿ BITCOIN PAYMENT</h3>
+            <h3 id="btcModalTitle" style="color:var(--red);">💳 COMPLETE YOUR PURCHASE</h3>
             <p id="modalToolName"></p>
-            <p>Amount: <strong id="modalUSD"></strong> USD = <strong id="modalBTC"></strong> BTC</p>
-            <div class="btc-address" id="btcAddress">1E2ABcbtFuegsq5ymYD36VWFb6cZSEVe5Y</div>
-            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394570/btc_qr_code_srgptt.png" alt="Bitcoin QR code">
-            <label for="paymentScreenshot">Upload Payment Screenshot:</label>
-            <input type="file" id="paymentScreenshot" accept="image/*">
+            <p>Amount: <strong id="modalUSD"></strong> USD</p>
+
+            <div style="text-align:left; margin:15px 0;">
+                <p><strong>Option 1 – Bitcoin:</strong></p>
+                <div class="btc-address">1E2ABcbtFuegsq5ymYD36VWFb6cZSEVe5Y</div>
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394570/btc_qr_code_srgptt.png" alt="BTC QR code">
+
+                <p style="margin-top:15px;"><strong>Option 2 – Card / PayPal:</strong></p>
+                <p style="font-size:0.8rem;">Use our secure payment link (works worldwide):</p>
+                <a href="https://paypal.me/ghostshell" target="_blank" rel="noopener" style="color:var(--green); font-size:1rem;">👉 Pay with Card or PayPal</a>
+
+                <div style="margin-top:15px; padding-top:10px; border-top:1px solid #333;">
+                    <p><strong>Option 3 – Bank Transfer (Nigeria):</strong></p>
+                    <p style="font-size:0.8rem;">Get a virtual Wema Bank account to pay directly from your bank app.</p>
+                    <button class="btn" id="getVirtualAccountBtn" style="margin-top:5px;">GET VIRTUAL ACCOUNT</button>
+                    <div id="virtualAccountDetails" style="margin-top:10px; background:#111; padding:10px; border-radius:6px; display:none;"></div>
+                </div>
+            </div>
+
+            <label for="paymentScreenshot">📸 Upload Payment Screenshot (for BTC or Bank):</label>
+            <input type="file" id="paymentScreenshot" accept="image/*" style="margin-top:5px;">
             <button class="btn" id="confirmPaymentBtn">CONFIRM PAYMENT</button>
             <button class="btn" onclick="closeBTCModal()">CANCEL</button>
         </div>
@@ -119,7 +132,8 @@
                 await fetchBTCPrice();
                 loadShopTools();
                 loadMyTools();
-                // Contact form submission
+
+                // Contact form
                 document.getElementById('sendContactBtn').addEventListener('click', async () => {
                     const name = document.getElementById('contactName').value.trim();
                     const email = document.getElementById('contactEmail').value.trim();
@@ -186,8 +200,18 @@
                         <h3>${tool.name}</h3>
                         <p style="font-size:0.8rem;color:#888;">${tool.description || ''}</p>
                         <div class="price">$${tool.priceUSD}</div>
-                        <button class="btn" onclick="openBuyModal('${tool.id}', '${tool.name.replace(/'/g, "\\'")}', ${tool.priceUSD})">BUY WITH BTC</button>
                     `;
+                    if (tool.paymentLink) {
+                        // PDF tool → direct Selar link
+                        card.innerHTML += `
+                            <a href="${tool.paymentLink}" target="_blank" rel="noopener" class="btn" style="background:rgba(0,180,255,0.1); border-color:#00b4ff; color:#00b4ff;">BUY ON SELAR</a>
+                        `;
+                    } else {
+                        // Normal tool → open payment modal
+                        card.innerHTML += `
+                            <button class="btn" onclick="openBuyModal('${tool.id}', '${tool.name.replace(/'/g, "\\'")}', ${tool.priceUSD})">BUY NOW</button>
+                        `;
+                    }
                     container.appendChild(card);
                 });
             } catch(e) { container.innerHTML = '<p style="color:red;">Failed to load tools.</p>'; }
@@ -218,12 +242,37 @@
             document.getElementById('modalUSD').innerText = priceUSD;
             document.getElementById('modalBTC').innerText = btcAmount;
             document.getElementById('btcModal').style.display = 'flex';
+            // Reset virtual account
+            document.getElementById('virtualAccountDetails').style.display = 'none';
+            document.getElementById('paymentScreenshot').value = '';
+
+            // Virtual account button
+            document.getElementById('getVirtualAccountBtn').onclick = async () => {
+                const token = localStorage.getItem('ghost_token');
+                const amountNGN = Math.round(priceUSD * 1800);
+                const res = await fetch(`${API}/create-virtual-account`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ toolId: id, amountNGN })
+                });
+                const data = await res.json();
+                if (data.account_number) {
+                    document.getElementById('virtualAccountDetails').style.display = 'block';
+                    document.getElementById('virtualAccountDetails').innerHTML = `
+                        <strong>Bank:</strong> ${data.bank}<br>
+                        <strong>Account Number:</strong> ${data.account_number}<br>
+                        <strong>Account Name:</strong> ${data.account_name}<br>
+                        <strong>Amount:</strong> ₦${data.amount}
+                    `;
+                } else {
+                    alert('Failed to generate virtual account. Try again.');
+                }
+            };
         }
 
         function closeBTCModal() {
             document.getElementById('btcModal').style.display = 'none';
             currentTool = null;
-            document.getElementById('paymentScreenshot').value = '';
         }
 
         document.getElementById('confirmPaymentBtn').addEventListener('click', async () => {
