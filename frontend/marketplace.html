@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>GHOST SHELL // MARKETPLACE</title>
+    <meta name="description" content="Buy premium cybersecurity tools, request custom tools, or sell your own. Payments via Bitcoin, bank transfer, or card.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
@@ -24,17 +25,9 @@
         .contact-note a { color:var(--green); text-decoration:underline; }
         .contact-form { display:flex; flex-direction:column; gap:10px; margin-top:15px; }
         .contact-form input, .contact-form textarea, .contact-form select { background:#111; border:1px solid #333; color:#fff; padding:10px; font-family:var(--font-mono); }
-
         /* skeleton pulse */
-        @keyframes pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.8; }
-        }
-        .skeleton .skel-bar {
-            background:#1a1a1a;
-            border-radius:3px;
-            animation:pulse 1.5s infinite;
-        }
+        @keyframes pulse { 0%,100%{opacity:0.4;} 50%{opacity:0.8;} }
+        .skeleton .skel-bar { background:#1a1a1a; border-radius:3px; animation:pulse 1.5s infinite; }
     </style>
 </head>
 <body>
@@ -46,6 +39,7 @@
                 <span class="site-name">GHOST SHELL</span>
             </div>
             <nav class="nav-links" id="mainNav" aria-label="Main navigation"></nav>
+            <button class="btn" id="themeToggle" style="border-color:#ffaa00; color:#ffaa00; margin-left:10px;">🌓</button>
             <button class="btn" id="logoutBtn" style="margin-left:auto; border-color:#ffab00; color:#ffab00;" aria-label="Logout">EXIT</button>
         </header>
 
@@ -118,6 +112,23 @@
         const API = '/api';
         let currentUser = null, currentTool = null, btcRate = 62000, ngnRate = 1400;
 
+        // Theme toggle
+        (function() {
+            const themeBtn = document.getElementById('themeToggle');
+            if (themeBtn) {
+                if (localStorage.getItem('theme') === 'light') {
+                    document.body.classList.add('light');
+                    themeBtn.textContent = '☀️';
+                }
+                themeBtn.addEventListener('click', () => {
+                    document.body.classList.toggle('light');
+                    const isLight = document.body.classList.contains('light');
+                    themeBtn.textContent = isLight ? '☀️' : '🌓';
+                    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+                });
+            }
+        })();
+
         // Fetch live USD to NGN rate
         async function fetchNGNRate() {
             try {
@@ -174,7 +185,8 @@
                 { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
                 { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
                 { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
-                { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' }
+                { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+                { name: 'blog', label: '💀 Blog', href: 'blog.html' }
             ];
             if (currentUser.role === 'admin') pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
             nav.innerHTML = '';
