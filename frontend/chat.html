@@ -13,10 +13,12 @@
     <div id="mainDashboard" style="position:relative; z-index:2;">
         <header class="header">
             <div class="logo-area">
-                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="GHOST SHELL logo">
                 <span class="site-name">GHOST SHELL</span>
             </div>
             <nav class="nav-links" id="mainNav"></nav>
+            <button class="btn" id="themeToggle" style="border-color:#ffaa00; color:#ffaa00; margin-left:10px;">🌓</button>
+            <button class="btn" id="logoutBtn" style="margin-left:auto; border-color:#ffab00; color:#ffab00;">EXIT</button>
         </header>
 
         <div class="page active">
@@ -41,9 +43,96 @@
         </div>
     </div>
 
+    <audio id="chatSound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/matrix.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/chat.js"></script>
+    <script>
+        const API = '/api';
+        let currentUser = null;
+
+        (async () => {
+            const token = localStorage.getItem('ghost_token');
+            if (!token) { window.location.href = 'index.html'; return; }
+            const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!res.ok) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; return; }
+            currentUser = (await res.json()).user;
+
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                localStorage.removeItem('ghost_token');
+                window.location.href = 'index.html';
+            });
+
+            // Theme toggle
+            const themeBtn = document.getElementById('themeToggle');
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light');
+                themeBtn.textContent = '☀️';
+            }
+            themeBtn.addEventListener('click', () => {
+                document.body.classList.toggle('light');
+                const isLight = document.body.classList.contains('light');
+                themeBtn.textContent = isLight ? '☀️' : '🌓';
+                localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            });
+
+            // Build nav
+            const nav = document.getElementById('mainNav');
+            const pages = [
+                { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
+                { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
+                { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
+                { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
+                { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+                { name: 'blog', label: '💀 Blog', href: 'blog.html' }
+            ];
+            if (currentUser.role === 'admin') pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
+            nav.innerHTML = '';
+            pages.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-link' + (p.name === 'chat' ? ' active' : '');
+                btn.textContent = p.label;
+                btn.addEventListener('click', () => window.location.href = p.href);
+                nav.appendChild(btn);
+            });
+
+            // Chat logic
+            const socket = io();
+            const messages = document.getElementById('chatMessages');
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendChatBtn');
+
+            function addMessage(from, text, isSelf = false) {
+                const div = document.createElement('div');
+                div.className = 'msg';
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                div.innerHTML = `<span class="sender">${isSelf ? 'YOU' : from}:</span> ${text}<span class="time">${time}</span>`;
+                messages.appendChild(div);
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            sendBtn.addEventListener('click', () => {
+                const msg = input.value.trim();
+                if (msg) {
+                    socket.emit('chat message', msg);
+                    addMessage('You', msg, true);
+                    input.value = '';
+                }
+            });
+
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendBtn.click(); });
+
+            socket.on('chat message', (data) => {
+                addMessage(data.from, data.text);
+                const sound = document.getElementById('chatSound');
+                if (sound) sound.play().catch(e => {});
+            });
+
+            // Fake initial messages
+            addMessage('Cipher', 'Perimeter secure. All nodes green.');
+            addMessage('ZeroDay', 'New CVE-2024 dropped. Patching now.');
+        })();
+    </script>
 </body>
 </html>
