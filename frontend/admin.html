@@ -16,6 +16,7 @@
         .admin-nav-btn:hover, .admin-nav-btn.active { border-color:var(--red); color:#fff; box-shadow:var(--red-glow); background:rgba(255,0,0,0.1); }
         .add-admin-form { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:15px; }
         .add-admin-form input, .add-admin-form select { width:auto; flex:1; min-width:150px; }
+        .edit-tool-link { cursor:pointer; text-decoration:underline; color:var(--green); }
     </style>
 </head>
 <body>
@@ -103,16 +104,18 @@
                     <button class="btn" id="addToolBtn">+ Add New Tool</button>
                     <div id="adminToolsContainer" style="margin-top:15px;"></div>
                 </div>
+                <!-- ADD / EDIT TOOL MODAL -->
                 <div id="toolFormModal" style="display:none; margin-top:15px;" class="card">
                     <h3 id="toolFormTitle">Add New Tool</h3>
                     <input type="text" id="toolName" placeholder="Tool Name" aria-label="Tool name">
                     <textarea id="toolDesc" placeholder="Description" rows="3" aria-label="Tool description"></textarea>
                     <input type="number" id="toolPrice" placeholder="Price (USD)" aria-label="Price in USD">
-                    <input type="text" id="toolCategory" placeholder="Category" aria-label="Category">
-                    <input type="text" id="toolDownloadUrl" placeholder="Download URL" aria-label="Download URL">
+                    <input type="text" id="toolCategory" placeholder="Category (e.g., Network, PDF, Exploit)" aria-label="Category">
+                    <input type="text" id="toolDownloadUrl" placeholder="Download URL (Google Drive, direct link, or leave blank for manual delivery)" aria-label="Download URL">
                     <input type="text" id="toolPaymentLink" placeholder="Selar payment link (for PDF tools)" aria-label="Selar payment link">
                     <button class="btn" id="saveToolBtn">Save Tool</button>
-                    <button class="btn" onclick="document.getElementById('toolFormModal').style.display='none'">Cancel</button>
+                    <button class="btn" onclick="closeToolForm()">Cancel</button>
+                    <input type="hidden" id="editingToolId" value="">
                 </div>
             </section>
 
@@ -172,17 +175,7 @@
             });
 
             document.getElementById('generateCodesBtn').addEventListener('click', generateCodes);
-            document.getElementById('addToolBtn').addEventListener('click', () => {
-                document.getElementById('toolFormModal').style.display = 'block';
-                document.getElementById('toolFormTitle').textContent = 'Add New Tool';
-                document.getElementById('toolName').value = '';
-                document.getElementById('toolDesc').value = '';
-                document.getElementById('toolPrice').value = '';
-                document.getElementById('toolCategory').value = '';
-                document.getElementById('toolDownloadUrl').value = '';
-                document.getElementById('toolPaymentLink').value = '';
-                document.getElementById('saveToolBtn').onclick = saveNewTool;
-            });
+            document.getElementById('addToolBtn').addEventListener('click', () => openToolForm(null));
 
             document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
             document.getElementById('logoutAdminBtnBottom').addEventListener('click', logoutAdmin);
@@ -295,34 +288,85 @@
             let html = `<table class="admin-table"><tr><th>Name</th><th>Price</th><th>Category</th><th>Actions</th></tr>`;
             tools.forEach(t => {
                 html += `<tr><td>${t.name}</td><td>$${t.priceUSD}</td><td>${t.category}</td>
-                <td><button class="btn" onclick="editTool('${t.id}')">EDIT</button>
-                <button class="btn" onclick="deleteTool('${t.id}')" style="border-color:var(--red);color:var(--red);">DELETE</button></td></tr>`;
+                <td>
+                    <button class="btn" onclick="editTool('${t.id}')">✏️ EDIT</button>
+                    <button class="btn" onclick="deleteTool('${t.id}')" style="border-color:var(--red);color:var(--red);">🗑️ DELETE</button>
+                </td></tr>`;
             });
             html += '</table>';
             document.getElementById('adminToolsContainer').innerHTML = html;
         }
 
-        async function saveNewTool() {
+        // OPEN TOOL FORM (for add or edit)
+        function openToolForm(tool = null) {
+            document.getElementById('toolFormModal').style.display = 'block';
+            if (tool) {
+                document.getElementById('toolFormTitle').textContent = 'Edit Tool';
+                document.getElementById('toolName').value = tool.name || '';
+                document.getElementById('toolDesc').value = tool.description || '';
+                document.getElementById('toolPrice').value = tool.priceUSD || '';
+                document.getElementById('toolCategory').value = tool.category || '';
+                document.getElementById('toolDownloadUrl').value = tool.downloadUrl || '';
+                document.getElementById('toolPaymentLink').value = tool.paymentLink || '';
+                document.getElementById('editingToolId').value = tool.id;
+            } else {
+                document.getElementById('toolFormTitle').textContent = 'Add New Tool';
+                document.getElementById('toolName').value = '';
+                document.getElementById('toolDesc').value = '';
+                document.getElementById('toolPrice').value = '';
+                document.getElementById('toolCategory').value = '';
+                document.getElementById('toolDownloadUrl').value = '';
+                document.getElementById('toolPaymentLink').value = '';
+                document.getElementById('editingToolId').value = '';
+            }
+        }
+
+        function closeToolForm() {
+            document.getElementById('toolFormModal').style.display = 'none';
+        }
+
+        // SAVE (create or update)
+        document.getElementById('saveToolBtn').addEventListener('click', async () => {
             const name = document.getElementById('toolName').value;
             const priceUSD = parseFloat(document.getElementById('toolPrice').value);
             if (!name || !priceUSD) return alert('Name and price required.');
-            await fetch(`${API}/admin/tool`, {
-                method: 'POST',
+
+            const toolData = {
+                name,
+                description: document.getElementById('toolDesc').value,
+                priceUSD,
+                category: document.getElementById('toolCategory').value,
+                downloadUrl: document.getElementById('toolDownloadUrl').value,
+                paymentLink: document.getElementById('toolPaymentLink').value || null
+            };
+
+            const editingId = document.getElementById('editingToolId').value;
+            const url = editingId ? `${API}/admin/tool/${editingId}` : `${API}/admin/tool`;
+            const method = editingId ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-                body: JSON.stringify({
-                    name,
-                    description: document.getElementById('toolDesc').value,
-                    priceUSD,
-                    category: document.getElementById('toolCategory').value,
-                    downloadUrl: document.getElementById('toolDownloadUrl').value,
-                    paymentLink: document.getElementById('toolPaymentLink').value || null
-                })
+                body: JSON.stringify(toolData)
             });
-            document.getElementById('toolFormModal').style.display = 'none';
-            loadAdminTools();
+
+            if (res.ok) {
+                closeToolForm();
+                loadAdminTools();
+            } else {
+                alert('Save failed.');
+            }
+        });
+
+        // EDIT tool (populate form)
+        async function editTool(id) {
+            const res = await fetch(`${API}/tools`);
+            const tools = await res.json();
+            const tool = tools.find(t => t.id === id);
+            if (tool) openToolForm(tool);
         }
 
-        async function editTool(id) { alert('Edit functionality coming soon.'); }
+        // DELETE tool
         async function deleteTool(id) {
             if (!confirm('Delete this tool?')) return;
             await fetch(`${API}/admin/tool/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
