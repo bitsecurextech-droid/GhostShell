@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>GHOST SHELL // CYBER TOOLS</title>
+    <meta name="description" content="34+ real cybersecurity tools – IP lookup, phishing detector, WHOIS, SSL checker, port scanner, exploit database, and more.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+    <style>
+        .tool-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px; }
+    </style>
 </head>
 <body>
     <canvas id="matrixCanvas"></canvas>
@@ -13,16 +17,18 @@
     <div id="mainDashboard" style="position:relative; z-index:2;">
         <header class="header">
             <div class="logo-area">
-                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="GHOST SHELL logo">
                 <span class="site-name">GHOST SHELL</span>
             </div>
             <nav class="nav-links" id="mainNav"></nav>
+            <button class="btn" id="themeToggle" style="border-color:#ffaa00; color:#ffaa00; margin-left:10px;">🌓</button>
+            <button class="btn" id="logoutBtn" style="margin-left:auto; border-color:#ffab00; color:#ffab00;" aria-label="Logout">EXIT</button>
         </header>
 
         <div class="page active">
             <h2 style="color:var(--red); font-family:var(--font-mono); letter-spacing:2px; margin-bottom:15px;">⚔️ CYBER TOOLS ARSENAL</h2>
 
-            <!-- TOOL GRID (always visible) -->
+            <!-- Tool grid (always visible) -->
             <div class="tool-grid">
                 <div class="card tool-card" data-tool="phishing"><span class="tool-icon">🎣</span> Phishing URL Detector</div>
                 <div class="card tool-card" data-tool="ip"><span class="tool-icon">🌍</span> IP Lookup</div>
@@ -57,6 +63,9 @@
                 <div class="card tool-card" data-tool="morse"><span class="tool-icon">📡</span> Morse Code</div>
                 <div class="card tool-card" data-tool="timestamp"><span class="tool-icon">🕒</span> Timestamp Converter</div>
                 <div class="card tool-card" data-tool="httpstatus"><span class="tool-icon">🌐</span> HTTP Status</div>
+                <div class="card tool-card" data-tool="subdomain"><span class="tool-icon">🔎</span> Subdomain Scanner</div>
+                <div class="card tool-card" data-tool="shodan"><span class="tool-icon">🛰️</span> Shodan Lookup</div>
+                <div class="card tool-card" data-tool="darkweb"><span class="tool-icon">🕶️</span> Dark-Web Monitor</div>
             </div>
 
             <div id="toolOutput" class="card" style="margin-top:20px; min-height:200px;">
@@ -66,11 +75,26 @@
     </div>
 
     <script src="js/matrix.js"></script>
-
-    <!-- COMPLETE INLINE SCRIPT (all 33 tools, real APIs) -->
     <script>
         const API = '/api';
         let currentUser = null;
+
+        // Theme toggle
+        (function() {
+            const themeBtn = document.getElementById('themeToggle');
+            if (themeBtn) {
+                if (localStorage.getItem('theme') === 'light') {
+                    document.body.classList.add('light');
+                    themeBtn.textContent = '☀️';
+                }
+                themeBtn.addEventListener('click', () => {
+                    document.body.classList.toggle('light');
+                    const isLight = document.body.classList.contains('light');
+                    themeBtn.textContent = isLight ? '☀️' : '🌓';
+                    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+                });
+            }
+        })();
 
         window.addEventListener('load', async () => {
             const token = localStorage.getItem('ghost_token');
@@ -88,7 +112,8 @@
                 { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
                 { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
                 { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
-                { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' }
+                { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+                { name: 'blog', label: '💀 Blog', href: 'blog.html' }
             ];
             if (currentUser.role === 'admin') pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
             nav.innerHTML = '';
@@ -100,13 +125,20 @@
                 nav.appendChild(btn);
             });
 
-            // Attach tool listeners immediately – no auth gate
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                localStorage.removeItem('ghost_token');
+                localStorage.removeItem('toolToken');
+                window.location.href = 'index.html';
+            });
+
+            // Attach tool listeners
             document.querySelectorAll('.tool-card').forEach(card => {
                 card.addEventListener('click', () => showTool(card.dataset.tool));
             });
         });
 
-        // API call helper (uses user token)
+        // API call helper
         async function apiCall(endpoint, options = {}) {
             const token = localStorage.getItem('ghost_token');
             const res = await fetch(`${API}${endpoint}`, {
@@ -116,7 +148,7 @@
             return res.json();
         }
 
-        // ========== ALL 33 TOOLS (REAL DATA) ==========
+        // Tool router
         function showTool(tool) {
             const out = document.getElementById('toolOutput');
             if (!out) return;
@@ -223,24 +255,24 @@
                     break;
 
                 case 'ssl':
-    out.innerHTML = `<h3>🔒 SSL Certificate Checker</h3><input type="text" id="sslDomain" placeholder="domain.com"><button class="btn" id="checkSslBtn">Check</button><div id="sslResult" style="margin-top:10px;"></div>`;
-    document.getElementById('checkSslBtn').onclick = async () => {
-        const domain = document.getElementById('sslDomain').value;
-        const data = await apiCall(`/ssl/${encodeURIComponent(domain)}`);
-        if (data.error) {
-            document.getElementById('sslResult').innerHTML = `<span style="color:red;">${data.error}</span>`;
-        } else {
-            document.getElementById('sslResult').innerHTML = `
-                <strong>${data.domain}</strong><br>
-                Subject: ${data.subject}<br>
-                Issuer: ${data.issuer}<br>
-                Valid: ${data.valid_from} → ${data.valid_to}<br>
-                Remaining: ${data.remaining_days} days<br>
-                Fingerprint: ${data.fingerprint}
-            `;
-        }
-    };
-    break;
+                    out.innerHTML = `<h3>🔒 SSL Certificate Checker</h3><input type="text" id="sslDomain" placeholder="domain.com"><button class="btn" id="checkSslBtn">Check</button><div id="sslResult" style="margin-top:10px;"></div>`;
+                    document.getElementById('checkSslBtn').onclick = async () => {
+                        const domain = document.getElementById('sslDomain').value;
+                        const data = await apiCall(`/ssl/${encodeURIComponent(domain)}`);
+                        if (data.error) {
+                            document.getElementById('sslResult').innerHTML = `<span style="color:red;">${data.error}</span>`;
+                        } else {
+                            document.getElementById('sslResult').innerHTML = `
+                                <strong>${data.domain}</strong><br>
+                                Subject: ${data.subject}<br>
+                                Issuer: ${data.issuer}<br>
+                                Valid: ${data.valid_from} → ${data.valid_to}<br>
+                                Remaining: ${data.remaining_days} days<br>
+                                Fingerprint: ${data.fingerprint}
+                            `;
+                        }
+                    };
+                    break;
 
                 case 'headers':
                     out.innerHTML = `<h3>🛡 Security Headers Scanner</h3><input type="text" id="headersDomain" placeholder="domain.com"><button class="btn" id="checkHeadersBtn">Scan</button><div id="headersResult" style="margin-top:10px;"></div>`;
@@ -522,6 +554,37 @@
                         const domain = document.getElementById('httpStatusDomain').value;
                         const statuses = [200,301,302,403,404,500];
                         document.getElementById('httpStatusResult').innerHTML = `<strong>${domain}</strong> → HTTP ${statuses[Math.floor(Math.random()*statuses.length)]}`;
+                    };
+                    break;
+
+                case 'subdomain':
+                    out.innerHTML = `<h3>🔎 Subdomain Scanner</h3><input type="text" id="subdomainDomain" placeholder="domain.com"><button class="btn" id="subdomainScanBtn">Scan</button><div id="subdomainResult" style="margin-top:10px;"></div>`;
+                    document.getElementById('subdomainScanBtn').onclick = async () => {
+                        const domain = document.getElementById('subdomainDomain').value;
+                        const data = await apiCall('/subdomain-scan', { method: 'POST', body: JSON.stringify({ domain }) });
+                        let html = `<strong>${data.domain}</strong> — ${data.found} subdomains found<br>`;
+                        (data.subdomains || []).forEach(s => { html += `✅ ${s.subdomain}<br>`; });
+                        document.getElementById('subdomainResult').innerHTML = html || 'No subdomains found.';
+                    };
+                    break;
+
+                case 'shodan':
+                    out.innerHTML = `<h3>🛰️ Shodan IP Intelligence</h3><input type="text" id="shodanIp" placeholder="Enter IP"><button class="btn" id="shodanLookupBtn">Lookup</button><div id="shodanResult" style="margin-top:10px;"></div>`;
+                    document.getElementById('shodanLookupBtn').onclick = async () => {
+                        const ip = document.getElementById('shodanIp').value;
+                        const data = await apiCall(`/shodan/${ip}`);
+                        document.getElementById('shodanResult').innerHTML = `<pre style="font-size:0.7rem;">${JSON.stringify(data, null, 2)}</pre>`;
+                    };
+                    break;
+
+                case 'darkweb':
+                    out.innerHTML = `<h3>🕶️ Dark-Web Credential Search</h3><input type="email" id="darkwebEmail" placeholder="Email to search"><button class="btn" id="darkwebSearchBtn">Search</button><div id="darkwebResult" style="margin-top:10px;"></div>`;
+                    document.getElementById('darkwebSearchBtn').onclick = async () => {
+                        const email = document.getElementById('darkwebEmail').value;
+                        const data = await apiCall(`/darkweb-search?email=${encodeURIComponent(email)}`);
+                        let html = `<strong>${data.email}</strong><br>`;
+                        (data.details || []).forEach(b => { html += `${b.risk} ${b.site} — ${b.records} records<br>`; });
+                        document.getElementById('darkwebResult').innerHTML = html;
                     };
                     break;
 
