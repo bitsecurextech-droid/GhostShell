@@ -14,7 +14,6 @@
         .shop-card .image-gallery img { width:40px; height:40px; object-fit:cover; border-radius:3px; cursor:pointer; border:1px solid #333; }
         .shop-card .video-thumb { width:100%; height:120px; background:#111; display:flex; align-items:center; justify-content:center; border-radius:6px; margin-bottom:8px; cursor:pointer; border:1px solid var(--red); font-size:2rem; color:var(--red); }
         .shop-card .price { font-size:1.3rem; color:var(--green); margin:8px 0; }
-        .shop-card .price-ngn { font-size:1rem; color:#ffaa33; margin-top:2px; }
         .shop-card .btn, .shop-card a.btn { margin:4px; display:inline-block; text-decoration:none; }
         .my-tools-table { width:100%; margin-top:20px; }
         .btc-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); justify-content:center; align-items:center; z-index:2000; }
@@ -215,12 +214,11 @@
                         card.innerHTML += galleryHTML;
                     }
 
-                    const ngnPrice = (tool.priceUSD * ngnRate).toFixed(0);
+                    // Only show USD price on the card
                     card.innerHTML += `
                         <h3>${tool.name}</h3>
                         <p style="font-size:0.8rem;color:#888;">${tool.description || ''}</p>
                         <div class="price">$${tool.priceUSD}</div>
-                        <div class="price-ngn">≈ ₦${parseInt(ngnPrice).toLocaleString()}</div>
                     `;
                     if (tool.paymentLink) {
                         card.innerHTML += `<a href="${tool.paymentLink}" target="_blank" rel="noopener" class="btn" style="background:rgba(0,180,255,0.1); border-color:#00b4ff; color:#00b4ff;">BUY ON SELAR</a>`;
