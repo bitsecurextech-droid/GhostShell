@@ -98,7 +98,8 @@
                     <textarea id="toolDesc" placeholder="Description" rows="3" aria-label="Tool description"></textarea>
                     <input type="number" id="toolPrice" placeholder="Price (USD)" aria-label="Price in USD">
                     <input type="text" id="toolCategory" placeholder="Category (e.g., Network, PDF, Exploit)" aria-label="Category">
-                    <input type="text" id="toolImageUrl" placeholder="Image Preview URL (optional)" aria-label="Image Preview URL">
+                    <textarea id="toolImageUrls" placeholder="Image URLs (one per line)" rows="3" aria-label="Image URLs"></textarea>
+                    <input type="text" id="toolVideoUrl" placeholder="Video URL (YouTube or direct link)" aria-label="Video URL">
                     <input type="text" id="toolDownloadUrl" placeholder="Download URL (Google Drive, direct link, or leave blank)" aria-label="Download URL">
                     <input type="text" id="toolPaymentLink" placeholder="Selar payment link (for PDF tools)" aria-label="Selar payment link">
                     <button class="btn" id="saveToolBtn">Save Tool</button>
@@ -216,7 +217,8 @@
                 document.getElementById('toolDesc').value = tool.description || '';
                 document.getElementById('toolPrice').value = tool.priceUSD || '';
                 document.getElementById('toolCategory').value = tool.category || '';
-                document.getElementById('toolImageUrl').value = tool.imageUrl || '';
+                document.getElementById('toolImageUrls').value = (tool.imageUrls && Array.isArray(tool.imageUrls)) ? tool.imageUrls.join('\n') : '';
+                document.getElementById('toolVideoUrl').value = tool.videoUrl || '';
                 document.getElementById('toolDownloadUrl').value = tool.downloadUrl || '';
                 document.getElementById('toolPaymentLink').value = tool.paymentLink || '';
                 document.getElementById('editingToolId').value = tool.id;
@@ -226,7 +228,8 @@
                 document.getElementById('toolDesc').value = '';
                 document.getElementById('toolPrice').value = '';
                 document.getElementById('toolCategory').value = '';
-                document.getElementById('toolImageUrl').value = '';
+                document.getElementById('toolImageUrls').value = '';
+                document.getElementById('toolVideoUrl').value = '';
                 document.getElementById('toolDownloadUrl').value = '';
                 document.getElementById('toolPaymentLink').value = '';
                 document.getElementById('editingToolId').value = '';
@@ -239,12 +242,16 @@
             const name = document.getElementById('toolName').value;
             const priceUSD = parseFloat(document.getElementById('toolPrice').value);
             if (!name || !priceUSD) return alert('Name and price required.');
+            const imageUrlsText = document.getElementById('toolImageUrls').value.trim();
+            const imageUrls = imageUrlsText ? imageUrlsText.split('\n').map(url => url.trim()).filter(url => url.length > 0) : [];
+
             const toolData = {
                 name,
                 description: document.getElementById('toolDesc').value,
                 priceUSD,
                 category: document.getElementById('toolCategory').value,
-                imageUrl: document.getElementById('toolImageUrl').value || null,
+                imageUrls,
+                videoUrl: document.getElementById('toolVideoUrl').value || null,
                 downloadUrl: document.getElementById('toolDownloadUrl').value,
                 paymentLink: document.getElementById('toolPaymentLink').value || null
             };
