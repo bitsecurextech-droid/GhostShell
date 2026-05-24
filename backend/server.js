@@ -313,14 +313,13 @@ app.post('/api/generate-report', auth, async (req, res) => {
     res.send(pdfBuffer);
 });
 
-// Paystack – create virtual account
+// Paystack – create virtual account (no forced bank)
 app.post('/api/create-virtual-account', auth, async (req, res) => {
     const { toolId, amountNGN } = req.body;
     if (!amountNGN) return res.status(400).json({ error: 'Amount required' });
     try {
         const { data } = await axios.post('https://api.paystack.co/dedicated_account', {
-            customer: req.user.email,
-            preferred_bank: 'wema-bank'
+            customer: req.user.email
         }, {
             headers: {
                 Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
@@ -469,9 +468,9 @@ app.post('/api/admin/revoke-code', adminAuth, async (req, res) => {
     res.json({ success: true });
 });
 
-// CREATE tool
+// CREATE tool – supports imageUrls array and videoUrl
 app.post('/api/admin/tool', adminAuth, async (req, res) => {
-    const { name, description, priceUSD, category, downloadUrl, paymentLink, imageUrl } = req.body;
+    const { name, description, priceUSD, category, downloadUrl, paymentLink, imageUrls, videoUrl } = req.body;
     const tool = {
         id: uuidv4(),
         name,
@@ -480,7 +479,8 @@ app.post('/api/admin/tool', adminAuth, async (req, res) => {
         category,
         downloadUrl: downloadUrl || null,
         paymentLink: paymentLink || null,
-        imageUrl: imageUrl || null,
+        imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
+        videoUrl: videoUrl || null,
         createdAt: new Date().toISOString()
     };
     db.data.tools.push(tool);
@@ -488,9 +488,9 @@ app.post('/api/admin/tool', adminAuth, async (req, res) => {
     res.json(tool);
 });
 
-// UPDATE tool
+// UPDATE tool – supports imageUrls array and videoUrl
 app.put('/api/admin/tool/:id', adminAuth, async (req, res) => {
-    const { name, description, priceUSD, category, downloadUrl, paymentLink, imageUrl } = req.body;
+    const { name, description, priceUSD, category, downloadUrl, paymentLink, imageUrls, videoUrl } = req.body;
     await db.read();
     const toolIndex = db.data.tools.findIndex(t => t.id === req.params.id);
     if (toolIndex === -1) return res.status(404).json({ error: 'Tool not found' });
@@ -503,7 +503,8 @@ app.put('/api/admin/tool/:id', adminAuth, async (req, res) => {
         category: category || db.data.tools[toolIndex].category,
         downloadUrl: downloadUrl !== undefined ? downloadUrl : db.data.tools[toolIndex].downloadUrl,
         paymentLink: paymentLink !== undefined ? paymentLink : db.data.tools[toolIndex].paymentLink,
-        imageUrl: imageUrl !== undefined ? imageUrl : db.data.tools[toolIndex].imageUrl
+        imageUrls: imageUrls !== undefined ? (Array.isArray(imageUrls) ? imageUrls : []) : db.data.tools[toolIndex].imageUrls,
+        videoUrl: videoUrl !== undefined ? videoUrl : db.data.tools[toolIndex].videoUrl
     };
     db.data.tools[toolIndex] = updated;
     await db.write();
@@ -562,8 +563,8 @@ io.on('connection', (socket) => {
     }
     if (db.data.tools.length === 0) {
         db.data.tools.push(
-            { id: uuidv4(), name: 'NMAP Ghost Edition', description: 'Advanced stealth scanner', priceUSD: 49, category: 'Network', downloadUrl: '#', createdAt: new Date().toISOString() },
-            { id: uuidv4(), name: 'Metasploit Pro Unlocked', description: 'Full exploit framework', priceUSD: 199, category: 'Exploit', downloadUrl: '#', createdAt: new Date().toISOString() }
+            { id: uuidv4(), name: 'NMAP Ghost Edition', description: 'Advanced stealth scanner', priceUSD: 49, category: 'Network', downloadUrl: '#', imageUrls: [], videoUrl: null, createdAt: new Date().toISOString() },
+            { id: uuidv4(), name: 'Metasploit Pro Unlocked', description: 'Full exploit framework', priceUSD: 199, category: 'Exploit', downloadUrl: '#', imageUrls: [], videoUrl: null, createdAt: new Date().toISOString() }
         );
         console.log('📦 Default marketplace tools seeded');
     }
