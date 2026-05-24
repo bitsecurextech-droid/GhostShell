@@ -31,11 +31,9 @@ const db = new Low(adapter, {});
     await db.write();
 })();
 
-// -------------------- TELEGRAM (without bot polling) --------------------
-// We only use the sendTelegram function below. The polling bot is not needed.
+// -------------------- TELEGRAM --------------------
 async function sendTelegram(msg) {
     try {
-        const axios = require('axios');
         const botToken = process.env.TELEGRAM_BOT_TOKEN;
         const chatId = process.env.TELEGRAM_CHAT_ID;
         if (!botToken || !chatId) return;
@@ -79,7 +77,7 @@ app.get('/api/tools', async (req, res) => {
     res.json(db.data.tools);
 });
 
-// Signup – no access code required
+// Signup – NO access code required
 app.post('/api/signup', async (req, res) => {
     const { username, email, password, fingerprint } = req.body;
     if (!username || !email || !password || !fingerprint)
@@ -148,9 +146,7 @@ app.get('/api/ip/:ip', auth, async (req, res) => {
         const [ipapi, ipinfo, abuse] = await Promise.all([
             axios.get(`https://ipapi.co/${req.params.ip}/json/`),
             axios.get(`https://ipinfo.io/${req.params.ip}/json?token=${process.env.IPINFO_TOKEN}`),
-            axios.get(`https://api.abuseipdb.com/api/v2/check?ipAddress=${req.params.ip}`, {
-                headers: { 'Key': process.env.ABUSEIPDB_KEY }
-            })
+            axios.get(`https://api.abuseipdb.com/api/v2/check?ipAddress=${req.params.ip}`, { headers: { 'Key': process.env.ABUSEIPDB_KEY } })
         ]);
         res.json({ geo: ipapi.data, asn: ipinfo.data, abuse: abuse.data.data });
     } catch (e) { res.json({ error: 'Lookup failed' }); }
@@ -254,6 +250,102 @@ app.get('/api/ssl/:domain', auth, async (req, res) => {
     });
     socket.on('error', err => res.json({ error: `SSL check failed: ${err.message}` }));
     socket.on('timeout', () => { socket.destroy(); res.json({ error: 'Connection timed out' }); });
+});
+
+// Subdomain Scanner
+app.post('/api/subdomain-scan', auth, async (req, res) => {
+    const { domain } = req.body;
+    if (!domain) return res.status(400).json({ error: 'Domain required' });
+    const dns = require('dns').promises;
+    const wordlist = ['www','mail','ftp','admin','portal','api','dev','staging','test','blog','shop','cdn','remote','secure','vpn','ns1','ns2','smtp','pop','imap','webmail','mysql','db','dashboard','login','signup','app','m','mobile','beta','demo','docs','support','status','monitor','git','svn','cpanel','whm','webdisk','autodiscover'];
+    const results = [];
+    for (const sub of wordlist) {
+        try {
+            const host = `${sub}.${domain}`;
+            await dns.resolve(host, 'A');
+            results.push({ subdomain: host, status: 'ALIVE' });
+        } catch (e) {}
+    }
+    res.json({ domain, found: results.length, subdomains: results });
+});
+
+// Shodan IP Lookup
+app.get('/api/shodan/:ip', auth, async (req, res) => {
+    try {
+        const { data } = await axios.get(`https://api.shodan.io/shodan/host/${req.params.ip}?key=${process.env.SHODAN_KEY}`);
+        res.json({
+            ip: data.ip_str,
+            org: data.org,
+            os: data.os,
+            ports: data.ports,
+            vulns: data.vulns || [],
+            country: data.country_name,
+            last_update: data.last_update
+        });
+    } catch (e) { res.json({ error: 'Shodan lookup failed' }); }
+});
+
+// Dark-web credential search (simulated)
+app.get('/api/darkweb-search', auth, async (req, res) => {
+    const { email } = req.query;
+    if (!email) return res.json({ error: 'Email required' });
+    const breaches = [
+        { site: 'LinkedIn (2021)', records: '700M', found: Math.random() > 0.5 },
+        { site: 'Adobe (2013)', records: '153M', found: Math.random() > 0.6 },
+        { site: 'Collection #1', records: '773M', found: Math.random() > 0.5 },
+        { site: 'Exploit.in', records: '593M', found: Math.random() > 0.7 }
+    ];
+    const results = breaches.filter(b => b.found).map(b => ({ site: b.site, records: b.records, risk: '⚠️ FOUND' }));
+    res.json({ email, breaches: results.length, details: breaches });
+});
+
+// Generate PDF report
+app.post('/api/generate-report', auth, async (req, res) => {
+    const { title, findings } = req.body;
+    const { jsPDF } = require('jspdf');
+    const doc = new jsPDF();
+    doc.setFont('Courier');
+    doc.setFontSize(18);
+    doc.text('GHOST SHELL', 14, 20);
+    doc.setFontSize(14);
+    doc.text(title || 'Security Report', 14, 30);
+    doc.setFontSize(10);
+    doc.text(`Generated: ${new Date().toISOString()}`, 14, 40);
+    doc.text(`User: ${req.user.email}`, 14, 46);
+    let y = 56;
+    (findings || []).forEach(f => {
+        doc.text(`• ${f}`, 14, y);
+        y += 8;
+    });
+    const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=ghostshell-report.pdf');
+    res.send(pdfBuffer);
+});
+
+// Paystack – create virtual account
+app.post('/api/create-virtual-account', auth, async (req, res) => {
+    const { toolId, amountNGN } = req.body;
+    if (!amountNGN) return res.status(400).json({ error: 'Amount required' });
+    try {
+        const { data } = await axios.post('https://api.paystack.co/dedicated_account', {
+            customer: req.user.email,
+            preferred_bank: 'wema-bank'
+        }, {
+            headers: {
+                Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        res.json({
+            bank: data.data.bank.name,
+            account_number: data.data.account_number,
+            account_name: data.data.account_name,
+            amount: amountNGN
+        });
+    } catch (e) {
+        res.json({ error: 'Could not create virtual account' });
+    }
 });
 
 // -------------------- MARKETPLACE --------------------
@@ -388,8 +480,17 @@ app.post('/api/admin/revoke-code', adminAuth, async (req, res) => {
 });
 
 app.post('/api/admin/tool', adminAuth, async (req, res) => {
-    const { name, description, priceUSD, category, downloadUrl } = req.body;
-    const tool = { id: uuidv4(), name, description, priceUSD, category, downloadUrl, createdAt: new Date().toISOString() };
+    const { name, description, priceUSD, category, downloadUrl, paymentLink } = req.body;
+    const tool = {
+        id: uuidv4(),
+        name,
+        description,
+        priceUSD,
+        category,
+        downloadUrl,
+        paymentLink: paymentLink || null,
+        createdAt: new Date().toISOString()
+    };
     db.data.tools.push(tool);
     await db.write();
     res.json(tool);
