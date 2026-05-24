@@ -9,7 +9,6 @@
     <meta name="author" content="GHOST SHELL">
     <meta name="robots" content="index, follow">
 
-    <!-- Open Graph / Social Preview -->
     <meta property="og:title" content="GHOST SHELL | Blog">
     <meta property="og:description" content="Tactical cybersecurity insights, changelog, and tutorials from GHOST SHELL.">
     <meta property="og:image" content="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
@@ -20,7 +19,6 @@
     <meta name="twitter:description" content="Tactical cybersecurity insights, changelog, and tutorials.">
     <meta name="twitter:image" content="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
 
-    <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#ff1a1a">
     <meta name="mobile-web-app-capable" content="yes">
@@ -32,7 +30,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
-        /* extra scary blog styles */
         .blog-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px; margin-top:20px; }
         .blog-card {
             background: rgba(5,5,5,0.85);
@@ -68,16 +65,18 @@
             margin-bottom: 8px;
             letter-spacing: 1px;
             text-shadow: 0 0 8px rgba(255,0,0,0.5);
-            animation: glitchText 3s infinite;
+            font-weight: 900;
+            text-transform: uppercase;
         }
         .blog-meta {
             font-family: var(--font-mono);
             font-size: 0.7rem;
-            color: #666;
+            color: #aaa;
             margin-bottom: 12px;
             display: flex;
             gap: 15px;
             align-items: center;
+            font-weight: bold;
         }
         .blog-category {
             display: inline-block;
@@ -86,6 +85,7 @@
             font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-weight: bold;
         }
         .cat-changelog { background: rgba(0,180,255,0.15); color: #00b4ff; border:1px solid #00b4ff; }
         .cat-tutorial { background: rgba(0,255,65,0.15); color: var(--green); border:1px solid var(--green); }
@@ -93,9 +93,10 @@
         .cat-general { background: rgba(255,170,0,0.15); color: #ffaa00; border:1px solid #ffaa00; }
         .blog-excerpt {
             font-family: 'Segoe UI', sans-serif;
-            font-size: 0.85rem;
-            color: #aaa;
-            line-height: 1.5;
+            font-size: 0.9rem;
+            color: #ddd;
+            line-height: 1.6;
+            font-weight: 500;
         }
         .blog-card .read-more {
             display: inline-block;
@@ -103,15 +104,15 @@
             color: var(--red);
             text-decoration: underline;
             font-family: var(--font-mono);
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             cursor: pointer;
+            font-weight: bold;
         }
-        /* single post view */
         .single-post { max-width: 800px; margin: 0 auto; }
         .single-post .back-btn { margin-bottom: 20px; }
-        /* skeleton */
         .skeleton .skel-bar { background:#1a1a1a; border-radius:3px; animation:pulse 1.5s infinite; }
         @keyframes pulse { 0%,100%{opacity:0.4;} 50%{opacity:0.8;} }
+        .blog-header-img { height:60px; margin-bottom:10px; }
     </style>
 </head>
 <body>
@@ -128,11 +129,14 @@
         </header>
 
         <main class="page active">
-            <h1 style="color:var(--red); font-family:var(--font-mono); letter-spacing:3px; text-shadow:0 0 15px rgba(255,0,0,0.6);">💀 GHOST BLOG</h1>
-            <p style="color:#666; font-family:var(--font-mono); font-size:0.8rem; margin-bottom:10px;">Tactical insights from the shadows.</p>
+            <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" alt="GHOST SHELL" style="height:65px; filter:drop-shadow(0 0 12px #ff0000aa);">
+                <h1 style="color:var(--red); font-family:var(--font-mono); letter-spacing:4px; text-shadow:0 0 15px rgba(255,0,0,0.6); font-size:2rem; font-weight:900;">GHOST BLOG</h1>
+            </div>
+            <p style="color:#ccc; font-family:var(--font-mono); font-size:0.85rem; margin-bottom:25px; font-weight:bold; letter-spacing:1px;">⚡ TACTICAL INSIGHTS FROM THE SHADOWS — STAY SHARP, STAY DANGEROUS.</p>
             <!-- blog list view -->
             <div id="blogList" class="blog-grid"></div>
-            <!-- single post view (hidden by default) -->
+            <!-- single post view -->
             <div id="singlePost" class="single-post" style="display:none;"></div>
         </main>
     </div>
@@ -193,7 +197,6 @@
 
         async function loadPosts() {
             const container = document.getElementById('blogList');
-            // Skeleton loaders
             container.innerHTML = '';
             for (let i = 0; i < 4; i++) {
                 const skel = document.createElement('div');
@@ -210,22 +213,22 @@
 
             const res = await fetch(`${API}/blog`);
             const posts = await res.json();
-            container.innerHTML = posts.length ? '' : '<p style="color:#666; grid-column:1/-1; text-align:center;">No posts yet. Shadows are silent.</p>';
+            container.innerHTML = posts.length ? '' : '<p style="color:#666; grid-column:1/-1; text-align:center; font-family:var(--font-mono);">No posts yet. Shadows are silent.</p>';
 
             posts.forEach(post => {
                 const card = document.createElement('div');
                 card.className = 'blog-card';
                 card.onclick = () => showSinglePost(post);
-                const excerpt = stripHtml(post.content).substring(0, 150) + '...';
+                const excerpt = stripHtml(post.content).substring(0, 180) + '...';
                 card.innerHTML = `
-                    <h3>${post.title}</h3>
+                    <h3>⚡ ${post.title}</h3>
                     <div class="blog-meta">
-                        <span>By ${post.author || 'Anonymous'}</span>
-                        <span>${new Date(post.createdAt).toLocaleDateString()}</span>
+                        <span>👤 ${post.author || 'Anonymous'}</span>
+                        <span>📅 ${new Date(post.createdAt).toLocaleDateString()}</span>
                         <span class="blog-category cat-${post.category || 'general'}">${post.category || 'general'}</span>
                     </div>
                     <div class="blog-excerpt">${excerpt}</div>
-                    <span class="read-more">READ MORE ⟫</span>
+                    <span class="read-more">⟫ READ FULL REPORT ⟪</span>
                 `;
                 container.appendChild(card);
             });
@@ -242,15 +245,15 @@
             const single = document.getElementById('singlePost');
             single.style.display = 'block';
             single.innerHTML = `
-                <button class="btn back-btn" onclick="backToList()">← BACK</button>
-                <div class="card">
-                    <h2 style="color:var(--red); font-family:var(--font-mono);">${post.title}</h2>
-                    <div class="blog-meta">
-                        <span>By ${post.author || 'Anonymous'}</span>
-                        <span>${new Date(post.createdAt).toLocaleString()}</span>
+                <button class="btn back-btn" onclick="backToList()">← BACK TO BLOG</button>
+                <div class="card" style="border-color:var(--red); box-shadow:var(--red-glow);">
+                    <h2 style="color:var(--red); font-family:var(--font-mono); font-weight:900; font-size:1.5rem; text-transform:uppercase;">⚡ ${post.title}</h2>
+                    <div class="blog-meta" style="font-size:0.8rem; margin-top:10px;">
+                        <span>👤 ${post.author || 'Anonymous'}</span>
+                        <span>📅 ${new Date(post.createdAt).toLocaleString()}</span>
                         <span class="blog-category cat-${post.category || 'general'}">${post.category || 'general'}</span>
                     </div>
-                    <div style="margin-top:15px; font-size:0.9rem; line-height:1.7; color:#ccc;">${post.content}</div>
+                    <div style="margin-top:20px; font-size:1rem; line-height:1.8; color:#ddd; font-weight:500; font-family:'Segoe UI', sans-serif;">${post.content}</div>
                 </div>
             `;
             window.scrollTo(0,0);
@@ -261,8 +264,6 @@
             document.getElementById('singlePost').style.display = 'none';
         }
     </script>
-
-    <!-- Service Worker for PWA -->
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js');
