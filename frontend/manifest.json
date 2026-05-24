@@ -1,0 +1,21 @@
+{
+  "name": "GHOST SHELL",
+  "short_name": "GHOST SHELL",
+  "description": "Tactical Cyber Operations Platform – 34+ real cybersecurity tools & tech marketplace.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#010101",
+  "theme_color": "#ff1a1a",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
