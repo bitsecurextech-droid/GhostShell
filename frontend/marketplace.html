@@ -11,6 +11,7 @@
         .shop-card { text-align:center; }
         .shop-card img.tool-preview { width:100%; height:180px; object-fit:cover; border-radius:6px; margin-bottom:10px; border:1px solid var(--red); }
         .shop-card .price { font-size:1.3rem; color:var(--green); margin:8px 0; }
+        .shop-card .price-ngn { font-size:1rem; color:#ffaa33; margin-top:2px; }
         .shop-card .btn, .shop-card a.btn { margin:4px; display:inline-block; text-decoration:none; }
         .my-tools-table { width:100%; margin-top:20px; }
         .btc-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); justify-content:center; align-items:center; z-index:2000; }
@@ -77,6 +78,7 @@
             <h3 id="btcModalTitle" style="color:var(--red);">💳 COMPLETE YOUR PURCHASE</h3>
             <p id="modalToolName"></p>
             <p>Amount: <strong id="modalUSD"></strong> USD</p>
+            <p style="color:#ffaa33; font-size:0.9rem;">≈ ₦<span id="modalNGN"></span></p>
 
             <div style="text-align:left; margin:15px 0;">
                 <p><strong>Option 1 – Bitcoin:</strong></p>
@@ -85,7 +87,7 @@
 
                 <div style="margin-top:15px; padding-top:10px; border-top:1px solid #333;">
                     <p><strong>Option 2 – Bank Transfer (Nigeria):</strong></p>
-                    <p style="font-size:0.8rem;">Get a virtual Wema Bank account to pay directly from your bank app.</p>
+                    <p style="font-size:0.8rem;">Get a virtual account to pay directly from your bank app.</p>
                     <button class="btn" id="getVirtualAccountBtn" style="margin-top:5px;">GET VIRTUAL ACCOUNT</button>
                     <div id="virtualAccountDetails" style="margin-top:10px; background:#111; padding:10px; border-radius:6px; display:none;"></div>
                 </div>
@@ -101,7 +103,16 @@
     <script src="js/matrix.js"></script>
     <script>
         const API = '/api';
-        let currentUser = null, currentTool = null, btcRate = 62000;
+        let currentUser = null, currentTool = null, btcRate = 62000, ngnRate = 1400;
+
+        // Fetch live USD to NGN rate
+        async function fetchNGNRate() {
+            try {
+                const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                const data = await res.json();
+                ngnRate = data.rates.NGN || 1400;
+            } catch(e) { ngnRate = 1400; } // fallback to 1400
+        }
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
             localStorage.removeItem('ghost_token'); window.location.href = 'index.html';
@@ -114,7 +125,11 @@
                 const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (!res.ok) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; return; }
                 const data = await res.json(); currentUser = data.user;
-                buildNav(); await fetchBTCPrice(); loadShopTools(); loadMyTools();
+                buildNav();
+                await fetchNGNRate();
+                await fetchBTCPrice();
+                loadShopTools();
+                loadMyTools();
 
                 document.getElementById('sendContactBtn').addEventListener('click', async () => {
                     const name = document.getElementById('contactName').value.trim();
@@ -178,10 +193,12 @@
                     if (tool.imageUrl) {
                         card.innerHTML += `<img src="${tool.imageUrl}" class="tool-preview" alt="${tool.name}">`;
                     }
+                    const ngnPrice = (tool.priceUSD * ngnRate).toFixed(0);
                     card.innerHTML += `
                         <h3>${tool.name}</h3>
                         <p style="font-size:0.8rem;color:#888;">${tool.description || ''}</p>
                         <div class="price">$${tool.priceUSD}</div>
+                        <div class="price-ngn">≈ ₦${parseInt(ngnPrice).toLocaleString()}</div>
                     `;
                     if (tool.paymentLink) {
                         card.innerHTML += `<a href="${tool.paymentLink}" target="_blank" rel="noopener" class="btn" style="background:rgba(0,180,255,0.1); border-color:#00b4ff; color:#00b4ff;">BUY ON SELAR</a>`;
@@ -212,19 +229,20 @@
 
         function openBuyModal(id, name, priceUSD) {
             currentTool = { id, name, priceUSD };
+            const ngnAmount = Math.round(priceUSD * ngnRate);
             document.getElementById('modalToolName').innerText = name;
             document.getElementById('modalUSD').innerText = priceUSD;
+            document.getElementById('modalNGN').innerText = parseInt(ngnAmount).toLocaleString();
             document.getElementById('btcModal').style.display = 'flex';
             document.getElementById('virtualAccountDetails').style.display = 'none';
             document.getElementById('paymentScreenshot').value = '';
 
             document.getElementById('getVirtualAccountBtn').onclick = async () => {
                 const token = localStorage.getItem('ghost_token');
-                const amountNGN = Math.round(priceUSD * 1800);
                 const res = await fetch(`${API}/create-virtual-account`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ toolId: id, amountNGN })
+                    body: JSON.stringify({ toolId: id, amountNGN: ngnAmount })
                 });
                 const data = await res.json();
                 if (data.account_number) {
@@ -233,7 +251,7 @@
                         <strong>Bank:</strong> ${data.bank}<br>
                         <strong>Account Number:</strong> ${data.account_number}<br>
                         <strong>Account Name:</strong> ${data.account_name}<br>
-                        <strong>Amount:</strong> ₦${data.amount}
+                        <strong>Amount to send:</strong> ₦${parseInt(data.amount).toLocaleString()}
                     `;
                 } else {
                     alert('Failed to generate virtual account. Try again.');
