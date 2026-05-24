@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL // Admin Command Center</title>
+    <title>GHOST SHELL // ADMIN COMMAND</title>
     <meta name="description" content="GHOST SHELL Admin Panel – manage users, access codes, marketplace tools, and monitor platform activity.">
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="css/style.css">
@@ -79,7 +79,7 @@
                 </div>
             </section>
 
-            <!-- OTHER SECTIONS (keep exactly as before – they are already functional) -->
+            <!-- CODES SECTION -->
             <section id="section-codes" class="admin-section">
                 <div class="card">
                     <h2>🔑 Access Codes</h2>
@@ -88,6 +88,7 @@
                 </div>
             </section>
 
+            <!-- PAYMENTS SECTION -->
             <section id="section-payments" class="admin-section">
                 <div class="card">
                     <h2>💸 Pending Payments</h2>
@@ -95,6 +96,7 @@
                 </div>
             </section>
 
+            <!-- TOOLS SECTION -->
             <section id="section-tools" class="admin-section">
                 <div class="card">
                     <h2>🔧 Manage Marketplace Tools</h2>
@@ -108,11 +110,13 @@
                     <input type="number" id="toolPrice" placeholder="Price (USD)" aria-label="Price in USD">
                     <input type="text" id="toolCategory" placeholder="Category" aria-label="Category">
                     <input type="text" id="toolDownloadUrl" placeholder="Download URL" aria-label="Download URL">
+                    <input type="text" id="toolPaymentLink" placeholder="Selar payment link (for PDF tools)" aria-label="Selar payment link">
                     <button class="btn" id="saveToolBtn">Save Tool</button>
                     <button class="btn" onclick="document.getElementById('toolFormModal').style.display='none'">Cancel</button>
                 </div>
             </section>
 
+            <!-- VISITORS SECTION -->
             <section id="section-visitors" class="admin-section">
                 <div class="card">
                     <h2>🌍 Visitor Logs</h2>
@@ -129,6 +133,7 @@
         const API = '/api';
         let adminToken = '';
 
+        // Admin Login
         document.getElementById('adminLoginBtn').addEventListener('click', async () => {
             const email = document.getElementById('adminEmail').value.trim();
             const password = document.getElementById('adminPassword').value;
@@ -175,6 +180,7 @@
                 document.getElementById('toolPrice').value = '';
                 document.getElementById('toolCategory').value = '';
                 document.getElementById('toolDownloadUrl').value = '';
+                document.getElementById('toolPaymentLink').value = '';
                 document.getElementById('saveToolBtn').onclick = saveNewTool;
             });
 
@@ -197,6 +203,7 @@
             else if (section === 'visitors') loadVisitors();
         }
 
+        // -------------------- ADD / UPDATE ADMIN --------------------
         async function addOrUpdateAdmin() {
             const email = document.getElementById('newAdminEmail').value.trim();
             const password = document.getElementById('newAdminPassword').value;
@@ -212,6 +219,7 @@
             loadUsers();
         }
 
+        // -------------------- USER MANAGEMENT --------------------
         async function loadUsers() {
             const res = await fetch(`${API}/admin/users`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const users = await res.json();
@@ -235,6 +243,7 @@
         async function unbanUser(id) { await fetch(`${API}/admin/unban/${id}`, { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` } }); loadUsers(); }
         async function deleteUser(id) { if (confirm('Delete permanently?')) { await fetch(`${API}/admin/delete/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } }); loadUsers(); } }
 
+        // -------------------- ACCESS CODES --------------------
         async function loadCodes() {
             const res = await fetch(`${API}/admin/codes`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const codes = await res.json();
@@ -258,6 +267,7 @@
             loadCodes();
         }
 
+        // -------------------- PAYMENTS --------------------
         async function loadPayments() {
             const res = await fetch(`${API}/admin/payments`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const payments = await res.json();
@@ -278,6 +288,7 @@
             loadPayments();
         }
 
+        // -------------------- MANAGE TOOLS --------------------
         async function loadAdminTools() {
             const res = await fetch(`${API}/tools`);
             const tools = await res.json();
@@ -303,7 +314,8 @@
                     description: document.getElementById('toolDesc').value,
                     priceUSD,
                     category: document.getElementById('toolCategory').value,
-                    downloadUrl: document.getElementById('toolDownloadUrl').value
+                    downloadUrl: document.getElementById('toolDownloadUrl').value,
+                    paymentLink: document.getElementById('toolPaymentLink').value || null
                 })
             });
             document.getElementById('toolFormModal').style.display = 'none';
@@ -317,6 +329,7 @@
             loadAdminTools();
         }
 
+        // -------------------- VISITORS --------------------
         async function loadVisitors() {
             const res = await fetch(`${API}/admin/visitors`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const visitors = await res.json();
@@ -328,6 +341,7 @@
             document.getElementById('visitorsTableContainer').innerHTML = html;
         }
 
+        // Expose to global scope
         window.banUser = banUser;
         window.unbanUser = unbanUser;
         window.deleteUser = deleteUser;
