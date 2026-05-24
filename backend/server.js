@@ -77,7 +77,6 @@ app.get('/api/tools', async (req, res) => {
     res.json(db.data.tools);
 });
 
-// Signup – NO access code required
 app.post('/api/signup', async (req, res) => {
     const { username, email, password, fingerprint } = req.body;
     if (!username || !email || !password || !fingerprint)
@@ -121,7 +120,6 @@ app.get('/api/verify', auth, (req, res) => {
     res.json({ user: { id: req.user.id, username: req.user.username, email: req.user.email, approved: req.user.approved, accessCode: req.user.accessCode, role: req.user.role } });
 });
 
-// Contact form – forwards to Telegram
 app.post('/api/contact', async (req, res) => {
     const { name, email, subject, message, type } = req.body;
     if (!email || !message) return res.status(400).json({ error: 'Email and message required' });
@@ -273,19 +271,11 @@ app.post('/api/subdomain-scan', auth, async (req, res) => {
 app.get('/api/shodan/:ip', auth, async (req, res) => {
     try {
         const { data } = await axios.get(`https://api.shodan.io/shodan/host/${req.params.ip}?key=${process.env.SHODAN_KEY}`);
-        res.json({
-            ip: data.ip_str,
-            org: data.org,
-            os: data.os,
-            ports: data.ports,
-            vulns: data.vulns || [],
-            country: data.country_name,
-            last_update: data.last_update
-        });
+        res.json({ ip: data.ip_str, org: data.org, os: data.os, ports: data.ports, vulns: data.vulns || [], country: data.country_name, last_update: data.last_update });
     } catch (e) { res.json({ error: 'Shodan lookup failed' }); }
 });
 
-// Dark-web credential search (simulated)
+// Dark-web credential search
 app.get('/api/darkweb-search', auth, async (req, res) => {
     const { email } = req.query;
     if (!email) return res.json({ error: 'Email required' });
@@ -479,21 +469,45 @@ app.post('/api/admin/revoke-code', adminAuth, async (req, res) => {
     res.json({ success: true });
 });
 
+// CREATE tool
 app.post('/api/admin/tool', adminAuth, async (req, res) => {
-    const { name, description, priceUSD, category, downloadUrl, paymentLink } = req.body;
+    const { name, description, priceUSD, category, downloadUrl, paymentLink, imageUrl } = req.body;
     const tool = {
         id: uuidv4(),
         name,
         description,
         priceUSD,
         category,
-        downloadUrl,
+        downloadUrl: downloadUrl || null,
         paymentLink: paymentLink || null,
+        imageUrl: imageUrl || null,
         createdAt: new Date().toISOString()
     };
     db.data.tools.push(tool);
     await db.write();
     res.json(tool);
+});
+
+// UPDATE tool
+app.put('/api/admin/tool/:id', adminAuth, async (req, res) => {
+    const { name, description, priceUSD, category, downloadUrl, paymentLink, imageUrl } = req.body;
+    await db.read();
+    const toolIndex = db.data.tools.findIndex(t => t.id === req.params.id);
+    if (toolIndex === -1) return res.status(404).json({ error: 'Tool not found' });
+
+    const updated = {
+        ...db.data.tools[toolIndex],
+        name: name || db.data.tools[toolIndex].name,
+        description: description || db.data.tools[toolIndex].description,
+        priceUSD: priceUSD || db.data.tools[toolIndex].priceUSD,
+        category: category || db.data.tools[toolIndex].category,
+        downloadUrl: downloadUrl !== undefined ? downloadUrl : db.data.tools[toolIndex].downloadUrl,
+        paymentLink: paymentLink !== undefined ? paymentLink : db.data.tools[toolIndex].paymentLink,
+        imageUrl: imageUrl !== undefined ? imageUrl : db.data.tools[toolIndex].imageUrl
+    };
+    db.data.tools[toolIndex] = updated;
+    await db.write();
+    res.json(updated);
 });
 
 app.delete('/api/admin/tool/:id', adminAuth, async (req, res) => {
