@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GHOST SHELL // FAQ</title>
+    <meta name="description" content="Frequently asked questions about GHOST SHELL – legality, payments, downloads, and support.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+    <style>
+        .faq-container { max-width:800px; margin:0 auto; }
+        .faq-item { margin-bottom:20px; border-left:3px solid var(--red); padding-left:15px; }
+        .faq-item h3 { color:var(--red); margin-bottom:5px; font-family:var(--font-mono); }
+        .faq-item p { color:#ccc; font-size:0.9rem; line-height:1.6; }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+    <div id="mainDashboard" style="position:relative; z-index:2;">
+        <header class="header">
+            <div class="logo-area">
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="GHOST SHELL logo">
+                <span class="site-name">GHOST SHELL</span>
+            </div>
+            <nav class="nav-links" id="mainNav"></nav>
+            <button class="btn" id="logoutBtn" style="margin-left:auto; border-color:#ffab00; color:#ffab00;">EXIT</button>
+        </header>
+
+        <main class="page active">
+            <h1 style="color:var(--red); font-family:var(--font-mono);">❓ FAQ</h1>
+            <div class="faq-container">
+                <div class="faq-item"><h3>🛡️ Is GHOST SHELL legal to use?</h3><p>Yes. All tools are intended for <strong>educational and authorized security research only</strong>. You must only use them on systems you own or have explicit written permission to test. Misuse may violate local, national, or international laws.</p></div>
+                <div class="faq-item"><h3>💳 How do I pay for marketplace tools?</h3><p>We accept <strong>Bitcoin (BTC)</strong> and <strong>Nigerian bank transfers</strong> via Paystack. Some digital products have a direct <strong>Selar payment link</strong> that accepts cards, bank transfers, and USSD.</p></div>
+                <div class="faq-item"><h3>📥 How do I get my download after purchase?</h3><p>After you pay and upload proof (for BTC or bank transfer), an admin will verify your payment. Once confirmed, you'll see the <strong>DOWNLOAD</strong> button in the <em>My Purchases</em> section of the Marketplace. For Selar products, the file is delivered automatically after payment.</p></div>
+                <div class="faq-item"><h3>🔧 What if a tool doesn't work?</h3><p>Contact us immediately via the <strong>Marketplace contact form</strong> or email <a href="mailto:ghostshell.ops@gmail.com" style="color:var(--green);">ghostshell.ops@gmail.com</a>. We'll help you resolve the issue or provide a refund if applicable.</p></div>
+                <div class="faq-item"><h3>🔑 Do I need an access code to sign up?</h3><p>No. Sign up is completely free and open. Just create an account with your email, username, and password – no invite code required.</p></div>
+                <div class="faq-item"><h3>📱 Can I use GHOST SHELL on my phone?</h3><p>Yes! The platform is fully responsive. You can also install it as a web app on your home screen for quick access (look for the "Add to Home Screen" prompt).</p></div>
+                <div class="faq-item"><h3>🕵️ Is my data safe?</h3><p>We store only the minimum necessary data (email, hashed password, device fingerprint). Payments are processed by trusted third‑party providers. We never share your information.</p></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/matrix.js"></script>
+    <script>
+        const API = '/api'; let currentUser = null;
+        (async () => {
+            const token = localStorage.getItem('ghost_token');
+            if (!token) { window.location.href = 'index.html'; return; }
+            const res = await fetch(`${API}/verify`, { headers:{'Authorization':`Bearer ${token}`} });
+            if (!res.ok) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; return; }
+            currentUser = (await res.json()).user;
+            document.getElementById('logoutBtn').addEventListener('click', ()=>{ localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; });
+            const nav = document.getElementById('mainNav');
+            const pages = [
+                { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
+                { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
+                { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
+                { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
+                { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+                { name: 'faq', label: '❓ FAQ', href: 'faq.html' }
+            ];
+            if (currentUser.role === 'admin') pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
+            nav.innerHTML = '';
+            pages.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-link' + (p.name === 'faq' ? ' active' : '');
+                btn.textContent = p.label;
+                btn.addEventListener('click', () => window.location.href = p.href);
+                nav.appendChild(btn);
+            });
+        })();
+    </script>
+</body>
+</html>
