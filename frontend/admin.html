@@ -9,20 +9,17 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
-        .admin-section { display:none; }
-        .admin-section.active { display:block; }
+        .admin-section { display:none; } .admin-section.active { display:block; }
         .admin-nav { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
         .admin-nav-btn { background:rgba(20,0,0,0.6); border:1px solid #330000; color:#999; cursor:pointer; font-family:var(--font-mono); font-size:0.75rem; padding:8px 14px; border-radius:4px; transition:all 0.3s; }
         .admin-nav-btn:hover, .admin-nav-btn.active { border-color:var(--red); color:#fff; box-shadow:var(--red-glow); background:rgba(255,0,0,0.1); }
         .add-admin-form { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:15px; }
         .add-admin-form input, .add-admin-form select { width:auto; flex:1; min-width:150px; }
-        .edit-tool-link { cursor:pointer; text-decoration:underline; color:var(--green); }
     </style>
 </head>
 <body>
     <canvas id="matrixCanvas"></canvas>
 
-    <!-- Admin Login Modal -->
     <div id="adminLoginModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; z-index:2000;">
         <div class="card auth-card" style="text-align:center;">
             <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:55px; margin-bottom:10px;" alt="GHOST SHELL logo">
@@ -34,7 +31,6 @@
         </div>
     </div>
 
-    <!-- Admin Dashboard -->
     <div id="adminDashboard" style="display:none; position:relative; z-index:10;">
         <header class="header">
             <div class="logo-area">
@@ -50,7 +46,6 @@
 
         <main class="page active">
             <h1 style="color:var(--red); font-family:var(--font-mono);">⚙️ ADMIN COMMAND CENTER</h1>
-
             <nav class="admin-nav" aria-label="Admin sections">
                 <button class="admin-nav-btn active" data-section="users">👥 Users</button>
                 <button class="admin-nav-btn" data-section="codes">🔑 Access Codes</button>
@@ -59,7 +54,7 @@
                 <button class="admin-nav-btn" data-section="visitors">🌍 Visitors</button>
             </nav>
 
-            <!-- USERS SECTION -->
+            <!-- USERS -->
             <section id="section-users" class="admin-section active">
                 <div class="card">
                     <h2>➕ ADD / PROMOTE ADMIN</h2>
@@ -80,38 +75,31 @@
                 </div>
             </section>
 
-            <!-- CODES SECTION -->
+            <!-- CODES -->
             <section id="section-codes" class="admin-section">
-                <div class="card">
-                    <h2>🔑 Access Codes</h2>
-                    <button class="btn" id="generateCodesBtn">Generate 50 Codes</button>
-                    <div id="codesTableContainer" style="margin-top:15px; max-height:400px;overflow-y:auto;"></div>
-                </div>
+                <div class="card"><h2>🔑 Access Codes</h2><button class="btn" id="generateCodesBtn">Generate 50 Codes</button><div id="codesTableContainer" style="margin-top:15px; max-height:400px;overflow-y:auto;"></div></div>
             </section>
 
-            <!-- PAYMENTS SECTION -->
+            <!-- PAYMENTS -->
             <section id="section-payments" class="admin-section">
-                <div class="card">
-                    <h2>💸 Pending Payments</h2>
-                    <div id="paymentsContainer"></div>
-                </div>
+                <div class="card"><h2>💸 Pending Payments</h2><div id="paymentsContainer"></div></div>
             </section>
 
-            <!-- TOOLS SECTION -->
+            <!-- TOOLS -->
             <section id="section-tools" class="admin-section">
                 <div class="card">
                     <h2>🔧 Manage Marketplace Tools</h2>
                     <button class="btn" id="addToolBtn">+ Add New Tool</button>
                     <div id="adminToolsContainer" style="margin-top:15px;"></div>
                 </div>
-                <!-- ADD / EDIT TOOL MODAL -->
                 <div id="toolFormModal" style="display:none; margin-top:15px;" class="card">
                     <h3 id="toolFormTitle">Add New Tool</h3>
                     <input type="text" id="toolName" placeholder="Tool Name" aria-label="Tool name">
                     <textarea id="toolDesc" placeholder="Description" rows="3" aria-label="Tool description"></textarea>
                     <input type="number" id="toolPrice" placeholder="Price (USD)" aria-label="Price in USD">
                     <input type="text" id="toolCategory" placeholder="Category (e.g., Network, PDF, Exploit)" aria-label="Category">
-                    <input type="text" id="toolDownloadUrl" placeholder="Download URL (Google Drive, direct link, or leave blank for manual delivery)" aria-label="Download URL">
+                    <input type="text" id="toolImageUrl" placeholder="Image Preview URL (optional)" aria-label="Image Preview URL">
+                    <input type="text" id="toolDownloadUrl" placeholder="Download URL (Google Drive, direct link, or leave blank)" aria-label="Download URL">
                     <input type="text" id="toolPaymentLink" placeholder="Selar payment link (for PDF tools)" aria-label="Selar payment link">
                     <button class="btn" id="saveToolBtn">Save Tool</button>
                     <button class="btn" onclick="closeToolForm()">Cancel</button>
@@ -119,12 +107,9 @@
                 </div>
             </section>
 
-            <!-- VISITORS SECTION -->
+            <!-- VISITORS -->
             <section id="section-visitors" class="admin-section">
-                <div class="card">
-                    <h2>🌍 Visitor Logs</h2>
-                    <div id="visitorsTableContainer" style="max-height:400px;overflow-y:auto;"></div>
-                </div>
+                <div class="card"><h2>🌍 Visitor Logs</h2><div id="visitorsTableContainer" style="max-height:400px;overflow-y:auto;"></div></div>
             </section>
 
             <button class="btn" id="logoutAdminBtnBottom" style="margin-top:20px;">Logout Admin</button>
@@ -133,171 +118,96 @@
 
     <script src="js/matrix.js"></script>
     <script>
-        const API = '/api';
-        let adminToken = '';
+        const API = '/api'; let adminToken = '';
 
-        // Admin Login
         document.getElementById('adminLoginBtn').addEventListener('click', async () => {
             const email = document.getElementById('adminEmail').value.trim();
             const password = document.getElementById('adminPassword').value;
             const errorEl = document.getElementById('adminLoginError');
             try {
-                const res = await fetch(`${API}/admin/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
+                const res = await fetch(`${API}/admin/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email, password }) });
                 const data = await res.json();
-                if (data.token) {
-                    adminToken = data.token;
-                    localStorage.setItem('adminToken', adminToken);
-                    showAdminDashboard();
-                } else {
-                    errorEl.textContent = data.error || 'Invalid admin credentials';
-                }
-            } catch (e) {
-                errorEl.textContent = 'Connection failed – is the server running?';
-            }
+                if (data.token) { adminToken = data.token; localStorage.setItem('adminToken', adminToken); showAdminDashboard(); }
+                else { errorEl.textContent = data.error || 'Invalid admin credentials'; }
+            } catch(e) { errorEl.textContent = 'Connection failed – is the server running?'; }
         });
 
         function showAdminDashboard() {
             document.getElementById('adminLoginModal').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'block';
             loadSection('users');
-
             document.querySelectorAll('.admin-nav-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const section = btn.dataset.section;
-                    loadSection(section);
+                    const section = btn.dataset.section; loadSection(section);
                     document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                 });
             });
-
             document.getElementById('generateCodesBtn').addEventListener('click', generateCodes);
             document.getElementById('addToolBtn').addEventListener('click', () => openToolForm(null));
-
             document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
             document.getElementById('logoutAdminBtnBottom').addEventListener('click', logoutAdmin);
         }
 
-        function logoutAdmin() {
-            localStorage.removeItem('adminToken');
-            window.location.href = 'admin.html';
-        }
+        function logoutAdmin() { localStorage.removeItem('adminToken'); window.location.href = 'admin.html'; }
 
         function loadSection(section) {
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
             document.getElementById(`section-${section}`).classList.add('active');
-            if (section === 'users') loadUsers();
-            else if (section === 'codes') loadCodes();
-            else if (section === 'payments') loadPayments();
-            else if (section === 'tools') loadAdminTools();
-            else if (section === 'visitors') loadVisitors();
+            if (section === 'users') loadUsers(); else if (section === 'codes') loadCodes(); else if (section === 'payments') loadPayments(); else if (section === 'tools') loadAdminTools(); else if (section === 'visitors') loadVisitors();
         }
 
-        // -------------------- ADD / UPDATE ADMIN --------------------
         async function addOrUpdateAdmin() {
             const email = document.getElementById('newAdminEmail').value.trim();
             const password = document.getElementById('newAdminPassword').value;
             const adminRole = document.getElementById('newAdminRole').value;
             if (!email) return alert('Email required');
-            const res = await fetch(`${API}/admin/add-admin`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-                body: JSON.stringify({ email, password: password || undefined, adminRole })
-            });
-            const data = await res.json();
-            alert(data.message || data.error);
-            loadUsers();
+            const res = await fetch(`${API}/admin/add-admin`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminToken}`}, body:JSON.stringify({ email, password: password||undefined, adminRole }) });
+            const data = await res.json(); alert(data.message||data.error); loadUsers();
         }
 
-        // -------------------- USER MANAGEMENT --------------------
         async function loadUsers() {
-            const res = await fetch(`${API}/admin/users`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
-            const users = await res.json();
+            const users = await (await fetch(`${API}/admin/users`, { headers:{'Authorization':`Bearer ${adminToken}`} })).json();
             let html = `<table class="admin-table"><tr><th>Email</th><th>Username</th><th>Role</th><th>Status</th><th>Actions</th></tr>`;
             users.forEach(u => {
                 const status = u.banned ? '🚫 BANNED' : '✅ ACTIVE';
-                html += `<tr>
-                    <td>${u.email}</td><td>${u.username}</td><td>${u.role || 'user'}</td>
-                    <td>${status}</td>
-                    <td>
-                        ${u.banned ? `<button class="btn" onclick="unbanUser('${u.id}')">UNBAN</button>` : `<button class="btn" onclick="banUser('${u.id}')">BAN</button>`}
-                        <button class="btn" onclick="deleteUser('${u.id}')" style="border-color:var(--red);color:var(--red);">DELETE</button>
-                    </td>
-                </tr>`;
+                html += `<tr><td>${u.email}</td><td>${u.username}</td><td>${u.role||'user'}</td><td>${status}</td>
+                <td>${u.banned ? `<button class="btn" onclick="unbanUser('${u.id}')">UNBAN</button>` : `<button class="btn" onclick="banUser('${u.id}')">BAN</button>`}
+                <button class="btn" onclick="deleteUser('${u.id}')" style="border-color:var(--red);color:var(--red);">DELETE</button></td></tr>`;
             });
-            html += '</table>';
-            document.getElementById('userTableContainer').innerHTML = html;
+            html += '</table>'; document.getElementById('userTableContainer').innerHTML = html;
         }
 
-        async function banUser(id) { await fetch(`${API}/admin/ban/${id}`, { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` } }); loadUsers(); }
-        async function unbanUser(id) { await fetch(`${API}/admin/unban/${id}`, { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` } }); loadUsers(); }
-        async function deleteUser(id) { if (confirm('Delete permanently?')) { await fetch(`${API}/admin/delete/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } }); loadUsers(); } }
+        async function banUser(id) { await fetch(`${API}/admin/ban/${id}`, { method:'POST', headers:{'Authorization':`Bearer ${adminToken}`} }); loadUsers(); }
+        async function unbanUser(id) { await fetch(`${API}/admin/unban/${id}`, { method:'POST', headers:{'Authorization':`Bearer ${adminToken}`} }); loadUsers(); }
+        async function deleteUser(id) { if (confirm('Delete permanently?')) { await fetch(`${API}/admin/delete/${id}`, { method:'DELETE', headers:{'Authorization':`Bearer ${adminToken}`} }); loadUsers(); } }
 
-        // -------------------- ACCESS CODES --------------------
         async function loadCodes() {
-            const res = await fetch(`${API}/admin/codes`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
-            const codes = await res.json();
+            const codes = await (await fetch(`${API}/admin/codes`, { headers:{'Authorization':`Bearer ${adminToken}`} })).json();
             let html = `<table class="admin-table"><tr><th>Code</th><th>Status</th><th>Used By</th><th>Action</th></tr>`;
-            codes.forEach(c => {
-                html += `<tr><td>${c.code}</td><td>${c.usedBy ? 'USED' : 'ACTIVE'}</td><td>${c.usedBy ? c.usedBy.email : '—'}</td>
-                <td><button class="btn" onclick="revokeCode('${c.id || c._id}')">REVOKE</button></td></tr>`;
-            });
-            html += '</table>';
-            document.getElementById('codesTableContainer').innerHTML = html;
+            codes.forEach(c => { html += `<tr><td>${c.code}</td><td>${c.usedBy?'USED':'ACTIVE'}</td><td>${c.usedBy?c.usedBy.email:'—'}</td><td><button class="btn" onclick="revokeCode('${c.id||c._id}')">REVOKE</button></td></tr>`; });
+            html += '</table>'; document.getElementById('codesTableContainer').innerHTML = html;
         }
 
-        async function generateCodes() {
-            await fetch(`${API}/admin/generate-codes`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` }, body: JSON.stringify({ count: 50 }) });
-            alert('50 codes generated.');
-            loadCodes();
-        }
+        async function generateCodes() { await fetch(`${API}/admin/generate-codes`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminToken}`}, body:JSON.stringify({count:50}) }); alert('50 codes generated.'); loadCodes(); }
+        async function revokeCode(id) { await fetch(`${API}/admin/revoke-code`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminToken}`}, body:JSON.stringify({codeId:id}) }); loadCodes(); }
 
-        async function revokeCode(id) {
-            await fetch(`${API}/admin/revoke-code`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` }, body: JSON.stringify({ codeId: id }) });
-            loadCodes();
-        }
-
-        // -------------------- PAYMENTS --------------------
         async function loadPayments() {
-            const res = await fetch(`${API}/admin/payments`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
-            const payments = await res.json();
+            const payments = await (await fetch(`${API}/admin/payments`, { headers:{'Authorization':`Bearer ${adminToken}`} })).json();
             let html = payments.length ? '<table class="admin-table"><tr><th>User</th><th>Tool</th><th>Amount</th><th>Proof</th><th>Action</th></tr>' : '<p>No pending payments.</p>';
-            if (payments.length) {
-                payments.forEach(p => {
-                    html += `<tr><td>${p.userId?.email || '—'}</td><td>${p.toolId?.name || 'Access Code'}</td><td>$${p.amountUSD}</td>
-                    <td><img src="data:image/png;base64,${p.screenshotBase64}" style="width:40px;cursor:pointer;" alt="Payment proof" onclick="window.open(this.src)"></td>
-                    <td><button class="btn" onclick="confirmPayment('${p.id}')">CONFIRM</button></td></tr>`;
-                });
-                html += '</table>';
-            }
+            if (payments.length) { payments.forEach(p => { html += `<tr><td>${p.userId?.email||'—'}</td><td>${p.toolId?.name||'Access Code'}</td><td>$${p.amountUSD}</td><td><img src="data:image/png;base64,${p.screenshotBase64}" style="width:40px;cursor:pointer;" onclick="window.open(this.src)"></td><td><button class="btn" onclick="confirmPayment('${p.id}')">CONFIRM</button></td></tr>`; }); html += '</table>'; }
             document.getElementById('paymentsContainer').innerHTML = html;
         }
 
-        async function confirmPayment(id) {
-            await fetch(`${API}/admin/confirm-payment`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` }, body: JSON.stringify({ paymentId: id }) });
-            loadPayments();
-        }
+        async function confirmPayment(id) { await fetch(`${API}/admin/confirm-payment`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminToken}`}, body:JSON.stringify({paymentId:id}) }); loadPayments(); }
 
-        // -------------------- MANAGE TOOLS --------------------
         async function loadAdminTools() {
-            const res = await fetch(`${API}/tools`);
-            const tools = await res.json();
+            const tools = await (await fetch(`${API}/tools`)).json();
             let html = `<table class="admin-table"><tr><th>Name</th><th>Price</th><th>Category</th><th>Actions</th></tr>`;
-            tools.forEach(t => {
-                html += `<tr><td>${t.name}</td><td>$${t.priceUSD}</td><td>${t.category}</td>
-                <td>
-                    <button class="btn" onclick="editTool('${t.id}')">✏️ EDIT</button>
-                    <button class="btn" onclick="deleteTool('${t.id}')" style="border-color:var(--red);color:var(--red);">🗑️ DELETE</button>
-                </td></tr>`;
-            });
-            html += '</table>';
-            document.getElementById('adminToolsContainer').innerHTML = html;
+            tools.forEach(t => { html += `<tr><td>${t.name}</td><td>$${t.priceUSD}</td><td>${t.category}</td><td><button class="btn" onclick="editTool('${t.id}')">✏️ EDIT</button><button class="btn" onclick="deleteTool('${t.id}')" style="border-color:var(--red);color:var(--red);">🗑️ DELETE</button></td></tr>`; });
+            html += '</table>'; document.getElementById('adminToolsContainer').innerHTML = html;
         }
 
-        // OPEN TOOL FORM (for add or edit)
         function openToolForm(tool = null) {
             document.getElementById('toolFormModal').style.display = 'block';
             if (tool) {
@@ -306,6 +216,7 @@
                 document.getElementById('toolDesc').value = tool.description || '';
                 document.getElementById('toolPrice').value = tool.priceUSD || '';
                 document.getElementById('toolCategory').value = tool.category || '';
+                document.getElementById('toolImageUrl').value = tool.imageUrl || '';
                 document.getElementById('toolDownloadUrl').value = tool.downloadUrl || '';
                 document.getElementById('toolPaymentLink').value = tool.paymentLink || '';
                 document.getElementById('editingToolId').value = tool.id;
@@ -315,85 +226,48 @@
                 document.getElementById('toolDesc').value = '';
                 document.getElementById('toolPrice').value = '';
                 document.getElementById('toolCategory').value = '';
+                document.getElementById('toolImageUrl').value = '';
                 document.getElementById('toolDownloadUrl').value = '';
                 document.getElementById('toolPaymentLink').value = '';
                 document.getElementById('editingToolId').value = '';
             }
         }
 
-        function closeToolForm() {
-            document.getElementById('toolFormModal').style.display = 'none';
-        }
+        function closeToolForm() { document.getElementById('toolFormModal').style.display = 'none'; }
 
-        // SAVE (create or update)
         document.getElementById('saveToolBtn').addEventListener('click', async () => {
             const name = document.getElementById('toolName').value;
             const priceUSD = parseFloat(document.getElementById('toolPrice').value);
             if (!name || !priceUSD) return alert('Name and price required.');
-
             const toolData = {
                 name,
                 description: document.getElementById('toolDesc').value,
                 priceUSD,
                 category: document.getElementById('toolCategory').value,
+                imageUrl: document.getElementById('toolImageUrl').value || null,
                 downloadUrl: document.getElementById('toolDownloadUrl').value,
                 paymentLink: document.getElementById('toolPaymentLink').value || null
             };
-
             const editingId = document.getElementById('editingToolId').value;
             const url = editingId ? `${API}/admin/tool/${editingId}` : `${API}/admin/tool`;
             const method = editingId ? 'PUT' : 'POST';
-
-            const res = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-                body: JSON.stringify(toolData)
-            });
-
-            if (res.ok) {
-                closeToolForm();
-                loadAdminTools();
-            } else {
-                alert('Save failed.');
-            }
+            const res = await fetch(url, { method, headers:{'Content-Type':'application/json','Authorization':`Bearer ${adminToken}`}, body:JSON.stringify(toolData) });
+            if (res.ok) { closeToolForm(); loadAdminTools(); } else { alert('Save failed.'); }
         });
 
-        // EDIT tool (populate form)
-        async function editTool(id) {
-            const res = await fetch(`${API}/tools`);
-            const tools = await res.json();
-            const tool = tools.find(t => t.id === id);
-            if (tool) openToolForm(tool);
-        }
+        async function editTool(id) { const tools = await (await fetch(`${API}/tools`)).json(); const tool = tools.find(t => t.id === id); if (tool) openToolForm(tool); }
+        async function deleteTool(id) { if (!confirm('Delete this tool?')) return; await fetch(`${API}/admin/tool/${id}`, { method:'DELETE', headers:{'Authorization':`Bearer ${adminToken}`} }); loadAdminTools(); }
 
-        // DELETE tool
-        async function deleteTool(id) {
-            if (!confirm('Delete this tool?')) return;
-            await fetch(`${API}/admin/tool/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
-            loadAdminTools();
-        }
-
-        // -------------------- VISITORS --------------------
         async function loadVisitors() {
-            const res = await fetch(`${API}/admin/visitors`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
-            const visitors = await res.json();
+            const visitors = await (await fetch(`${API}/admin/visitors`, { headers:{'Authorization':`Bearer ${adminToken}`} })).json();
             let html = `<table class="admin-table"><tr><th>IP</th><th>Location</th><th>VPN</th><th>Page</th><th>Time</th></tr>`;
-            visitors.forEach(v => {
-                html += `<tr><td>${v.ip}</td><td>${v.location}</td><td>${v.vpn ? '⚠️ YES' : 'NO'}</td><td>${v.page}</td><td>${new Date(v.timestamp).toLocaleString()}</td></tr>`;
-            });
-            html += '</table>';
-            document.getElementById('visitorsTableContainer').innerHTML = html;
+            visitors.forEach(v => { html += `<tr><td>${v.ip}</td><td>${v.location}</td><td>${v.vpn?'⚠️ YES':'NO'}</td><td>${v.page}</td><td>${new Date(v.timestamp).toLocaleString()}</td></tr>`; });
+            html += '</table>'; document.getElementById('visitorsTableContainer').innerHTML = html;
         }
 
-        // Expose to global scope
-        window.banUser = banUser;
-        window.unbanUser = unbanUser;
-        window.deleteUser = deleteUser;
-        window.revokeCode = revokeCode;
-        window.confirmPayment = confirmPayment;
-        window.editTool = editTool;
-        window.deleteTool = deleteTool;
-        window.addOrUpdateAdmin = addOrUpdateAdmin;
+        window.banUser = banUser; window.unbanUser = unbanUser; window.deleteUser = deleteUser;
+        window.revokeCode = revokeCode; window.confirmPayment = confirmPayment;
+        window.editTool = editTool; window.deleteTool = deleteTool; window.addOrUpdateAdmin = addOrUpdateAdmin;
     </script>
 </body>
 </html>
