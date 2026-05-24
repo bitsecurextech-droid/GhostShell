@@ -8,8 +8,11 @@
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
         .tool-shop-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:15px; }
-        .shop-card { text-align:center; }
-        .shop-card img.tool-preview { width:100%; height:180px; object-fit:cover; border-radius:6px; margin-bottom:10px; border:1px solid var(--red); }
+        .shop-card { text-align:center; position:relative; }
+        .shop-card .main-image { width:100%; height:180px; object-fit:cover; border-radius:6px; margin-bottom:10px; border:1px solid var(--red); }
+        .shop-card .image-gallery { display:flex; gap:4px; flex-wrap:wrap; justify-content:center; margin-bottom:8px; }
+        .shop-card .image-gallery img { width:40px; height:40px; object-fit:cover; border-radius:3px; cursor:pointer; border:1px solid #333; }
+        .shop-card .video-thumb { width:100%; height:120px; background:#111; display:flex; align-items:center; justify-content:center; border-radius:6px; margin-bottom:8px; cursor:pointer; border:1px solid var(--red); font-size:2rem; color:var(--red); }
         .shop-card .price { font-size:1.3rem; color:var(--green); margin:8px 0; }
         .shop-card .price-ngn { font-size:1rem; color:#ffaa33; margin-top:2px; }
         .shop-card .btn, .shop-card a.btn { margin:4px; display:inline-block; text-decoration:none; }
@@ -111,7 +114,7 @@
                 const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
                 const data = await res.json();
                 ngnRate = data.rates.NGN || 1400;
-            } catch(e) { ngnRate = 1400; } // fallback to 1400
+            } catch(e) { ngnRate = 1400; }
         }
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -190,9 +193,28 @@
                 tools.forEach(tool => {
                     const card = document.createElement('div');
                     card.className = 'card shop-card';
-                    if (tool.imageUrl) {
-                        card.innerHTML += `<img src="${tool.imageUrl}" class="tool-preview" alt="${tool.name}">`;
+
+                    // Video thumbnail
+                    if (tool.videoUrl) {
+                        card.innerHTML += `<div class="video-thumb" onclick="window.open('${tool.videoUrl}', '_blank')">▶️</div>`;
                     }
+
+                    // Main image (first image if available)
+                    const mainImg = (tool.imageUrls && tool.imageUrls.length > 0) ? tool.imageUrls[0] : null;
+                    if (mainImg) {
+                        card.innerHTML += `<img src="${mainImg}" class="main-image" alt="${tool.name}">`;
+                    }
+
+                    // Image gallery (if more than one image)
+                    if (tool.imageUrls && tool.imageUrls.length > 1) {
+                        let galleryHTML = '<div class="image-gallery">';
+                        tool.imageUrls.forEach((url, i) => {
+                            galleryHTML += `<img src="${url}" onclick="this.closest('.shop-card').querySelector('.main-image').src='${url}'" alt="Image ${i+1}">`;
+                        });
+                        galleryHTML += '</div>';
+                        card.innerHTML += galleryHTML;
+                    }
+
                     const ngnPrice = (tool.priceUSD * ngnRate).toFixed(0);
                     card.innerHTML += `
                         <h3>${tool.name}</h3>
