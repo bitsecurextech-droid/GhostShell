@@ -24,6 +24,17 @@
         .contact-note a { color:var(--green); text-decoration:underline; }
         .contact-form { display:flex; flex-direction:column; gap:10px; margin-top:15px; }
         .contact-form input, .contact-form textarea, .contact-form select { background:#111; border:1px solid #333; color:#fff; padding:10px; font-family:var(--font-mono); }
+
+        /* skeleton pulse */
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+        .skeleton .skel-bar {
+            background:#1a1a1a;
+            border-radius:3px;
+            animation:pulse 1.5s infinite;
+        }
     </style>
 </head>
 <body>
@@ -185,10 +196,24 @@
 
         async function loadShopTools() {
             const container = document.getElementById('shopTools');
+            // Show skeleton loaders
+            container.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const skel = document.createElement('div');
+                skel.className = 'card shop-card skeleton';
+                skel.innerHTML = `
+                    <div class="skel-bar" style="width:100%; height:180px; margin-bottom:10px;"></div>
+                    <div class="skel-bar" style="width:80%; height:1rem; margin:0 auto 8px;"></div>
+                    <div class="skel-bar" style="width:60%; height:0.8rem; margin:0 auto 12px;"></div>
+                    <div class="skel-bar" style="width:40%; height:1.3rem; margin:0 auto;"></div>
+                `;
+                container.appendChild(skel);
+            }
+
             try {
                 const tools = await (await fetch(`${API}/tools`)).json();
-                if (!tools.length) { container.innerHTML = '<p>No tools available yet.</p>'; return; }
                 container.innerHTML = '';
+                if (!tools.length) { container.innerHTML = '<p>No tools available yet.</p>'; return; }
                 tools.forEach(tool => {
                     const card = document.createElement('div');
                     card.className = 'card shop-card';
@@ -308,10 +333,6 @@
             };
             reader.readAsDataURL(fileInput.files[0]);
         });
-        @keyframes pulse {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 0.8; }
-}
     </script>
 </body>
 </html>
