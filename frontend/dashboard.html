@@ -4,27 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>GHOST SHELL // OPS CENTER</title>
+    <meta name="description" content="GHOST SHELL Ops Center – live system monitor, threat matrix, real‑time terminal, and global attack map.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff1a1a">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="GHOST SHELL">
-<link rel="apple-touch-icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
 </head>
-    
 <body>
     <canvas id="matrixCanvas"></canvas>
 
     <div id="mainDashboard" style="position:relative; z-index:2;">
         <header class="header">
             <div class="logo-area">
-                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="GHOST SHELL logo">
                 <span class="site-name">GHOST SHELL</span>
             </div>
             <nav class="nav-links" id="mainNav"></nav>
+            <!-- Theme Toggle -->
+            <button class="btn" id="themeToggle" style="border-color:#ffaa00; color:#ffaa00; margin-left:10px;">🌓</button>
+            <!-- Logout -->
+            <button class="btn" id="logoutBtn" style="margin-left:auto; border-color:#ffab00; color:#ffab00;" aria-label="Logout">EXIT</button>
         </header>
 
         <div class="page active">
@@ -108,6 +105,23 @@
         const API = '/api';
         let currentUser = null;
 
+        // Theme toggle
+        (function() {
+            const themeBtn = document.getElementById('themeToggle');
+            if (themeBtn) {
+                if (localStorage.getItem('theme') === 'light') {
+                    document.body.classList.add('light');
+                    themeBtn.textContent = '☀️';
+                }
+                themeBtn.addEventListener('click', () => {
+                    document.body.classList.toggle('light');
+                    const isLight = document.body.classList.contains('light');
+                    themeBtn.textContent = isLight ? '☀️' : '🌓';
+                    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+                });
+            }
+        })();
+
         (async () => {
             const token = localStorage.getItem('ghost_token');
             if (!token) { window.location.href = 'index.html'; return; }
@@ -121,6 +135,12 @@
                 document.getElementById('threatLevelDisplay').textContent = currentUser.approved ? 'DELTA' : 'PENDING';
                 setInterval(() => { document.getElementById('uplinkSpeed').textContent = (2 + Math.random() * 3).toFixed(1) + ' Gbps'; }, 2000);
                 document.querySelectorAll('.quick-btn').forEach(btn => btn.addEventListener('click', () => window.location.href = btn.dataset.href));
+                // Logout button event
+                document.getElementById('logoutBtn').addEventListener('click', () => {
+                    localStorage.removeItem('ghost_token');
+                    localStorage.removeItem('toolToken');
+                    window.location.href = 'index.html';
+                });
                 initMiniTerminal();
                 initGlobe();
                 initPopups();
@@ -134,7 +154,8 @@
                 { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
                 { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
                 { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
-                { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' }
+                { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+                { name: 'blog', label: '💀 Blog', href: 'blog.html' }
             ];
             if (currentUser.role === 'admin') pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
             nav.innerHTML = '';
@@ -232,12 +253,5 @@
             setTimeout(show, 5000);
         }
     </script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
-  }
-</script>
-    
 </body>
 </html>
