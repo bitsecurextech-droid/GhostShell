@@ -7,6 +7,42 @@
     <meta name="description" content="GHOST SHELL Ops Center – live system monitor, threat matrix, real‑time terminal, and global attack map.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+    <style>
+        /* ---- AI BOT PANEL ---- */
+        .ai-bot-btn {
+            position: fixed; bottom: 25px; right: 25px;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: var(--red); color: #fff; border: none;
+            font-size: 1.8rem; cursor: pointer; z-index: 9998;
+            box-shadow: var(--red-glow); transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ai-bot-btn:hover { transform: scale(1.1); }
+        .ai-chat-panel {
+            position: fixed; bottom: 90px; right: 25px;
+            width: 350px; max-width: 90vw; height: 450px; max-height: 70vh;
+            background: rgba(5,5,10,0.95); backdrop-filter: blur(15px);
+            border: 1px solid var(--red); border-radius: 12px;
+            box-shadow: var(--red-glow); z-index: 9999;
+            display: none; flex-direction: column; overflow: hidden;
+        }
+        .ai-chat-panel.open { display: flex; }
+        .ai-chat-header {
+            background: rgba(255,0,0,0.15); padding: 10px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-family: var(--font-mono); color: var(--red); letter-spacing: 1px;
+            border-bottom: 1px solid var(--red);
+        }
+        .ai-chat-messages {
+            flex: 1; padding: 12px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.8rem;
+            background: rgba(0,0,0,0.4);
+        }
+        .ai-chat-messages .msg { margin: 6px 0; }
+        .ai-chat-messages .user { color: var(--green); }
+        .ai-chat-messages .ai { color: #ddd; }
+        .ai-chat-input-area { display: flex; padding: 10px; background: #111; border-top: 1px solid #333; }
+        .ai-chat-input-area input { flex: 1; margin-right: 8px; }
+    </style>
 </head>
 <body>
     <canvas id="matrixCanvas"></canvas>
@@ -18,9 +54,7 @@
                 <span class="site-name">GHOST SHELL</span>
             </div>
             <nav class="nav-links" id="mainNav"></nav>
-            <!-- Theme Toggle -->
             <button class="btn" id="themeToggle" style="border-color:#ffaa00; color:#ffaa00; margin-left:10px;">🌓</button>
-            <!-- Logout -->
             <button class="btn" id="logoutBtn" style="margin-left:auto; border-color:#ffab00; color:#ffab00;" aria-label="Logout">EXIT</button>
         </header>
 
@@ -100,6 +134,24 @@
         </div>
     </div>
 
+    <!-- AI Bot floating button -->
+    <button class="ai-bot-btn" id="aiBotToggle" title="Ask AI">🤖</button>
+
+    <!-- AI Chat Panel -->
+    <div class="ai-chat-panel" id="aiChatPanel">
+        <div class="ai-chat-header">
+            <span>⚡ GHOST AI</span>
+            <button class="btn" id="aiCloseBtn" style="border:none; color:var(--red); font-size:1.2rem; padding:0 8px;">✕</button>
+        </div>
+        <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="msg ai">👋 I'm GHOST AI. Ask me anything about cybersecurity, technology, or hacking. (Educational use only)</div>
+        </div>
+        <div class="ai-chat-input-area">
+            <input type="text" id="aiChatInput" placeholder="Type your question...">
+            <button class="btn" id="aiSendBtn" style="padding:8px 15px;">SEND</button>
+        </div>
+    </div>
+
     <script src="js/matrix.js"></script>
     <script>
         const API = '/api';
@@ -122,6 +174,60 @@
             }
         })();
 
+        // AI Bot toggle
+        (function() {
+            const aiBtn = document.getElementById('aiBotToggle');
+            const aiPanel = document.getElementById('aiChatPanel');
+            const aiClose = document.getElementById('aiCloseBtn');
+            const aiInput = document.getElementById('aiChatInput');
+            const aiSend = document.getElementById('aiSendBtn');
+            const aiMessages = document.getElementById('aiChatMessages');
+
+            aiBtn.addEventListener('click', () => {
+                aiPanel.classList.toggle('open');
+            });
+            aiClose.addEventListener('click', () => {
+                aiPanel.classList.remove('open');
+            });
+
+            async function sendAIMessage() {
+                const msg = aiInput.value.trim();
+                if (!msg) return;
+                // Show user message
+                aiMessages.innerHTML += `<div class="msg user">🧑 ${msg}</div>`;
+                aiInput.value = '';
+                aiMessages.scrollTop = aiMessages.scrollHeight;
+
+                // Show typing indicator
+                const typing = document.createElement('div');
+                typing.className = 'msg ai';
+                typing.textContent = '⏳ Thinking...';
+                aiMessages.appendChild(typing);
+                aiMessages.scrollTop = aiMessages.scrollHeight;
+
+                try {
+                    const token = localStorage.getItem('ghost_token');
+                    const res = await fetch(`${API}/ai/chat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ message: msg })
+                    });
+                    const data = await res.json();
+                    typing.remove();
+                    aiMessages.innerHTML += `<div class="msg ai">🤖 ${data.reply || 'No response.'}</div>`;
+                } catch(e) {
+                    typing.remove();
+                    aiMessages.innerHTML += `<div class="msg ai" style="color:red;">❌ Connection failed.</div>`;
+                }
+                aiMessages.scrollTop = aiMessages.scrollHeight;
+            }
+
+            aiSend.addEventListener('click', sendAIMessage);
+            aiInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') sendAIMessage();
+            });
+        })();
+
         (async () => {
             const token = localStorage.getItem('ghost_token');
             if (!token) { window.location.href = 'index.html'; return; }
@@ -135,11 +241,8 @@
                 document.getElementById('threatLevelDisplay').textContent = currentUser.approved ? 'DELTA' : 'PENDING';
                 setInterval(() => { document.getElementById('uplinkSpeed').textContent = (2 + Math.random() * 3).toFixed(1) + ' Gbps'; }, 2000);
                 document.querySelectorAll('.quick-btn').forEach(btn => btn.addEventListener('click', () => window.location.href = btn.dataset.href));
-                // Logout button event
                 document.getElementById('logoutBtn').addEventListener('click', () => {
-                    localStorage.removeItem('ghost_token');
-                    localStorage.removeItem('toolToken');
-                    window.location.href = 'index.html';
+                    localStorage.removeItem('ghost_token'); window.location.href = 'index.html';
                 });
                 initMiniTerminal();
                 initGlobe();
