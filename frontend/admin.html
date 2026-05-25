@@ -4,30 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>GHOST SHELL // ADMIN COMMAND</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
-        /* Additional admin styles (non‑conflicting) */
+        /* Admin-specific overrides (non-conflicting) */
         .admin-section { display: none; }
         .admin-section.active { display: block; }
         .admin-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-        .admin-nav-btn { background: rgba(20,0,0,0.6); border: 1px solid #330000; color: #999; cursor: pointer; font-family: var(--font-mono); font-size: 0.75rem; padding: 8px 14px; border-radius: 4px; transition: all 0.3s; }
-        .admin-nav-btn:hover, .admin-nav-btn.active { border-color: var(--red); color: #fff; box-shadow: 0 0 8px rgba(255,0,0,0.5); background: rgba(255,0,0,0.1); }
-        .add-admin-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; }
-        .add-admin-form input, .add-admin-form select { width: auto; flex: 1; min-width: 150px; }
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-        .admin-table th, .admin-table td { border: 1px solid #3a1a1a; padding: 8px; text-align: left; }
-        .admin-table th { background: #2a0000; color: #ff8888; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 650px; background: #0a0101; border: 2px solid #ff0000; padding: 20px; z-index: 1000; box-shadow: 0 0 50px rgba(255,0,0,0.5); max-height: 90vh; overflow-y: auto; }
-        .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 999; }
-        .flex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        .btn-small { padding: 4px 8px; font-size: 0.7rem; }
+        .admin-nav-btn {
+            background: rgba(20,0,0,0.6);
+            border: 1px solid #330000;
+            color: #999;
+            cursor: pointer;
+            font-family: var(--font-mono, monospace);
+            font-size: 0.75rem;
+            padding: 8px 14px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .admin-nav-btn:hover, .admin-nav-btn.active {
+            border-color: var(--red, #ff1a1a);
+            color: #fff;
+            box-shadow: 0 0 8px rgba(255,0,0,0.5);
+            background: rgba(255,0,0,0.1);
+        }
+        .add-admin-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .add-admin-form input, .add-admin-form select {
+            width: auto;
+            flex: 1;
+            min-width: 150px;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        .admin-table th, .admin-table td {
+            border: 1px solid #3a1a1a;
+            padding: 8px;
+            text-align: left;
+        }
+        .admin-table th {
+            background: #2a0000;
+            color: #ff8888;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 650px;
+            background: #0a0101;
+            border: 2px solid #ff0000;
+            padding: 20px;
+            z-index: 1000;
+            box-shadow: 0 0 50px rgba(255,0,0,0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+        }
+        .flex-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.7rem;
+        }
+        /* ensure login modal looks good */
+        .auth-card {
+            text-align: center;
+            max-width: 400px;
+        }
+        .auth-card input {
+            margin: 10px 0;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
     <canvas id="matrixCanvas"></canvas>
 
-    <!-- LOGIN MODAL (exactly as you wanted) -->
+    <!-- LOGIN MODAL (no demo credentials) -->
     <div id="adminLoginModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; z-index:2000;">
         <div class="card auth-card" style="text-align:center; max-width:400px;">
             <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:55px; margin-bottom:10px;" alt="GHOST SHELL logo">
@@ -35,7 +110,7 @@
             <input type="email" id="adminEmail" placeholder="Admin Email" required>
             <input type="password" id="adminPassword" placeholder="Admin Password" required>
             <button class="btn" id="adminLoginBtn" style="width:100%;">AUTHENTICATE</button>
-            <div id="adminLoginError" style="color:var(--red); margin-top:10px;"></div>
+            <div id="adminLoginError" style="color:var(--red, #ff1a1a); margin-top:10px;"></div>
         </div>
     </div>
 
@@ -43,7 +118,7 @@
     <div id="adminDashboard" style="display:none; position:relative; z-index:10;">
         <header class="header">
             <div class="logo-area">
-                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
+                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="logo">
                 <span class="site-name">GHOST SHELL</span>
             </div>
             <nav class="nav-links" id="mainNav">
@@ -55,159 +130,11 @@
         </header>
 
         <main class="page active">
-            <h1 style="color:var(--red); font-family:var(--font-mono);">⚙️ ADMIN COMMAND CENTER</h1>
-            <nav class="admin-nav">
-                <button class="admin-nav-btn active" data-section="users">👥 Users</button>
-                <button class="admin-nav-btn" data-section="codes">🔑 Access Codes</button>
-                <button class="admin-nav-btn" data-section="payments">💸 Payments</button>
-                <button class="admin-nav-btn" data-section="tools">🔧 Manage Tools</button>
-                <button class="admin-nav-btn" data-section="websites">🌐 Websites</button>
-                <button class="admin-nav-btn" data-section="esim">📱 eSIM</button>
-                <button class="admin-nav-btn" data-section="logistics">📦 Logistics</button>
-                <button class="admin-nav-btn" data-section="virtualnums">📞 Virtual Numbers</button>
-                <button class="admin-nav-btn" data-section="webrequest">🌍 Web Build Req</button>
-                <button class="admin-nav-btn" data-section="credform">📝 Cred Form Builder</button>
-                <button class="admin-nav-btn" data-section="cloudreq">☁️ Cloud/Domain Req</button>
-                <button class="admin-nav-btn" data-section="visitors">🌍 Visitors</button>
-                <button class="admin-nav-btn" data-section="blog">📝 Blog</button>
+            <h1 style="color:var(--red, #ff1a1a); font-family:var(--font-mono, monospace);">⚙️ ADMIN COMMAND CENTER</h1>
+            <nav class="admin-nav" id="adminNav">
+                <!-- Nav buttons will be populated by JS -->
             </nav>
-
-            <!-- USERS -->
-            <section id="section-users" class="admin-section active">
-                <div class="card">
-                    <h2>➕ ADD / PROMOTE ADMIN</h2>
-                    <div class="add-admin-form">
-                        <input type="email" id="newAdminEmail" placeholder="User Email">
-                        <input type="password" id="newAdminPassword" placeholder="Password (leave blank if existing)">
-                        <select id="newAdminRole">
-                            <option value="full_admin">Full Admin</option>
-                            <option value="tools_admin">Tools Admin</option>
-                            <option value="user_admin">User Admin</option>
-                        </select>
-                        <button class="btn" id="addAdminBtn">Save Admin</button>
-                    </div>
-                </div>
-                <div class="card">
-                    <h2>👥 User Management</h2>
-                    <div id="userTableContainer" style="max-height:400px; overflow:auto;"></div>
-                    <button class="btn" id="exportCsvBtn" style="margin-top:10px;">📥 Export Emails CSV</button>
-                </div>
-            </section>
-
-            <!-- CODES -->
-            <section id="section-codes" class="admin-section">
-                <div class="card">
-                    <h2>🔑 Access Codes</h2>
-                    <button class="btn" id="generateCodesBtn">Generate 50 Codes</button>
-                    <div id="codesTableContainer" style="margin-top:15px; max-height:400px; overflow:auto;"></div>
-                </div>
-            </section>
-
-            <!-- PAYMENTS -->
-            <section id="section-payments" class="admin-section">
-                <div class="card"><h2>💸 Pending Payments</h2><div id="paymentsContainer"></div></div>
-            </section>
-
-            <!-- TOOLS (FULL) -->
-            <section id="section-tools" class="admin-section">
-                <div class="card">
-                    <h2>🔧 Manage Marketplace Tools</h2>
-                    <button class="btn" id="addToolBtn">+ Add New Tool</button>
-                    <div id="adminToolsContainer" style="margin-top:15px;"></div>
-                </div>
-                <div id="toolFormModal" class="modal">
-                    <h3 id="toolFormTitle">Add New Tool</h3>
-                    <input type="text" id="toolName" placeholder="Tool Name *">
-                    <textarea id="toolDesc" placeholder="Full Description" rows="3"></textarea>
-                    <input type="text" id="toolCategory" placeholder="Category (e.g., Exploit, Scanner)">
-                    <input type="number" id="toolPrice" placeholder="Price (USD) *">
-                    <input type="number" id="toolOriginalPrice" placeholder="Original Price (for discount)">
-                    <input type="number" id="toolDiscountPercent" placeholder="Discount % (e.g., 20)">
-                    <input type="text" id="toolDownloadLink" placeholder="Download URL">
-                    <input type="text" id="toolImageUrl" placeholder="Image URL">
-                    <input type="text" id="toolVideoUrl" placeholder="Video URL">
-                    <input type="text" id="toolPaymentLink" placeholder="Payment Link (Selar/Stripe)">
-                    <input type="text" id="toolBonusInfo" placeholder="Bonus Info (e.g., 1 year updates)">
-                    <div class="flex-row">
-                        <button class="btn" id="saveToolBtn">Save Tool</button>
-                        <button class="btn" id="cancelToolBtn">Cancel</button>
-                    </div>
-                    <input type="hidden" id="editingToolId">
-                </div>
-            </section>
-
-            <!-- WEBSITES (localStorage) -->
-            <section id="section-websites" class="admin-section">
-                <div class="card"><h2>🌐 Websites for Sale</h2><button class="btn" id="addWebsiteBtn">+ Add Website</button><div id="websitesTableContainer"></div></div>
-                <div id="websiteModal" class="modal"><h3>Website</h3><input type="text" id="websiteDomain" placeholder="Domain"><input type="text" id="websiteTitle" placeholder="Title"><input type="number" id="websitePrice" placeholder="Price"><button class="btn" id="saveWebsiteBtn">Save</button><button class="btn" id="cancelWebsiteBtn">Cancel</button><input type="hidden" id="editingWebsiteId"></div>
-            </section>
-
-            <!-- eSIM (localStorage) -->
-            <section id="section-esim" class="admin-section">
-                <div class="card"><h2>📱 eSIM Plans</h2><button class="btn" id="addEsimBtn">+ Add Plan</button><div id="esimTableContainer"></div></div>
-                <div id="esimModal" class="modal"><h3>eSIM Plan</h3><input type="text" id="esimName" placeholder="Plan Name"><select id="esimDuration"><option>1 month</option><option>3 months</option><option>6 months</option><option>1 year</option></select><input type="number" id="esimPrice" placeholder="Price"><input type="text" id="esimData" placeholder="Data"><input type="text" id="esimVoice" placeholder="Voice"><button class="btn" id="saveEsimBtn">Save</button><button class="btn" id="cancelEsimBtn">Cancel</button><input type="hidden" id="editingEsimId"></div>
-            </section>
-
-            <!-- LOGISTICS (localStorage) -->
-            <section id="section-logistics" class="admin-section">
-                <div class="card"><h2>📦 Logistics Orders</h2><button class="btn" id="addLogisticsBtn">+ Create Order</button><div id="logisticsTableContainer"></div></div>
-                <div id="logisticsModal" class="modal"><h3>Delivery Order</h3><input type="text" id="logSender" placeholder="Sender"><input type="text" id="logReceiver" placeholder="Receiver"><input type="text" id="logAddress" placeholder="Address"><input type="text" id="logPackage" placeholder="Package"><input type="number" id="logWeight" placeholder="Weight (kg)"><input type="number" id="logPrice" placeholder="Fee"><select id="logStatus"><option>pending</option><option>in_transit</option><option>delivered</option></select><button class="btn" id="saveLogisticsBtn">Save</button><button class="btn" id="cancelLogisticsBtn">Cancel</button><input type="hidden" id="editingLogisticsId"></div>
-            </section>
-
-            <!-- VIRTUAL NUMBERS (localStorage) -->
-            <section id="section-virtualnums" class="admin-section">
-                <div class="card"><h2>📞 Virtual Numbers for Sale</h2><button class="btn" id="addVirtualBtn">+ Add Number</button><div id="virtualTableContainer"></div></div>
-                <div id="virtualModal" class="modal"><h3>Virtual Number</h3><input type="text" id="virtualNumber" placeholder="Number"><input type="text" id="virtualCountry" placeholder="Country"><input type="text" id="virtualService" placeholder="Service"><input type="number" id="virtualPrice" placeholder="Price"><input type="text" id="virtualPartner" placeholder="Partner Site"><button class="btn" id="saveVirtualBtn">Save</button><button class="btn" id="cancelVirtualBtn">Cancel</button><input type="hidden" id="editingVirtualId"></div>
-            </section>
-
-            <!-- WEB BUILD REQUESTS (localStorage) -->
-            <section id="section-webrequest" class="admin-section">
-                <div class="card"><h2>🌍 Web Building Requests</h2><button class="btn" id="addWebReqBtn">+ New Request</button><div id="webReqsTableContainer"></div></div>
-                <div id="webReqModal" class="modal"><h3>Web Request</h3><input type="text" id="webClient" placeholder="Client"><input type="email" id="webEmail" placeholder="Email"><input type="text" id="webType" placeholder="Type"><textarea id="webReqs" rows="3" placeholder="Requirements"></textarea><input type="number" id="webBudget" placeholder="Budget"><button class="btn" id="saveWebReqBtn">Save</button><button class="btn" id="cancelWebReqBtn">Cancel</button><input type="hidden" id="editingWebReqId"></div>
-            </section>
-
-            <!-- CREDENTIAL FORM BUILDER (localStorage) -->
-            <section id="section-credform" class="admin-section">
-                <div class="card"><h2>📝 Credential Form Builder</h2><button class="btn" id="addCredFormBtn">+ New Form</button><div id="credFormsTableContainer"></div></div>
-                <div id="credFormModal" class="modal"><h3>Form Builder</h3><input type="text" id="formName" placeholder="Form Name"><textarea id="formFields" rows="4" placeholder='[{"label":"Full Name","type":"text"}]'></textarea><button class="btn" id="saveCredFormBtn">Save</button><button class="btn" id="cancelCredFormBtn">Cancel</button><input type="hidden" id="editingCredFormId"></div>
-            </section>
-
-            <!-- CLOUD/DOMAIN REQUESTS (localStorage + Telegram simulation) -->
-            <section id="section-cloudreq" class="admin-section">
-                <div class="card"><h2>☁️ Cloud & Domain Setup Requests</h2><button class="btn" id="addCloudReqBtn">+ New Request</button><div id="cloudReqsTableContainer"></div><p style="color:#ff8888;">⚠️ Requests are sent to Telegram Bot (simulated).</p></div>
-                <div id="cloudReqModal" class="modal"><h3>Cloud/Domain Request</h3><input type="text" id="cloudCustomer" placeholder="Customer"><input type="email" id="cloudEmail" placeholder="Email"><select id="cloudService"><option>Domain Registration</option><option>Web Hosting</option><option>VPS</option><option>SSL</option></select><input type="text" id="cloudDomain" placeholder="Domain"><textarea id="cloudDetails" rows="3" placeholder="Details"></textarea><button class="btn" id="saveCloudReqBtn">Send to Telegram</button><button class="btn" id="cancelCloudReqBtn">Cancel</button><input type="hidden" id="editingCloudReqId"></div>
-            </section>
-
-            <!-- VISITORS -->
-            <section id="section-visitors" class="admin-section">
-                <div class="card"><h2>🌍 Visitor Logs</h2><div id="visitorsTableContainer" style="max-height:400px; overflow:auto;"></div></div>
-            </section>
-
-            <!-- BLOG -->
-            <section id="section-blog" class="admin-section">
-                <div class="card">
-                    <h2>📝 Manage Blog Posts (HTML allowed)</h2>
-                    <button class="btn" id="addPostBtn">+ New Post</button>
-                    <div id="blogPostsContainer" style="margin-top:15px;"></div>
-                </div>
-                <div id="postFormModal" class="modal">
-                    <h3 id="postFormTitle">New Post</h3>
-                    <input type="text" id="postTitle" placeholder="Post Title">
-                    <select id="postCategory">
-                        <option value="general">General</option>
-                        <option value="changelog">Changelog</option>
-                        <option value="tutorial">Tutorial</option>
-                        <option value="news">News</option>
-                    </select>
-                    <textarea id="postContent" placeholder="Write your HTML content here..." rows="12"></textarea>
-                    <div class="flex-row">
-                        <button class="btn" id="savePostBtn">Save Post</button>
-                        <button class="btn" id="cancelPostBtn">Cancel</button>
-                    </div>
-                    <input type="hidden" id="editingPostId">
-                </div>
-            </section>
-
+            <div id="sectionsContainer"></div>
             <button class="btn" id="logoutAdminBtnBottom" style="margin-top:20px;">Logout Admin</button>
         </main>
     </div>
@@ -218,7 +145,7 @@
         const API = '/api';
         let adminToken = localStorage.getItem('adminToken') || '';
 
-        // ---------- Helper: fetch with token ----------
+        // Helper: api call with token
         async function apiCall(endpoint, options = {}) {
             const res = await fetch(`${API}${endpoint}`, {
                 ...options,
@@ -228,14 +155,23 @@
                     ...options.headers
                 }
             });
+            if (res.status === 401) {
+                localStorage.removeItem('adminToken');
+                window.location.reload();
+                throw new Error('Unauthorized');
+            }
             return res.json();
         }
 
-        // ---------- LOGIN ----------
-        document.getElementById('adminLoginBtn').addEventListener('click', async () => {
+        // ======================== LOGIN ========================
+        const loginModal = document.getElementById('adminLoginModal');
+        const dashboard = document.getElementById('adminDashboard');
+        const loginBtn = document.getElementById('adminLoginBtn');
+        const loginError = document.getElementById('adminLoginError');
+
+        loginBtn.addEventListener('click', async () => {
             const email = document.getElementById('adminEmail').value.trim();
             const password = document.getElementById('adminPassword').value;
-            const errorEl = document.getElementById('adminLoginError');
             try {
                 const res = await fetch(`${API}/admin/login`, {
                     method: 'POST',
@@ -246,99 +182,190 @@
                 if (data.token) {
                     adminToken = data.token;
                     localStorage.setItem('adminToken', adminToken);
-                    showAdminDashboard();
+                    loginModal.style.display = 'none';
+                    dashboard.style.display = 'block';
+                    buildAdminUI();
                 } else {
-                    errorEl.textContent = data.error || 'Invalid admin credentials';
+                    loginError.textContent = data.error || 'Invalid credentials';
                 }
-            } catch (e) {
-                errorEl.textContent = 'Connection failed – is the server running?';
+            } catch (err) {
+                loginError.textContent = 'Connection failed – is backend running?';
             }
         });
 
-        // ---------- DASHBOARD ----------
-        function showAdminDashboard() {
-            document.getElementById('adminLoginModal').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'block';
-            loadSection('users');
+        // ======================== BUILD UI ========================
+        function buildAdminUI() {
+            const sections = [
+                { id: 'users', label: '👥 Users' },
+                { id: 'codes', label: '🔑 Access Codes' },
+                { id: 'payments', label: '💸 Payments' },
+                { id: 'tools', label: '🔧 Manage Tools' },
+                { id: 'websites', label: '🌐 Websites' },
+                { id: 'esim', label: '📱 eSIM' },
+                { id: 'logistics', label: '📦 Logistics' },
+                { id: 'virtualnums', label: '📞 Virtual Numbers' },
+                { id: 'webrequest', label: '🌍 Web Build Req' },
+                { id: 'credform', label: '📝 Cred Form Builder' },
+                { id: 'cloudreq', label: '☁️ Cloud/Domain Req' },
+                { id: 'visitors', label: '🌍 Visitors' },
+                { id: 'blog', label: '📝 Blog' }
+            ];
 
-            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+            const navContainer = document.getElementById('adminNav');
+            navContainer.innerHTML = '';
+            sections.forEach(sec => {
+                const btn = document.createElement('button');
+                btn.className = 'admin-nav-btn';
+                btn.textContent = sec.label;
+                btn.dataset.section = sec.id;
                 btn.addEventListener('click', () => {
-                    const section = btn.dataset.section;
-                    loadSection(section);
+                    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(`section-${sec.id}`).classList.add('active');
                     document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
+                    refreshSection(sec.id);
                 });
+                navContainer.appendChild(btn);
             });
 
-            // Theme toggle
-            const themeBtn = document.getElementById('themeToggle');
-            if (localStorage.getItem('theme') === 'light') {
-                document.body.classList.add('light');
-                themeBtn.textContent = '☀️';
-            }
-            themeBtn.addEventListener('click', () => {
-                document.body.classList.toggle('light');
-                const isLight = document.body.classList.contains('light');
-                themeBtn.textContent = isLight ? '☀️' : '🌓';
-                localStorage.setItem('theme', isLight ? 'light' : 'dark');
-            });
+            // Create sections container HTML
+            const container = document.getElementById('sectionsContainer');
+            container.innerHTML = `
+                <!-- USERS -->
+                <div id="section-users" class="admin-section active">
+                    <div class="card">
+                        <h2>➕ ADD / PROMOTE ADMIN</h2>
+                        <div class="add-admin-form">
+                            <input type="email" id="newAdminEmail" placeholder="User Email">
+                            <input type="password" id="newAdminPassword" placeholder="Password (leave blank if existing)">
+                            <select id="newAdminRole">
+                                <option value="full_admin">Full Admin</option>
+                                <option value="tools_admin">Tools Admin</option>
+                                <option value="user_admin">User Admin</option>
+                            </select>
+                            <button class="btn" id="addAdminBtn">Save Admin</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h2>👥 User Management</h2>
+                        <div id="userTableContainer" style="max-height:400px; overflow:auto;"></div>
+                        <button class="btn" id="exportCsvBtn" style="margin-top:10px;">📥 Export Emails CSV</button>
+                    </div>
+                </div>
+                <!-- CODES -->
+                <div id="section-codes" class="admin-section">
+                    <div class="card">
+                        <h2>🔑 Access Codes</h2>
+                        <button class="btn" id="generateCodesBtn">Generate 50 Codes</button>
+                        <div id="codesTableContainer" style="margin-top:15px; max-height:400px; overflow:auto;"></div>
+                    </div>
+                </div>
+                <!-- PAYMENTS -->
+                <div id="section-payments" class="admin-section">
+                    <div class="card"><h2>💸 Pending Payments</h2><div id="paymentsContainer"></div></div>
+                </div>
+                <!-- TOOLS (FULL) -->
+                <div id="section-tools" class="admin-section">
+                    <div class="card">
+                        <h2>🔧 Manage Marketplace Tools</h2>
+                        <button class="btn" id="addToolBtn">+ Add New Tool</button>
+                        <div id="adminToolsContainer" style="margin-top:15px;"></div>
+                    </div>
+                    <div id="toolFormModal" class="modal">
+                        <h3 id="toolFormTitle">Add New Tool</h3>
+                        <input type="text" id="toolName" placeholder="Tool Name *">
+                        <textarea id="toolDesc" placeholder="Full Description" rows="3"></textarea>
+                        <input type="text" id="toolCategory" placeholder="Category (e.g., Exploit, Scanner)">
+                        <input type="number" id="toolPrice" placeholder="Price (USD) *">
+                        <input type="number" id="toolOriginalPrice" placeholder="Original Price (for discount)">
+                        <input type="number" id="toolDiscountPercent" placeholder="Discount % (e.g., 20)">
+                        <input type="text" id="toolDownloadLink" placeholder="Download URL">
+                        <input type="text" id="toolImageUrl" placeholder="Image URL">
+                        <input type="text" id="toolVideoUrl" placeholder="Video URL">
+                        <input type="text" id="toolPaymentLink" placeholder="Payment Link (Selar/Stripe)">
+                        <input type="text" id="toolBonusInfo" placeholder="Bonus Info (e.g., 1 year updates)">
+                        <div class="flex-row">
+                            <button class="btn" id="saveToolBtn">Save Tool</button>
+                            <button class="btn" id="cancelToolBtn">Cancel</button>
+                        </div>
+                        <input type="hidden" id="editingToolId">
+                    </div>
+                </div>
+                <!-- WEBSITES (localStorage) -->
+                <div id="section-websites" class="admin-section">
+                    <div class="card"><h2>🌐 Websites for Sale</h2><button class="btn" id="addWebsiteBtn">+ Add Website</button><div id="websitesTableContainer"></div></div>
+                    <div id="websiteModal" class="modal"><h3>Website</h3><input type="text" id="websiteDomain" placeholder="Domain"><input type="text" id="websiteTitle" placeholder="Title"><input type="number" id="websitePrice" placeholder="Price"><button class="btn" id="saveWebsiteBtn">Save</button><button class="btn" id="cancelWebsiteBtn">Cancel</button><input type="hidden" id="editingWebsiteId"></div>
+                </div>
+                <!-- eSIM -->
+                <div id="section-esim" class="admin-section">
+                    <div class="card"><h2>📱 eSIM Plans</h2><button class="btn" id="addEsimBtn">+ Add Plan</button><div id="esimTableContainer"></div></div>
+                    <div id="esimModal" class="modal"><h3>eSIM Plan</h3><input type="text" id="esimName" placeholder="Plan Name"><select id="esimDuration"><option>1 month</option><option>3 months</option><option>6 months</option><option>1 year</option></select><input type="number" id="esimPrice" placeholder="Price"><input type="text" id="esimData" placeholder="Data"><input type="text" id="esimVoice" placeholder="Voice"><button class="btn" id="saveEsimBtn">Save</button><button class="btn" id="cancelEsimBtn">Cancel</button><input type="hidden" id="editingEsimId"></div>
+                </div>
+                <!-- LOGISTICS -->
+                <div id="section-logistics" class="admin-section">
+                    <div class="card"><h2>📦 Logistics Orders</h2><button class="btn" id="addLogisticsBtn">+ Create Order</button><div id="logisticsTableContainer"></div></div>
+                    <div id="logisticsModal" class="modal"><h3>Delivery Order</h3><input type="text" id="logSender" placeholder="Sender"><input type="text" id="logReceiver" placeholder="Receiver"><input type="text" id="logAddress" placeholder="Address"><input type="text" id="logPackage" placeholder="Package"><input type="number" id="logWeight" placeholder="Weight (kg)"><input type="number" id="logPrice" placeholder="Fee"><select id="logStatus"><option>pending</option><option>in_transit</option><option>delivered</option></select><button class="btn" id="saveLogisticsBtn">Save</button><button class="btn" id="cancelLogisticsBtn">Cancel</button><input type="hidden" id="editingLogisticsId"></div>
+                </div>
+                <!-- VIRTUAL NUMBERS -->
+                <div id="section-virtualnums" class="admin-section">
+                    <div class="card"><h2>📞 Virtual Numbers for Sale</h2><button class="btn" id="addVirtualBtn">+ Add Number</button><div id="virtualTableContainer"></div></div>
+                    <div id="virtualModal" class="modal"><h3>Virtual Number</h3><input type="text" id="virtualNumber" placeholder="Number"><input type="text" id="virtualCountry" placeholder="Country"><input type="text" id="virtualService" placeholder="Service"><input type="number" id="virtualPrice" placeholder="Price"><input type="text" id="virtualPartner" placeholder="Partner Site"><button class="btn" id="saveVirtualBtn">Save</button><button class="btn" id="cancelVirtualBtn">Cancel</button><input type="hidden" id="editingVirtualId"></div>
+                </div>
+                <!-- WEB REQUESTS -->
+                <div id="section-webrequest" class="admin-section">
+                    <div class="card"><h2>🌍 Web Building Requests</h2><button class="btn" id="addWebReqBtn">+ New Request</button><div id="webReqsTableContainer"></div></div>
+                    <div id="webReqModal" class="modal"><h3>Web Request</h3><input type="text" id="webClient" placeholder="Client"><input type="email" id="webEmail" placeholder="Email"><input type="text" id="webType" placeholder="Type"><textarea id="webReqs" rows="3" placeholder="Requirements"></textarea><input type="number" id="webBudget" placeholder="Budget"><button class="btn" id="saveWebReqBtn">Save</button><button class="btn" id="cancelWebReqBtn">Cancel</button><input type="hidden" id="editingWebReqId"></div>
+                </div>
+                <!-- CRED FORMS -->
+                <div id="section-credform" class="admin-section">
+                    <div class="card"><h2>📝 Credential Form Builder</h2><button class="btn" id="addCredFormBtn">+ New Form</button><div id="credFormsTableContainer"></div></div>
+                    <div id="credFormModal" class="modal"><h3>Form Builder</h3><input type="text" id="formName" placeholder="Form Name"><textarea id="formFields" rows="4" placeholder='[{"label":"Full Name","type":"text"}]'></textarea><button class="btn" id="saveCredFormBtn">Save</button><button class="btn" id="cancelCredFormBtn">Cancel</button><input type="hidden" id="editingCredFormId"></div>
+                </div>
+                <!-- CLOUD REQUESTS -->
+                <div id="section-cloudreq" class="admin-section">
+                    <div class="card"><h2>☁️ Cloud & Domain Setup Requests</h2><button class="btn" id="addCloudReqBtn">+ New Request</button><div id="cloudReqsTableContainer"></div><p style="color:#ff8888;">⚠️ Requests are sent to Telegram Bot (simulated).</p></div>
+                    <div id="cloudReqModal" class="modal"><h3>Cloud/Domain Request</h3><input type="text" id="cloudCustomer" placeholder="Customer"><input type="email" id="cloudEmail" placeholder="Email"><select id="cloudService"><option>Domain Registration</option><option>Web Hosting</option><option>VPS</option><option>SSL</option></select><input type="text" id="cloudDomain" placeholder="Domain"><textarea id="cloudDetails" rows="3" placeholder="Details"></textarea><button class="btn" id="saveCloudReqBtn">Send to Telegram</button><button class="btn" id="cancelCloudReqBtn">Cancel</button><input type="hidden" id="editingCloudReqId"></div>
+                </div>
+                <!-- VISITORS -->
+                <div id="section-visitors" class="admin-section">
+                    <div class="card"><h2>🌍 Visitor Logs</h2><div id="visitorsTableContainer" style="max-height:400px; overflow:auto;"></div></div>
+                </div>
+                <!-- BLOG -->
+                <div id="section-blog" class="admin-section">
+                    <div class="card">
+                        <h2>📝 Manage Blog Posts (HTML allowed)</h2>
+                        <button class="btn" id="addPostBtn">+ New Post</button>
+                        <div id="blogPostsContainer" style="margin-top:15px;"></div>
+                    </div>
+                    <div id="postFormModal" class="modal">
+                        <h3 id="postFormTitle">New Post</h3>
+                        <input type="text" id="postTitle" placeholder="Post Title">
+                        <select id="postCategory">
+                            <option value="general">General</option>
+                            <option value="changelog">Changelog</option>
+                            <option value="tutorial">Tutorial</option>
+                            <option value="news">News</option>
+                        </select>
+                        <textarea id="postContent" placeholder="Write your HTML content here..." rows="12"></textarea>
+                        <div class="flex-row">
+                            <button class="btn" id="savePostBtn">Save Post</button>
+                            <button class="btn" id="cancelPostBtn">Cancel</button>
+                        </div>
+                        <input type="hidden" id="editingPostId">
+                    </div>
+                </div>
+            `;
 
-            document.getElementById('logoutAdminBtn').addEventListener('click', logout);
-            document.getElementById('logoutAdminBtnBottom').addEventListener('click', logout);
-
-            // Generate codes
-            document.getElementById('generateCodesBtn').addEventListener('click', generateCodes);
-            // Add tool button
-            document.getElementById('addToolBtn').addEventListener('click', () => openToolForm(null));
-            // Save tool
-            document.getElementById('saveToolBtn').addEventListener('click', saveTool);
-            document.getElementById('cancelToolBtn').addEventListener('click', () => closeModal('toolFormModal'));
-            // Export CSV
-            document.getElementById('exportCsvBtn').addEventListener('click', () => window.open(`${API}/admin/users-csv`, '_blank'));
-            // Add admin button
-            document.getElementById('addAdminBtn').addEventListener('click', addOrUpdateAdmin);
-            // Website management
-            document.getElementById('addWebsiteBtn').addEventListener('click', () => openWebsiteForm(null));
-            document.getElementById('saveWebsiteBtn').addEventListener('click', saveWebsite);
-            document.getElementById('cancelWebsiteBtn').addEventListener('click', () => closeModal('websiteModal'));
-            // eSIM
-            document.getElementById('addEsimBtn').addEventListener('click', () => openEsimForm(null));
-            document.getElementById('saveEsimBtn').addEventListener('click', saveEsim);
-            document.getElementById('cancelEsimBtn').addEventListener('click', () => closeModal('esimModal'));
-            // Logistics
-            document.getElementById('addLogisticsBtn').addEventListener('click', () => openLogisticsForm(null));
-            document.getElementById('saveLogisticsBtn').addEventListener('click', saveLogistics);
-            document.getElementById('cancelLogisticsBtn').addEventListener('click', () => closeModal('logisticsModal'));
-            // Virtual numbers
-            document.getElementById('addVirtualBtn').addEventListener('click', () => openVirtualForm(null));
-            document.getElementById('saveVirtualBtn').addEventListener('click', saveVirtual);
-            document.getElementById('cancelVirtualBtn').addEventListener('click', () => closeModal('virtualModal'));
-            // Web requests
-            document.getElementById('addWebReqBtn').addEventListener('click', () => openWebReqForm(null));
-            document.getElementById('saveWebReqBtn').addEventListener('click', saveWebReq);
-            document.getElementById('cancelWebReqBtn').addEventListener('click', () => closeModal('webReqModal'));
-            // Cred forms
-            document.getElementById('addCredFormBtn').addEventListener('click', () => openCredForm(null));
-            document.getElementById('saveCredFormBtn').addEventListener('click', saveCredForm);
-            document.getElementById('cancelCredFormBtn').addEventListener('click', () => closeModal('credFormModal'));
-            // Cloud requests
-            document.getElementById('addCloudReqBtn').addEventListener('click', () => openCloudReqForm(null));
-            document.getElementById('saveCloudReqBtn').addEventListener('click', saveCloudReq);
-            document.getElementById('cancelCloudReqBtn').addEventListener('click', () => closeModal('cloudReqModal'));
-            // Blog
-            document.getElementById('addPostBtn').addEventListener('click', () => openPostForm(null));
-            document.getElementById('savePostBtn').addEventListener('click', savePost);
-            document.getElementById('cancelPostBtn').addEventListener('click', () => closeModal('postFormModal'));
+            // Attach all event listeners
+            attachEventListeners();
+            // Initial load of active section (users)
+            refreshSection('users');
+            // Activate first tab
+            const firstTab = document.querySelector('.admin-nav-btn');
+            if (firstTab) firstTab.classList.add('active');
         }
 
-        function logout() {
-            localStorage.removeItem('adminToken');
-            window.location.href = 'admin.html';
-        }
-
-        function loadSection(section) {
-            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(`section-${section}`).classList.add('active');
+        function refreshSection(section) {
             if (section === 'users') loadUsers();
             else if (section === 'codes') loadCodes();
             else if (section === 'payments') loadPayments();
@@ -354,10 +381,10 @@
             else if (section === 'blog') loadBlogPosts();
         }
 
-        // ---------- USERS (API) ----------
+        // ======================== API-BASED SECTIONS ========================
         async function loadUsers() {
             const users = await apiCall('/admin/users');
-            let html = '<table class="admin-table"><tr><th>Email</th><th>Username</th><th>Access Code</th><th>Status</th><th>Actions</th></tr>';
+            let html = '<table class="admin-table"><thead><tr><th>Email</th><th>Username</th><th>Access Code</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
             users.forEach(u => {
                 const status = u.banned ? '🚫 BANNED' : (u.approved ? '✅ ACTIVE' : '⏳ PENDING');
                 html += `<tr>
@@ -371,13 +398,13 @@
                     </td>
                 </tr>`;
             });
-            html += '</table>';
+            html += '</tbody></table>';
             document.getElementById('userTableContainer').innerHTML = html;
         }
         window.banUser = async (id) => { await apiCall(`/admin/ban/${id}`, { method: 'POST' }); loadUsers(); };
         window.unbanUser = async (id) => { await apiCall(`/admin/unban/${id}`, { method: 'POST' }); loadUsers(); };
         window.deleteUser = async (id) => { if (confirm('Delete user?')) await apiCall(`/admin/delete/${id}`, { method: 'DELETE' }); loadUsers(); };
-        async function addOrUpdateAdmin() {
+        document.getElementById('addAdminBtn')?.addEventListener('click', async () => {
             const email = document.getElementById('newAdminEmail').value.trim();
             const password = document.getElementById('newAdminPassword').value;
             const role = document.getElementById('newAdminRole').value;
@@ -385,12 +412,12 @@
             await apiCall('/admin/add-admin', { method: 'POST', body: JSON.stringify({ email, password, role }) });
             alert('Admin added/updated');
             loadUsers();
-        }
+        });
+        document.getElementById('exportCsvBtn')?.addEventListener('click', () => window.open(`${API}/admin/users-csv`, '_blank'));
 
-        // ---------- CODES (API) ----------
         async function loadCodes() {
             const codes = await apiCall('/admin/codes');
-            let html = '<table class="admin-table"><tr><th>Code</th><th>Status</th><th>Used By</th><th>Action</th></tr>';
+            let html = '<table class="admin-table"><thead><tr><th>Code</th><th>Status</th><th>Used By</th><th>Action</th></tr></thead><tbody>';
             codes.forEach(c => {
                 html += `<tr>
                     <td>${c.code}</td>
@@ -399,7 +426,7 @@
                     <td><button class="btn btn-small" onclick="revokeCode('${c.id || c._id}')">REVOKE</button></td>
                 </tr>`;
             });
-            html += '</table>';
+            html += '</tbody></table>';
             document.getElementById('codesTableContainer').innerHTML = html;
         }
         async function generateCodes() {
@@ -411,14 +438,14 @@
             await apiCall('/admin/revoke-code', { method: 'POST', body: JSON.stringify({ codeId: id }) });
             loadCodes();
         };
+        document.getElementById('generateCodesBtn')?.addEventListener('click', generateCodes);
 
-        // ---------- PAYMENTS (API) ----------
         async function loadPayments() {
             const payments = await apiCall('/admin/payments');
             let html = '';
             if (!payments.length) html = '<p>No pending payments.</p>';
             else {
-                html = '<table class="admin-table"><table><th>User</th><th>Tool</th><th>Amount</th><th>Proof</th><th>Action</th></tr>';
+                html = '<table class="admin-table"><thead><tr><th>User</th><th>Tool</th><th>Amount</th><th>Proof</th><th>Action</th></tr></thead><tbody>';
                 payments.forEach(p => {
                     html += `<tr>
                         <td>${p.userId?.email || '—'}</td>
@@ -428,7 +455,7 @@
                         <td><button class="btn btn-small" onclick="confirmPayment('${p.id}')">CONFIRM</button></td>
                     </tr>`;
                 });
-                html += '</table>';
+                html += '</tbody></table>';
             }
             document.getElementById('paymentsContainer').innerHTML = html;
         }
@@ -437,10 +464,9 @@
             loadPayments();
         };
 
-        // ---------- TOOLS (API with full fields) ----------
         async function loadAdminTools() {
             const tools = await apiCall('/tools');
-            let html = '<table class="admin-table"><tr><th>Name</th><th>Category</th><th>Price</th><th>Discount</th><th>Final Price</th><th>Download</th><th>Actions</th></tr>';
+            let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Discount</th><th>Final Price</th><th>Download</th><th>Actions</th></tr></thead><tbody>';
             tools.forEach(t => {
                 let finalPrice = t.priceUSD;
                 let discountText = '';
@@ -463,7 +489,7 @@
                     </td>
                 </tr>`;
             });
-            html += '</table>';
+            html += '</tbody></table>';
             document.getElementById('adminToolsContainer').innerHTML = html;
         }
         window.editTool = async (id) => {
@@ -492,7 +518,7 @@
                 loadAdminTools();
             }
         };
-        function openToolForm(tool) {
+        function openToolForm() {
             document.getElementById('toolFormModal').style.display = 'block';
             document.getElementById('toolFormTitle').innerText = 'Add New Tool';
             document.getElementById('editingToolId').value = '';
@@ -529,73 +555,75 @@
             } else {
                 await apiCall('/admin/tool', { method: 'POST', body: JSON.stringify(toolData) });
             }
-            closeModal('toolFormModal');
+            document.getElementById('toolFormModal').style.display = 'none';
             loadAdminTools();
         }
+        document.getElementById('addToolBtn')?.addEventListener('click', openToolForm);
+        document.getElementById('saveToolBtn')?.addEventListener('click', saveTool);
+        document.getElementById('cancelToolBtn')?.addEventListener('click', () => document.getElementById('toolFormModal').style.display = 'none');
 
-        // ---------- LOCALSTORAGE SECTIONS (Websites, eSIM, Logistics, Virtual Numbers, Web Requests, Cred Forms, Cloud Requests) ----------
-        function getLocal(key, defaultVal = []) { return JSON.parse(localStorage.getItem(key) || JSON.stringify(defaultVal)); }
+        // ======================== LOCALSTORAGE SECTIONS (websites, esim, logistics, virtual, webreq, credform, cloudreq) ========================
+        function getLocal(key, def=[]) { return JSON.parse(localStorage.getItem(key) || JSON.stringify(def)); }
         function setLocal(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
-        function loadWebsites() { renderTable('websites', getLocal('ghost_websites'), ['Domain', 'Title', 'Price'], (item) => `<td>${item.domain}</td><td>${item.title}</td><td>$${item.price}</td>`, 'websiteModal', 'editingWebsiteId'); }
-        function openWebsiteForm(item) { fillModalForm('websiteModal', item, ['websiteDomain', 'websiteTitle', 'websitePrice']); }
-        function saveWebsite() { saveLocalItem('ghost_websites', 'websiteModal', ['websiteDomain', 'websiteTitle', 'websitePrice'], ['domain', 'title', 'price']); loadWebsites(); }
-        function loadEsim() { renderTable('esim', getLocal('ghost_esim'), ['Name', 'Duration', 'Price', 'Data', 'Voice'], (item) => `<td>${item.name}</td><td>${item.duration}</td><td>$${item.price}</td><td>${item.data}</td><td>${item.voice}</td>`, 'esimModal', 'editingEsimId'); }
-        function openEsimForm(item) { fillModalForm('esimModal', item, ['esimName', 'esimDuration', 'esimPrice', 'esimData', 'esimVoice']); }
-        function saveEsim() { saveLocalItem('ghost_esim', 'esimModal', ['esimName', 'esimDuration', 'esimPrice', 'esimData', 'esimVoice'], ['name', 'duration', 'price', 'data', 'voice']); loadEsim(); }
-        function loadLogistics() { renderTable('logistics', getLocal('ghost_logistics'), ['Sender', 'Receiver', 'Address', 'Package', 'Fee', 'Status'], (item) => `<td>${item.sender}</td><td>${item.receiver}</td><td>${item.address}</td><td>${item.package}</td><td>$${item.price}</td><td>${item.status}</td>`, 'logisticsModal', 'editingLogisticsId'); }
-        function openLogisticsForm(item) { fillModalForm('logisticsModal', item, ['logSender', 'logReceiver', 'logAddress', 'logPackage', 'logWeight', 'logPrice', 'logStatus']); }
-        function saveLogistics() { saveLocalItem('ghost_logistics', 'logisticsModal', ['logSender', 'logReceiver', 'logAddress', 'logPackage', 'logWeight', 'logPrice', 'logStatus'], ['sender', 'receiver', 'address', 'package', 'weight', 'price', 'status']); loadLogistics(); }
-        function loadVirtualNumbers() { renderTable('virtual', getLocal('ghost_virtualnums'), ['Number', 'Country', 'Service', 'Price', 'Partner'], (item) => `<td>${item.number}</td><td>${item.country}</td><td>${item.service}</td><td>$${item.price}</td><td>${item.partner}</td>`, 'virtualModal', 'editingVirtualId'); }
-        function openVirtualForm(item) { fillModalForm('virtualModal', item, ['virtualNumber', 'virtualCountry', 'virtualService', 'virtualPrice', 'virtualPartner']); }
-        function saveVirtual() { saveLocalItem('ghost_virtualnums', 'virtualModal', ['virtualNumber', 'virtualCountry', 'virtualService', 'virtualPrice', 'virtualPartner'], ['number', 'country', 'service', 'price', 'partner']); loadVirtualNumbers(); }
-        function loadWebRequests() { renderTable('webReqs', getLocal('ghost_webrequests'), ['Client', 'Email', 'Type', 'Budget'], (item) => `<td>${item.client}</td><td>${item.email}</td><td>${item.type}</td><td>$${item.budget}</td>`, 'webReqModal', 'editingWebReqId'); }
-        function openWebReqForm(item) { fillModalForm('webReqModal', item, ['webClient', 'webEmail', 'webType', 'webReqs', 'webBudget']); }
-        function saveWebReq() { saveLocalItem('ghost_webrequests', 'webReqModal', ['webClient', 'webEmail', 'webType', 'webReqs', 'webBudget'], ['client', 'email', 'type', 'requirements', 'budget']); loadWebRequests(); }
-        function loadCredForms() { renderTable('credForms', getLocal('ghost_credforms'), ['Name', 'Fields Preview'], (item) => `<td>${item.name}</td><td>${item.fields.substring(0,50)}...</td>`, 'credFormModal', 'editingCredFormId'); }
-        function openCredForm(item) { fillModalForm('credFormModal', item, ['formName', 'formFields']); }
-        function saveCredForm() { saveLocalItem('ghost_credforms', 'credFormModal', ['formName', 'formFields'], ['name', 'fields']); loadCredForms(); }
-        function loadCloudRequests() { renderTable('cloudReqs', getLocal('ghost_cloudreqs'), ['Customer', 'Service', 'Domain', 'Telegram'], (item) => `<td>${item.customer}</td><td>${item.serviceType}</td><td>${item.domain}</td><td>${item.sentToTelegram ? '✅ Sent' : '❌'}</td>`, null, null); }
-        function openCloudReqForm(item) { fillModalForm('cloudReqModal', item, ['cloudCustomer', 'cloudEmail', 'cloudService', 'cloudDomain', 'cloudDetails']); }
-        function saveCloudReq() {
-            const data = {
-                customer: document.getElementById('cloudCustomer').value,
-                email: document.getElementById('cloudEmail').value,
-                serviceType: document.getElementById('cloudService').value,
-                domain: document.getElementById('cloudDomain').value,
-                details: document.getElementById('cloudDetails').value,
-                sentToTelegram: true
-            };
-            if (!data.customer || !data.email) return alert('Customer and email required');
-            const items = getLocal('ghost_cloudreqs');
-            items.push({ id: Date.now().toString(), ...data });
-            setLocal('ghost_cloudreqs', items);
-            alert(`✅ Request sent to Telegram Bot (simulated).\n${data.serviceType} request from ${data.customer} (${data.email}) for domain ${data.domain}.`);
-            closeModal('cloudReqModal');
-            loadCloudRequests();
-        }
-
-        function renderTable(containerId, items, headers, rowRenderer, modalId, editIdField) {
+        // Generic render helper for localStorage tables
+        function renderLocalTable(containerId, storageKey, headers, rowBuilder, modalId, idField) {
+            const items = getLocal(storageKey);
             let html = '<table class="admin-table"><thead><tr>';
             headers.forEach(h => html += `<th>${h}</th>`);
             html += '<th>Actions</th></tr></thead><tbody>';
             items.forEach(item => {
                 html += '<tr>';
-                html += rowRenderer(item);
-                html += `<td><button class="btn btn-small" onclick="window.editLocalItem('${containerId}','${item.id}')">✏️</button> <button class="btn btn-small" onclick="window.deleteLocalItem('${containerId}','${item.id}')">🗑️</button></td></tr>`;
+                html += rowBuilder(item);
+                html += `<td><button class="btn btn-small" onclick="editLocalItem('${storageKey}','${item.id}','${modalId}','${idField}')">✏️</button> <button class="btn btn-small" onclick="deleteLocalItem('${storageKey}','${item.id}','${containerId}')">🗑️</button></td>`;
+                html += '</tr>';
             });
             html += '</tbody></table>';
             document.getElementById(`${containerId}TableContainer`).innerHTML = html;
-            window[`editLocalItem_${containerId}`] = (id) => { const item = getLocal(`ghost_${containerId}`).find(i => i.id === id); if(item && modalId) openModalWithData(modalId, item, editIdField); };
-            window[`deleteLocalItem_${containerId}`] = (id) => { setLocal(`ghost_${containerId}`, getLocal(`ghost_${containerId}`).filter(i => i.id !== id)); eval(`load${containerId.charAt(0).toUpperCase() + containerId.slice(1)}()`); };
         }
-        function fillModalForm(modalId, item, fieldIds) { if(item) fieldIds.forEach((id, idx) => document.getElementById(id).value = item[Object.keys(item)[idx+1]] || ''); else fieldIds.forEach(id => document.getElementById(id).value = ''); document.getElementById(modalId).style.display = 'block'; }
-        function saveLocalItem(storageKey, modalId, fieldIds, dataKeys) {
-            const id = document.getElementById(`editing${modalId.replace('Modal','')}`).value;
-            const data = {};
-            fieldIds.forEach((field, idx) => data[dataKeys[idx]] = document.getElementById(field).value);
-            if (dataKeys.includes('price')) data.price = parseFloat(data.price);
-            if (dataKeys.includes('budget')) data.budget = parseFloat(data.budget);
+
+        window.editLocalItem = (storageKey, id, modalId, idField) => {
+            const items = getLocal(storageKey);
+            const item = items.find(i => i.id === id);
+            if (item) {
+                // populate modal fields
+                const modal = document.getElementById(modalId);
+                const fields = modal.querySelectorAll('input, select, textarea');
+                fields.forEach(field => {
+                    if (field.id === idField) field.value = id;
+                    else if (item[field.id.replace(/^(website|esim|log|virtual|web|form|cloud)/, '').toLowerCase()] !== undefined) {
+                        const key = field.id.replace(/^(website|esim|log|virtual|web|form|cloud)/, '').toLowerCase();
+                        field.value = item[key] || '';
+                    } else {
+                        // try direct mapping
+                        const possibleKey = field.id.replace(/^(website|esim|log|virtual|web|form|cloud)/, '').toLowerCase();
+                        field.value = item[possibleKey] || '';
+                    }
+                });
+                document.getElementById(modalId).style.display = 'block';
+                document.getElementById(idField).value = id;
+            }
+        };
+        window.deleteLocalItem = (storageKey, id, containerId) => {
+            let items = getLocal(storageKey);
+            items = items.filter(i => i.id !== id);
+            setLocal(storageKey, items);
+            if (containerId === 'websites') loadWebsites();
+            else if (containerId === 'esim') loadEsim();
+            else if (containerId === 'logistics') loadLogistics();
+            else if (containerId === 'virtual') loadVirtualNumbers();
+            else if (containerId === 'webReqs') loadWebRequests();
+            else if (containerId === 'credForms') loadCredForms();
+            else if (containerId === 'cloudReqs') loadCloudRequests();
+        };
+
+        function saveLocalItem(storageKey, modalId, idField, fieldMapping) {
+            const id = document.getElementById(idField).value;
+            let data = {};
+            for (const [fieldId, propName] of Object.entries(fieldMapping)) {
+                data[propName] = document.getElementById(fieldId).value;
+                if (propName === 'price' || propName === 'budget' || propName === 'weight') data[propName] = parseFloat(data[propName]) || 0;
+            }
             let items = getLocal(storageKey);
             if (id) {
                 const idx = items.findIndex(i => i.id === id);
@@ -605,15 +633,85 @@
                 items.push(data);
             }
             setLocal(storageKey, items);
-            closeModal(modalId);
+            document.getElementById(modalId).style.display = 'none';
         }
-        function openModalWithData(modalId, item, editIdField) { document.getElementById(editIdField).value = item.id; fillModalForm(modalId, item, Array.from(document.querySelectorAll(`#${modalId} input, #${modalId} select, #${modalId} textarea`)).map(el => el.id).filter(id => id !== editIdField && id !== 'save' && id !== 'cancel')); }
-        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
 
-        // ---------- VISITORS (API) ----------
+        // WEBSITES
+        function loadWebsites() { renderLocalTable('websites', 'ghost_websites', ['Domain', 'Title', 'Price'], (item) => `<td>${item.domain}</td><td>${item.title}</td><td>$${item.price}</td>`, 'websiteModal', 'editingWebsiteId'); }
+        document.getElementById('addWebsiteBtn')?.addEventListener('click', () => { document.getElementById('websiteModal').style.display = 'block'; document.getElementById('editingWebsiteId').value = ''; });
+        document.getElementById('saveWebsiteBtn')?.addEventListener('click', () => saveLocalItem('ghost_websites', 'websiteModal', 'editingWebsiteId', { websiteDomain: 'domain', websiteTitle: 'title', websitePrice: 'price' }));
+        document.getElementById('cancelWebsiteBtn')?.addEventListener('click', () => document.getElementById('websiteModal').style.display = 'none');
+
+        // eSIM
+        function loadEsim() { renderLocalTable('esim', 'ghost_esim', ['Name', 'Duration', 'Price', 'Data', 'Voice'], (item) => `<td>${item.name}</td><td>${item.duration}</td><td>$${item.price}</td><td>${item.data}</td><td>${item.voice}</td>`, 'esimModal', 'editingEsimId'); }
+        document.getElementById('addEsimBtn')?.addEventListener('click', () => { document.getElementById('esimModal').style.display = 'block'; document.getElementById('editingEsimId').value = ''; });
+        document.getElementById('saveEsimBtn')?.addEventListener('click', () => saveLocalItem('ghost_esim', 'esimModal', 'editingEsimId', { esimName: 'name', esimDuration: 'duration', esimPrice: 'price', esimData: 'data', esimVoice: 'voice' }));
+        document.getElementById('cancelEsimBtn')?.addEventListener('click', () => document.getElementById('esimModal').style.display = 'none');
+
+        // LOGISTICS
+        function loadLogistics() { renderLocalTable('logistics', 'ghost_logistics', ['Sender', 'Receiver', 'Address', 'Package', 'Fee', 'Status'], (item) => `<td>${item.sender}</td><td>${item.receiver}</td><td>${item.address}</td><td>${item.package}</td><td>$${item.price}</td><td>${item.status}</td>`, 'logisticsModal', 'editingLogisticsId'); }
+        document.getElementById('addLogisticsBtn')?.addEventListener('click', () => { document.getElementById('logisticsModal').style.display = 'block'; document.getElementById('editingLogisticsId').value = ''; });
+        document.getElementById('saveLogisticsBtn')?.addEventListener('click', () => saveLocalItem('ghost_logistics', 'logisticsModal', 'editingLogisticsId', { logSender: 'sender', logReceiver: 'receiver', logAddress: 'address', logPackage: 'package', logWeight: 'weight', logPrice: 'price', logStatus: 'status' }));
+        document.getElementById('cancelLogisticsBtn')?.addEventListener('click', () => document.getElementById('logisticsModal').style.display = 'none');
+
+        // VIRTUAL NUMBERS
+        function loadVirtualNumbers() { renderLocalTable('virtual', 'ghost_virtualnums', ['Number', 'Country', 'Service', 'Price', 'Partner'], (item) => `<td>${item.number}</td><td>${item.country}</td><td>${item.service}</td><td>$${item.price}</td><td>${item.partner}</td>`, 'virtualModal', 'editingVirtualId'); }
+        document.getElementById('addVirtualBtn')?.addEventListener('click', () => { document.getElementById('virtualModal').style.display = 'block'; document.getElementById('editingVirtualId').value = ''; });
+        document.getElementById('saveVirtualBtn')?.addEventListener('click', () => saveLocalItem('ghost_virtualnums', 'virtualModal', 'editingVirtualId', { virtualNumber: 'number', virtualCountry: 'country', virtualService: 'service', virtualPrice: 'price', virtualPartner: 'partner' }));
+        document.getElementById('cancelVirtualBtn')?.addEventListener('click', () => document.getElementById('virtualModal').style.display = 'none');
+
+        // WEB REQUESTS
+        function loadWebRequests() { renderLocalTable('webReqs', 'ghost_webrequests', ['Client', 'Email', 'Type', 'Budget'], (item) => `<td>${item.client}</td><td>${item.email}</td><td>${item.type}</td><td>$${item.budget}</td>`, 'webReqModal', 'editingWebReqId'); }
+        document.getElementById('addWebReqBtn')?.addEventListener('click', () => { document.getElementById('webReqModal').style.display = 'block'; document.getElementById('editingWebReqId').value = ''; });
+        document.getElementById('saveWebReqBtn')?.addEventListener('click', () => saveLocalItem('ghost_webrequests', 'webReqModal', 'editingWebReqId', { webClient: 'client', webEmail: 'email', webType: 'type', webReqs: 'requirements', webBudget: 'budget' }));
+        document.getElementById('cancelWebReqBtn')?.addEventListener('click', () => document.getElementById('webReqModal').style.display = 'none');
+
+        // CRED FORMS
+        function loadCredForms() { renderLocalTable('credForms', 'ghost_credforms', ['Name', 'Fields Preview'], (item) => `<td>${item.name}</td><td>${item.fields.substring(0,50)}...</td>`, 'credFormModal', 'editingCredFormId'); }
+        document.getElementById('addCredFormBtn')?.addEventListener('click', () => { document.getElementById('credFormModal').style.display = 'block'; document.getElementById('editingCredFormId').value = ''; });
+        document.getElementById('saveCredFormBtn')?.addEventListener('click', () => saveLocalItem('ghost_credforms', 'credFormModal', 'editingCredFormId', { formName: 'name', formFields: 'fields' }));
+        document.getElementById('cancelCredFormBtn')?.addEventListener('click', () => document.getElementById('credFormModal').style.display = 'none');
+
+        // CLOUD REQUESTS (with Telegram simulation)
+        function loadCloudRequests() {
+            const items = getLocal('ghost_cloudreqs');
+            let html = '<table class="admin-table"><thead><tr><th>Customer</th><th>Service</th><th>Domain</th><th>Telegram</th><th>Actions</th></tr></thead><tbody>';
+            items.forEach(item => {
+                html += `<tr>
+                    <td>${item.customer}</td>
+                    <td>${item.serviceType}</td>
+                    <td>${item.domain}</td>
+                    <td>${item.sentToTelegram ? '✅ Sent' : '❌'}</td>
+                    <td><button class="btn btn-small" onclick="deleteLocalItem('ghost_cloudreqs','${item.id}','cloudReqs')">🗑️</button></td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            document.getElementById('cloudReqsTableContainer').innerHTML = html;
+        }
+        document.getElementById('addCloudReqBtn')?.addEventListener('click', () => { document.getElementById('cloudReqModal').style.display = 'block'; document.getElementById('editingCloudReqId').value = ''; });
+        document.getElementById('saveCloudReqBtn')?.addEventListener('click', () => {
+            const data = {
+                customer: document.getElementById('cloudCustomer').value,
+                email: document.getElementById('cloudEmail').value,
+                serviceType: document.getElementById('cloudService').value,
+                domain: document.getElementById('cloudDomain').value,
+                details: document.getElementById('cloudDetails').value,
+                sentToTelegram: true
+            };
+            if (!data.customer || !data.email) return alert('Customer and email required');
+            let items = getLocal('ghost_cloudreqs');
+            items.push({ id: Date.now().toString(), ...data });
+            setLocal('ghost_cloudreqs', items);
+            alert(`✅ Request sent to Telegram Bot (simulated).\n${data.serviceType} request from ${data.customer} (${data.email}) for domain ${data.domain}.`);
+            document.getElementById('cloudReqModal').style.display = 'none';
+            loadCloudRequests();
+        });
+        document.getElementById('cancelCloudReqBtn')?.addEventListener('click', () => document.getElementById('cloudReqModal').style.display = 'none');
+
+        // VISITORS (API)
         async function loadVisitors() {
             const visitors = await apiCall('/admin/visitors');
-            let html = '<table class="admin-table"><tr><th>IP</th><th>Location</th><th>VPN</th><th>Page</th><th>Time</th></tr>';
+            let html = '<table class="admin-table"><thead><tr><th>IP</th><th>Location</th><th>VPN</th><th>Page</th><th>Time</th></tr></thead><tbody>';
             visitors.forEach(v => {
                 html += `<tr>
                     <td>${v.ip}</td>
@@ -623,14 +721,14 @@
                     <td>${new Date(v.timestamp).toLocaleString()}</td>
                 </tr>`;
             });
-            html += '</table>';
+            html += '</tbody></table>';
             document.getElementById('visitorsTableContainer').innerHTML = html;
         }
 
-        // ---------- BLOG (API) ----------
+        // BLOG (API)
         async function loadBlogPosts() {
             const posts = await apiCall('/blog');
-            let html = '<table class="admin-table"><tr><th>Title</th><th>Category</th><th>Date</th><th>Actions</th></tr>';
+            let html = '<table class="admin-table"><thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
             posts.forEach(p => {
                 html += `<tr>
                     <td>${p.title}</td>
@@ -639,11 +737,12 @@
                     <td><button class="btn btn-small" onclick="editPost('${p.id}')">✏️</button> <button class="btn btn-small" onclick="deletePost('${p.id}')" style="border-color:var(--red);">🗑️</button></td>
                 </tr>`;
             });
-            html += '</table>';
+            html += '</tbody></table>';
             document.getElementById('blogPostsContainer').innerHTML = html;
         }
-        async function editPost(id) {
-            const post = await (await fetch(`${API}/blog/${id}`)).json();
+        window.editPost = async (id) => {
+            const res = await fetch(`${API}/blog/${id}`);
+            const post = await res.json();
             if (post) {
                 document.getElementById('postFormTitle').innerText = 'Edit Post';
                 document.getElementById('postTitle').value = post.title;
@@ -652,14 +751,14 @@
                 document.getElementById('editingPostId').value = id;
                 document.getElementById('postFormModal').style.display = 'block';
             }
-        }
-        async function deletePost(id) {
+        };
+        window.deletePost = async (id) => {
             if (confirm('Delete this post?')) {
                 await apiCall(`/admin/blog/${id}`, { method: 'DELETE' });
                 loadBlogPosts();
             }
-        }
-        function openPostForm(post) {
+        };
+        function openPostForm() {
             document.getElementById('postFormModal').style.display = 'block';
             document.getElementById('postFormTitle').innerText = 'New Post';
             document.getElementById('postTitle').value = '';
@@ -677,39 +776,37 @@
             const url = editingId ? `/admin/blog/${editingId}` : '/admin/blog';
             const method = editingId ? 'PUT' : 'POST';
             await apiCall(url, { method, body: JSON.stringify(postData) });
-            closeModal('postFormModal');
+            document.getElementById('postFormModal').style.display = 'none';
             loadBlogPosts();
         }
+        document.getElementById('addPostBtn')?.addEventListener('click', openPostForm);
+        document.getElementById('savePostBtn')?.addEventListener('click', savePost);
+        document.getElementById('cancelPostBtn')?.addEventListener('click', () => document.getElementById('postFormModal').style.display = 'none');
 
-        // Expose global functions for inline onclick
-        window.unbanUser = unbanUser;
-        window.banUser = banUser;
-        window.deleteUser = deleteUser;
-        window.revokeCode = revokeCode;
-        window.confirmPayment = confirmPayment;
-        window.editTool = editTool;
-        window.deleteTool = deleteTool;
-        window.editPost = editPost;
-        window.deletePost = deletePost;
-        window.editLocalItem = (container, id) => {
-            const item = getLocal(`ghost_${container}`).find(i => i.id === id);
-            if (container === 'websites') openWebsiteForm(item);
-            else if (container === 'esim') openEsimForm(item);
-            else if (container === 'logistics') openLogisticsForm(item);
-            else if (container === 'virtual') openVirtualForm(item);
-            else if (container === 'webReqs') openWebReqForm(item);
-            else if (container === 'credForms') openCredForm(item);
-        };
-        window.deleteLocalItem = (container, id) => {
-            setLocal(`ghost_${container}`, getLocal(`ghost_${container}`).filter(i => i.id !== id));
-            if (container === 'websites') loadWebsites();
-            else if (container === 'esim') loadEsim();
-            else if (container === 'logistics') loadLogistics();
-            else if (container === 'virtual') loadVirtualNumbers();
-            else if (container === 'webReqs') loadWebRequests();
-            else if (container === 'credForms') loadCredForms();
-            else if (container === 'cloudReqs') loadCloudRequests();
-        };
+        // Theme toggle
+        const themeBtn = document.getElementById('themeToggle');
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light');
+            themeBtn.textContent = '☀️';
+        }
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            themeBtn.textContent = document.body.classList.contains('light') ? '☀️' : '🌓';
+            localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+        });
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('adminToken');
+            window.location.reload();
+        }
+        document.getElementById('logoutAdminBtn')?.addEventListener('click', logout);
+        document.getElementById('logoutAdminBtnBottom')?.addEventListener('click', logout);
+
+        // Helper to attach all remaining listeners (already done via addEventListener)
+        function attachEventListeners() {
+            // All listeners are already added above; this function exists just for completeness.
+        }
     </script>
 </body>
 </html>
