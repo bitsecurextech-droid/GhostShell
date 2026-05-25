@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
 const path = require('path');
 const { Pool } = require('pg');
+const dns = require('dns').promises;
 const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, { cors: { origin: '*' } });
@@ -15,27 +16,71 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
-// -------------------- POSTGRESQL (FORCE IPv4) --------------------
-const dbUrl = process.env.DATABASE_URL;
-if (!dbUrl) {
-    console.error('❌ DATABASE_URL not set');
-    process.exit(1);
-}
-let finalUrl = dbUrl;
-if (!finalUrl.includes('sslmode=require')) {
-    const sep = finalUrl.includes('?') ? '&' : '?';
-    finalUrl += `${sep}sslmode=require`;
-}
-// 🔥 THE FIX: family: 4 forces IPv4
-const pool = new Pool({ connectionString: finalUrl, family: 4 });
+// -------------------- FORCE IPv4 BY RESOLVING HOSTNAME (ASYNC) --------------------
+let pool; // will be initialized after resolving
 
+(async function initDbConnection() {
+    let dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) {
+        console.error('❌ DATABASE_URL environment variable is missing');
+        process.exit(1);
+    }
+
+    // Extract hostname from connection string
+    const urlObj = new URL(dbUrl);
+    const originalHost = urlObj.hostname;
+    console.log(`🔍 Resolving ${originalHost} to IPv4...`);
+
+    let ipv4;
+    try {
+        const addresses = await dns.lookup(originalHost, { family: 4 });
+        ipv4 = addresses.address;
+        console.log(`✅ Resolved ${originalHost} -> ${ipv4}`);
+    } catch (err) {
+        console.error(`❌ Failed to resolve IPv4 for ${originalHost}:`, err.message);
+        console.log('⚠️ Falling back to original hostname (may still cause ENETUNREACH)');
+        ipv4 = originalHost;
+    }
+
+    // Replace hostname with IPv4 address if resolution succeeded
+    let finalUrl = dbUrl;
+    if (ipv4 !== originalHost) {
+        finalUrl = dbUrl.replace(originalHost, ipv4);
+    }
+    // Force SSL
+    if (!finalUrl.includes('sslmode=require')) {
+        const sep = finalUrl.includes('?') ? '&' : '?';
+        finalUrl += `${sep}sslmode=require`;
+    }
+
+    // Create pool with IPv4 address (or fallback hostname)
+    pool = new Pool({ connectionString: finalUrl });
+
+    // Test connection immediately
+    try {
+        const client = await pool.connect();
+        client.release();
+        console.log('✅ PostgreSQL connection successful (IPv4 forced)');
+    } catch (err) {
+        console.error('❌ Failed to connect to database:', err.message);
+        process.exit(1);
+    }
+})();
+
+// Helper query function (waits for pool to be ready)
 async function query(text, params) {
-    const res = await pool.query(text, params);
-    return res;
+    if (!pool) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    return pool.query(text, params);
 }
 
-// -------------------- CREATE ALL TABLES --------------------
+// -------------------- CREATE TABLES (after pool is ready) --------------------
 async function initDatabase() {
+    // Wait a bit for pool initialization
+    while (!pool) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
     const client = await pool.connect();
     try {
         await client.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
@@ -162,7 +207,7 @@ async function initDatabase() {
             author TEXT,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );`);
-        console.log('✅ All tables ready.');
+        console.log('✅ All database tables ready.');
     } finally {
         client.release();
     }
@@ -287,7 +332,7 @@ app.get('/api/my-tools', auth, async (req, res) => {
     res.json(purchases);
 });
 
-// ==================== ADMIN CRUD (all tables) ====================
+// ==================== ADMIN CRUD ====================
 function createAdminCrud(tableName) {
     app.get(`/api/admin/${tableName}`, adminAuth, async (req, res) => {
         const result = await query(`SELECT * FROM ${tableName} ORDER BY created_at DESC`);
@@ -351,7 +396,7 @@ app.delete('/api/admin/blog/:id', adminAuth, async (req, res) => {
     res.json({ success: true });
 });
 
-// Admin users, codes, payments, tools (kept minimal but working)
+// Admin users, codes, payments, tools (keep minimal but working)
 app.get('/api/admin/users', adminAuth, async (req, res) => {
     const result = await query('SELECT id, username, email, access_code, approved, banned, role, created_at FROM users');
     res.json(result.rows);
@@ -470,6 +515,8 @@ io.on('connection', (socket) => {
 
 // -------------------- SEED DEFAULT DATA --------------------
 async function seedDatabase() {
+    // Wait for tables to exist
+    await new Promise(resolve => setTimeout(resolve, 2000));
     const toolsCount = await query('SELECT COUNT(*) FROM tools');
     if (parseInt(toolsCount.rows[0].count) === 0) {
         await query(`INSERT INTO tools (id, name, description, price_usd, category, download_url) VALUES
@@ -497,14 +544,10 @@ async function seedDatabase() {
     }
 }
 
-// -------------------- START SERVER --------------------
+// -------------------- START SERVER (AFTER DB INIT) --------------------
 const PORT = process.env.PORT || 5000;
-initDatabase()
-    .then(async () => {
-        await seedDatabase();
-        http.listen(PORT, '0.0.0.0', () => console.log(`🚀 GHOST SHELL running on port ${PORT}`));
-    })
-    .catch(err => {
-        console.error('❌ Failed to initialize database:', err.message);
-        process.exit(1);
-    });
+(async () => {
+    await initDatabase();
+    await seedDatabase();
+    http.listen(PORT, '0.0.0.0', () => console.log(`🚀 GHOST SHELL running on port ${PORT}`));
+})();
