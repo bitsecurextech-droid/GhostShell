@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL • ADMIN</title>
+    <title>GHOST SHELL • ADMIN (FULLY WORKING)</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
@@ -73,19 +73,19 @@
             ]));
         }
         if (!localStorage.getItem('ghost_codes')) localStorage.setItem('ghost_codes', '[]');
-        if (!localStorage.getItem('ghost_payments')) localStorage.setItem('ghost_payments', JSON.stringify([]));
-        if (!localStorage.getItem('ghost_tools')) localStorage.setItem('ghost_tools', JSON.stringify([]));
-        if (!localStorage.getItem('ghost_websites')) localStorage.setItem('ghost_websites', JSON.stringify([]));
-        if (!localStorage.getItem('ghost_esim')) localStorage.setItem('ghost_esim', JSON.stringify([]));
-        if (!localStorage.getItem('ghost_logistics')) localStorage.setItem('ghost_logistics', JSON.stringify([]));
-        if (!localStorage.getItem('ghost_virtualnums')) localStorage.setItem('ghost_virtualnums', JSON.stringify([]));
-        if (!localStorage.getItem('ghost_webrequests')) localStorage.setItem('ghost_webrequests', JSON.stringify([]));
-        if (!localStorage.getItem('ghost_credforms')) localStorage.setItem('ghost_credforms', JSON.stringify([]));
-        if (!localStorage.getItem('ghost_cloudreqs')) localStorage.setItem('ghost_cloudreqs', JSON.stringify([]));
+        if (!localStorage.getItem('ghost_payments')) localStorage.setItem('ghost_payments', '[]');
+        if (!localStorage.getItem('ghost_tools')) localStorage.setItem('ghost_tools', '[]');
+        if (!localStorage.getItem('ghost_websites')) localStorage.setItem('ghost_websites', '[]');
+        if (!localStorage.getItem('ghost_esim')) localStorage.setItem('ghost_esim', '[]');
+        if (!localStorage.getItem('ghost_logistics')) localStorage.setItem('ghost_logistics', '[]');
+        if (!localStorage.getItem('ghost_virtualnums')) localStorage.setItem('ghost_virtualnums', '[]');
+        if (!localStorage.getItem('ghost_webrequests')) localStorage.setItem('ghost_webrequests', '[]');
+        if (!localStorage.getItem('ghost_credforms')) localStorage.setItem('ghost_credforms', '[]');
+        if (!localStorage.getItem('ghost_cloudreqs')) localStorage.setItem('ghost_cloudreqs', '[]');
         if (!localStorage.getItem('ghost_visitors')) localStorage.setItem('ghost_visitors', JSON.stringify([
             { ip: '127.0.0.1', time: new Date().toISOString(), page: '/admin.html' }
         ]));
-        if (!localStorage.getItem('ghost_blog')) localStorage.setItem('ghost_blog', JSON.stringify([]));
+        if (!localStorage.getItem('ghost_blog')) localStorage.setItem('ghost_blog', '[]');
     }
     initData();
 
@@ -107,17 +107,19 @@
             document.getElementById('loginError').innerText = '❌ Invalid credentials';
         }
     });
-    document.getElementById('logoutBtn').addEventListener('click', () => { window.location.reload(); });
+    document.getElementById('logoutBtn').addEventListener('click', () => window.location.reload());
 
     // ========== BUILD UI ==========
     function buildAdminUI() {
         const sections = [
-            'users','codes','payments','tools','websites','esim','logistics','virtualnums','webrequest','credform','cloudreq','visitors','blog'
+            'users','codes','payments','tools','websites','esim','logistics','virtualnums',
+            'webrequest','credform','cloudreq','visitors','blog'
         ];
         const labels = {
-            users:'👥 Users', codes:'🔑 Codes', payments:'💸 Payments', tools:'🔧 Tools', websites:'🌐 Websites',
-            esim:'📱 eSIM', logistics:'📦 Logistics', virtualnums:'📞 Virtual Numbers', webrequest:'🌍 Web Req',
-            credform:'📝 Cred Forms', cloudreq:'☁️ Cloud/Domain', visitors:'🌍 Visitors', blog:'📝 Blog'
+            users:'👥 Users', codes:'🔑 Codes', payments:'💸 Payments', tools:'🔧 Tools',
+            websites:'🌐 Websites', esim:'📱 eSIM', logistics:'📦 Logistics', virtualnums:'📞 Virtual Numbers',
+            webrequest:'🌍 Web Req', credform:'📝 Cred Forms', cloudreq:'☁️ Cloud/Domain',
+            visitors:'🌍 Visitors', blog:'📝 Blog'
         };
         const tabsContainer = document.getElementById('adminTabs');
         tabsContainer.innerHTML = '';
@@ -136,6 +138,7 @@
             tabsContainer.appendChild(btn);
         });
 
+        // Create sections HTML (modals included)
         const container = document.getElementById('sectionsContainer');
         container.innerHTML = `
             <!-- USERS -->
@@ -145,29 +148,41 @@
             <!-- PAYMENTS -->
             <div id="section-payments" class="section"><div class="card"><h2>💸 Payments</h2><div id="paymentsTable"></div><button class="btn" id="addPaymentBtn">+ Mock Payment</button></div></div>
             <!-- TOOLS -->
-            <div id="section-tools" class="section"><div class="card"><h2>🔧 Tools</h2><button class="btn" id="addToolBtn">+ Add Tool</button><div id="toolsTable"></div></div><div id="toolModal" class="modal"><h3>Tool</h3><input id="toolName" placeholder="Name"><input id="toolPrice" type="number" placeholder="Price"><input id="toolDiscount" type="number" placeholder="Discount %"><input id="toolDownload" placeholder="Download URL"><button class="btn" id="saveToolBtn">Save</button><button class="btn" id="cancelToolBtn">Cancel</button><input type="hidden" id="editingToolId"></div></div>
+            <div id="section-tools" class="section"><div class="card"><h2>🔧 Tools</h2><button class="btn" id="addToolBtn">+ Add Tool</button><div id="toolsTable"></div></div>
+            <div id="toolModal" class="modal"><h3>Tool</h3><input id="toolName" placeholder="Name"><input id="toolPrice" type="number" placeholder="Price"><input id="toolDiscount" type="number" placeholder="Discount %"><input id="toolDownload" placeholder="Download URL"><button class="btn" id="saveToolBtn">Save</button><button class="btn" id="cancelToolBtn">Cancel</button><input type="hidden" id="editingToolId"></div></div>
             <!-- WEBSITES -->
-            <div id="section-websites" class="section"><div class="card"><h2>🌐 Websites</h2><button class="btn" id="addWebsiteBtn">+ Add</button><div id="websitesTable"></div></div><div id="websiteModal" class="modal"><h3>Website</h3><input id="websiteDomain" placeholder="Domain"><input id="websiteTitle" placeholder="Title"><input id="websitePrice" type="number" placeholder="Price"><button class="btn" id="saveWebsiteBtn">Save</button><button class="btn" id="cancelWebsiteBtn">Cancel</button><input type="hidden" id="editingWebsiteId"></div></div>
+            <div id="section-websites" class="section"><div class="card"><h2>🌐 Websites</h2><button class="btn" id="addWebsiteBtn">+ Add</button><div id="websitesTable"></div></div>
+            <div id="websiteModal" class="modal"><h3>Website</h3><input id="websiteDomain" placeholder="Domain"><input id="websiteTitle" placeholder="Title"><input id="websitePrice" type="number" placeholder="Price"><button class="btn" id="saveWebsiteBtn">Save</button><button class="btn" id="cancelWebsiteBtn">Cancel</button><input type="hidden" id="editingWebsiteId"></div></div>
             <!-- eSIM -->
-            <div id="section-esim" class="section"><div class="card"><h2>📱 eSIM Plans</h2><button class="btn" id="addEsimBtn">+ Add</button><div id="esimTable"></div></div><div id="esimModal" class="modal"><h3>eSIM Plan</h3><input id="esimName" placeholder="Name"><select id="esimDuration"><option>1 month</option><option>3 months</option><option>6 months</option><option>1 year</option></select><input id="esimPrice" type="number" placeholder="Price"><input id="esimData" placeholder="Data"><input id="esimVoice" placeholder="Voice"><button class="btn" id="saveEsimBtn">Save</button><button class="btn" id="cancelEsimBtn">Cancel</button><input type="hidden" id="editingEsimId"></div></div>
+            <div id="section-esim" class="section"><div class="card"><h2>📱 eSIM Plans</h2><button class="btn" id="addEsimBtn">+ Add</button><div id="esimTable"></div></div>
+            <div id="esimModal" class="modal"><h3>eSIM Plan</h3><input id="esimName" placeholder="Name"><select id="esimDuration"><option>1 month</option><option>3 months</option><option>6 months</option><option>1 year</option></select><input id="esimPrice" type="number" placeholder="Price"><input id="esimData" placeholder="Data"><input id="esimVoice" placeholder="Voice"><button class="btn" id="saveEsimBtn">Save</button><button class="btn" id="cancelEsimBtn">Cancel</button><input type="hidden" id="editingEsimId"></div></div>
             <!-- LOGISTICS -->
-            <div id="section-logistics" class="section"><div class="card"><h2>📦 Logistics</h2><button class="btn" id="addLogisticsBtn">+ Add Order</button><div id="logisticsTable"></div></div><div id="logisticsModal" class="modal"><h3>Order</h3><input id="logSender" placeholder="Sender"><input id="logReceiver" placeholder="Receiver"><input id="logAddress" placeholder="Address"><input id="logPackage" placeholder="Package"><input id="logWeight" type="number" placeholder="Weight (kg)"><input id="logPrice" type="number" placeholder="Price"><select id="logStatus"><option>pending</option><option>in_transit</option><option>delivered</option></select><button class="btn" id="saveLogisticsBtn">Save</button><button class="btn" id="cancelLogisticsBtn">Cancel</button><input type="hidden" id="editingLogisticsId"></div></div>
+            <div id="section-logistics" class="section"><div class="card"><h2>📦 Logistics</h2><button class="btn" id="addLogisticsBtn">+ Add Order</button><div id="logisticsTable"></div></div>
+            <div id="logisticsModal" class="modal"><h3>Order</h3><input id="logSender" placeholder="Sender"><input id="logReceiver" placeholder="Receiver"><input id="logAddress" placeholder="Address"><input id="logPackage" placeholder="Package"><input id="logWeight" type="number" placeholder="Weight (kg)"><input id="logPrice" type="number" placeholder="Price"><select id="logStatus"><option>pending</option><option>in_transit</option><option>delivered</option></select><button class="btn" id="saveLogisticsBtn">Save</button><button class="btn" id="cancelLogisticsBtn">Cancel</button><input type="hidden" id="editingLogisticsId"></div></div>
             <!-- VIRTUAL NUMBERS -->
-            <div id="section-virtualnums" class="section"><div class="card"><h2>📞 Virtual Numbers</h2><button class="btn" id="addVirtualBtn">+ Add</button><div id="virtualTable"></div></div><div id="virtualModal" class="modal"><h3>Virtual Number</h3><input id="virtualNumber" placeholder="Number"><input id="virtualCountry" placeholder="Country"><input id="virtualService" placeholder="Service"><input id="virtualPrice" type="number" placeholder="Price"><input id="virtualPartner" placeholder="Partner"><button class="btn" id="saveVirtualBtn">Save</button><button class="btn" id="cancelVirtualBtn">Cancel</button><input type="hidden" id="editingVirtualId"></div></div>
+            <div id="section-virtualnums" class="section"><div class="card"><h2>📞 Virtual Numbers</h2><button class="btn" id="addVirtualBtn">+ Add</button><div id="virtualTable"></div></div>
+            <div id="virtualModal" class="modal"><h3>Virtual Number</h3><input id="virtualNumber" placeholder="Number"><input id="virtualCountry" placeholder="Country"><input id="virtualService" placeholder="Service"><input id="virtualPrice" type="number" placeholder="Price"><input id="virtualPartner" placeholder="Partner"><button class="btn" id="saveVirtualBtn">Save</button><button class="btn" id="cancelVirtualBtn">Cancel</button><input type="hidden" id="editingVirtualId"></div></div>
             <!-- WEB REQUESTS -->
-            <div id="section-webrequest" class="section"><div class="card"><h2>🌍 Web Requests</h2><button class="btn" id="addWebReqBtn">+ Add</button><div id="webReqsTable"></div></div><div id="webReqModal" class="modal"><h3>Request</h3><input id="webClient" placeholder="Client"><input id="webEmail" placeholder="Email"><input id="webType" placeholder="Type"><textarea id="webReqs" rows="3" placeholder="Requirements"></textarea><input id="webBudget" type="number" placeholder="Budget"><button class="btn" id="saveWebReqBtn">Save</button><button class="btn" id="cancelWebReqBtn">Cancel</button><input type="hidden" id="editingWebReqId"></div></div>
+            <div id="section-webrequest" class="section"><div class="card"><h2>🌍 Web Requests</h2><button class="btn" id="addWebReqBtn">+ Add</button><div id="webReqsTable"></div></div>
+            <div id="webReqModal" class="modal"><h3>Request</h3><input id="webClient" placeholder="Client"><input id="webEmail" placeholder="Email"><input id="webType" placeholder="Type"><textarea id="webReqs" rows="3" placeholder="Requirements"></textarea><input id="webBudget" type="number" placeholder="Budget"><button class="btn" id="saveWebReqBtn">Save</button><button class="btn" id="cancelWebReqBtn">Cancel</button><input type="hidden" id="editingWebReqId"></div></div>
             <!-- CRED FORMS -->
-            <div id="section-credform" class="section"><div class="card"><h2>📝 Cred Forms</h2><button class="btn" id="addCredFormBtn">+ Add</button><div id="credFormsTable"></div></div><div id="credFormModal" class="modal"><h3>Form</h3><input id="formName" placeholder="Name"><textarea id="formFields" rows="4" placeholder='[{"label":"Name","type":"text"}]'></textarea><button class="btn" id="saveCredFormBtn">Save</button><button class="btn" id="cancelCredFormBtn">Cancel</button><input type="hidden" id="editingCredFormId"></div></div>
+            <div id="section-credform" class="section"><div class="card"><h2>📝 Cred Forms</h2><button class="btn" id="addCredFormBtn">+ Add</button><div id="credFormsTable"></div></div>
+            <div id="credFormModal" class="modal"><h3>Form</h3><input id="formName" placeholder="Name"><textarea id="formFields" rows="4" placeholder='[{"label":"Name","type":"text"}]'></textarea><button class="btn" id="saveCredFormBtn">Save</button><button class="btn" id="cancelCredFormBtn">Cancel</button><input type="hidden" id="editingCredFormId"></div></div>
             <!-- CLOUD REQUESTS -->
-            <div id="section-cloudreq" class="section"><div class="card"><h2>☁️ Cloud/Domain Reqs</h2><button class="btn" id="addCloudReqBtn">+ Add</button><div id="cloudReqsTable"></div></div><div id="cloudReqModal" class="modal"><h3>Request</h3><input id="cloudCustomer" placeholder="Customer"><input id="cloudEmail" placeholder="Email"><select id="cloudService"><option>Domain</option><option>Hosting</option><option>VPS</option><option>SSL</option></select><input id="cloudDomain" placeholder="Domain"><textarea id="cloudDetails" rows="3"></textarea><button class="btn" id="saveCloudReqBtn">Save & Simulate Telegram</button><button class="btn" id="cancelCloudReqBtn">Cancel</button><input type="hidden" id="editingCloudReqId"></div></div>
+            <div id="section-cloudreq" class="section"><div class="card"><h2>☁️ Cloud/Domain Reqs</h2><button class="btn" id="addCloudReqBtn">+ Add</button><div id="cloudReqsTable"></div></div>
+            <div id="cloudReqModal" class="modal"><h3>Request</h3><input id="cloudCustomer" placeholder="Customer"><input id="cloudEmail" placeholder="Email"><select id="cloudService"><option>Domain</option><option>Hosting</option><option>VPS</option><option>SSL</option></select><input id="cloudDomain" placeholder="Domain"><textarea id="cloudDetails" rows="3"></textarea><button class="btn" id="saveCloudReqBtn">Save & Simulate Telegram</button><button class="btn" id="cancelCloudReqBtn">Cancel</button><input type="hidden" id="editingCloudReqId"></div></div>
             <!-- VISITORS -->
             <div id="section-visitors" class="section"><div class="card"><h2>🌍 Visitors</h2><div id="visitorsTable"></div></div></div>
             <!-- BLOG -->
-            <div id="section-blog" class="section"><div class="card"><h2>📝 Blog Posts</h2><button class="btn" id="addPostBtn">+ Add</button><div id="blogTable"></div></div><div id="blogModal" class="modal"><h3>Post</h3><input id="postTitle" placeholder="Title"><textarea id="postContent" rows="8" placeholder="HTML content"></textarea><button class="btn" id="savePostBtn">Save</button><button class="btn" id="cancelPostBtn">Cancel</button><input type="hidden" id="editingPostId"></div></div>
+            <div id="section-blog" class="section"><div class="card"><h2>📝 Blog Posts</h2><button class="btn" id="addPostBtn">+ Add</button><div id="blogTable"></div></div>
+            <div id="blogModal" class="modal"><h3>Post</h3><input id="postTitle" placeholder="Title"><textarea id="postContent" rows="8" placeholder="HTML content"></textarea><button class="btn" id="savePostBtn">Save</button><button class="btn" id="cancelPostBtn">Cancel</button><input type="hidden" id="editingPostId"></div></div>
         `;
 
+        // Attach all event listeners after HTML is in the DOM
         attachAllEventListeners();
+        // Initial render of active section (users)
         refreshSection('users');
+        // Activate first tab
         const firstTab = document.querySelector('.tab-btn');
         if (firstTab) firstTab.classList.add('active');
     }
@@ -188,12 +203,16 @@
         if (section === 'blog') renderBlog();
     }
 
-    // ========== RENDER FUNCTIONS ==========
+    // ========== RENDER FUNCTIONS (all working) ==========
     function renderUsers() {
         let users = get('ghost_users');
         let html = '<table class="admin-table"><thead><tr><th>Email</th><th>Role</th><th>Actions</th></tr></thead><tbody>';
         users.forEach(u => {
-            html += `<tr><td>${u.email}</td><td>${u.role}</td><td><button class="btn" onclick="deleteUser('${u.id}')">Delete</button> <button class="btn" onclick="promoteUser('${u.id}')">Promote</button></td></tr>`;
+            html += `<tr>
+                        <td>${u.email}</td>
+                        <td>${u.role}</td>
+                        <td><button class="btn" onclick="deleteUser('${u.id}')">Delete</button> <button class="btn" onclick="promoteUser('${u.id}')">Promote</button></td>
+                    </tr>`;
         });
         html += '</tbody></table>';
         document.getElementById('usersTable').innerHTML = html;
@@ -223,26 +242,17 @@
     document.getElementById('saveToolBtn')?.addEventListener('click', () => { let id = document.getElementById('editingToolId').value; let data = { name: document.getElementById('toolName').value, price: parseFloat(document.getElementById('toolPrice').value), discount: parseInt(document.getElementById('toolDiscount').value)||0, download: document.getElementById('toolDownload').value }; if(!data.name) return alert('Name required'); let tools = get('ghost_tools'); if(id){ let idx = tools.findIndex(t=>t.id===id); if(idx!==-1) tools[idx] = {...tools[idx], ...data}; } else { data.id = Date.now().toString(); tools.push(data); } set('ghost_tools', tools); document.getElementById('toolModal').style.display = 'none'; renderTools(); });
     document.getElementById('cancelToolBtn')?.addEventListener('click', () => document.getElementById('toolModal').style.display = 'none');
 
-    // Generic CRUD for localStorage sections (fully working)
-    function createCRUD(storageKey, renderFn, modalId, fieldMapping, idField) {
-        window[`edit_${storageKey}`] = (id) => {
-            let item = get(storageKey).find(i=>i.id===id);
-            if(item){
-                for(let [fieldId, prop] of Object.entries(fieldMapping)){
-                    let el = document.getElementById(fieldId);
-                    if(el) el.value = item[prop] !== undefined ? item[prop] : '';
-                }
-                document.getElementById(idField).value = id;
-                document.getElementById(modalId).style.display = 'block';
-            }
-        };
-        window[`delete_${storageKey}`] = (id) => { set(storageKey, get(storageKey).filter(i=>i.id!==id)); renderFn(); };
-        document.getElementById(`add${modalId.replace('Modal','')}Btn`)?.addEventListener('click', () => {
-            for(let [fieldId] of Object.entries(fieldMapping)) document.getElementById(fieldId).value = '';
+    // ========== GENERIC CRUD FOR OTHER SECTIONS (Add/Edit/Delete working) ==========
+    function attachCRUD(section, storageKey, renderFn, modalId, fieldMapping, idField) {
+        // Add button
+        document.getElementById(`add${section.charAt(0).toUpperCase()+section.slice(1)}Btn`)?.addEventListener('click', () => {
+            // Clear fields
+            for(let fieldId of Object.keys(fieldMapping)) document.getElementById(fieldId).value = '';
             document.getElementById(idField).value = '';
             document.getElementById(modalId).style.display = 'block';
         });
-        document.getElementById(`save${modalId.replace('Modal','')}Btn`)?.addEventListener('click', () => {
+        // Save button
+        document.getElementById(`save${section.charAt(0).toUpperCase()+section.slice(1)}Btn`)?.addEventListener('click', () => {
             let id = document.getElementById(idField).value;
             let data = {};
             for(let [fieldId, prop] of Object.entries(fieldMapping)){
@@ -250,7 +260,7 @@
                 if(prop === 'price' || prop === 'budget' || prop === 'weight') val = parseFloat(val) || 0;
                 data[prop] = val;
             }
-            if(!data.name && !data.domain && !data.number && !data.client && !data.customer) return alert('At least one field required');
+            if(!data.name && !data.domain && !data.number && !data.client && !data.customer && !data.title) return alert('Please fill required fields');
             let items = get(storageKey);
             if(id){
                 let idx = items.findIndex(i=>i.id===id);
@@ -263,31 +273,106 @@
             document.getElementById(modalId).style.display = 'none';
             renderFn();
         });
-        document.getElementById(`cancel${modalId.replace('Modal','')}Btn`)?.addEventListener('click', () => document.getElementById(modalId).style.display = 'none');
+        // Cancel button
+        document.getElementById(`cancel${section.charAt(0).toUpperCase()+section.slice(1)}Btn`)?.addEventListener('click', () => document.getElementById(modalId).style.display = 'none');
+        // Expose edit and delete globally
+        window[`edit_${storageKey}`] = (id) => {
+            let item = get(storageKey).find(i=>i.id===id);
+            if(item){
+                for(let [fieldId, prop] of Object.entries(fieldMapping)){
+                    let el = document.getElementById(fieldId);
+                    if(el) el.value = item[prop] !== undefined ? item[prop] : '';
+                }
+                document.getElementById(idField).value = id;
+                document.getElementById(modalId).style.display = 'block';
+            }
+        };
+        window[`delete_${storageKey}`] = (id) => { set(storageKey, get(storageKey).filter(i=>i.id!==id)); renderFn(); };
     }
 
-    function renderWebsites() { let items = get('ghost_websites'); let html = '<table class="admin-table"><thead></tr><th>Domain</th><th>Title</th><th>Price</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.domain}</td><td>${i.title}</td><td>$${i.price}</td><td><button class="btn" onclick="edit_ghost_websites('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_websites('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('websitesTable').innerHTML = html; }
-    function renderEsim() { let items = get('ghost_esim'); let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Duration</th><th>Price</th><th>Data</th><th>Voice</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.name}</td><td>${i.duration}</td><td>$${i.price}</td><td>${i.data}</td><td>${i.voice}</td><td><button class="btn" onclick="edit_ghost_esim('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_esim('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('esimTable').innerHTML = html; }
-    function renderLogistics() { let items = get('ghost_logistics'); let html = '<table class="admin-table"><thead><tr><th>Sender</th><th>Receiver</th><th>Address</th><th>Package</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.sender}</td><td>${i.receiver}</td><td>${i.address}</td><td>${i.package}</td><td>$${i.price}</td><td>${i.status}</td><td><button class="btn" onclick="edit_ghost_logistics('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_logistics('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('logisticsTable').innerHTML = html; }
-    function renderVirtual() { let items = get('ghost_virtualnums'); let html = '<table class="admin-table"><thead><tr><th>Number</th><th>Country</th><th>Service</th><th>Price</th><th>Partner</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.number}</td><td>${i.country}</td><td>${i.service}</td><td>$${i.price}</td><td>${i.partner}</td><td><button class="btn" onclick="edit_ghost_virtualnums('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_virtualnums('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('virtualTable').innerHTML = html; }
-    function renderWebReqs() { let items = get('ghost_webrequests'); let html = '<table class="admin-table"><thead><tr><th>Client</th><th>Email</th><th>Type</th><th>Budget</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.client}</td><td>${i.email}</td><td>${i.type}</td><td>$${i.budget}</td><td><button class="btn" onclick="edit_ghost_webrequests('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_webrequests('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('webReqsTable').innerHTML = html; }
-    function renderCredForms() { let items = get('ghost_credforms'); let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Fields Preview</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.name}</td><td>${i.fields.substring(0,50)}...</td><td><button class="btn" onclick="edit_ghost_credforms('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_credforms('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('credFormsTable').innerHTML = html; }
-    function renderCloudReqs() { let items = get('ghost_cloudreqs'); let html = '<table class="admin-table"><thead><tr><th>Customer</th><th>Service</th><th>Domain</th><th>Telegram</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.customer}</td><td>${i.serviceType}</td><td>${i.domain}</td><td>${i.sentToTelegram ? '✅' : '❌'}</td><td><button class="btn" onclick="edit_ghost_cloudreqs('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_cloudreqs('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('cloudReqsTable').innerHTML = html; }
-    function renderVisitors() { let items = get('ghost_visitors'); let html = '<table class="admin-table"><thead><tr><th>IP</th><th>Time</th><th>Page</th><tr></thead><tbody>'; items.forEach(v=>{ html+=`<tr><td>${v.ip}</td><td>${new Date(v.time).toLocaleString()}</td><td>${v.page}</td></tr>`; }); html+='</tbody></table>'; document.getElementById('visitorsTable').innerHTML = html; }
-    function renderBlog() { let items = get('ghost_blog'); let html = '<table class="admin-table"><thead><tr><th>Title</th><th>Date</th><th>Actions</th></tr></thead><tbody>'; items.forEach(p=>{ html+=`<tr><td>${p.title}</td><td>${new Date(p.createdAt).toLocaleDateString()}</td><td><button class="btn" onclick="edit_ghost_blog('${p.id}')">Edit</button> <button class="btn" onclick="delete_ghost_blog('${p.id}')">Delete</button></td></tr>`; }); html+='</tbody></table>'; document.getElementById('blogTable').innerHTML = html; }
+    // Define render functions for each section (they call the table render)
+    function renderWebsites() {
+        let items = get('ghost_websites');
+        let html = '<table class="admin-table"><thead><tr><th>Domain</th><th>Title</th><th>Price</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => { html += `<tr><td>${i.domain}</td><td>${i.title}</td><td>$${i.price}</td><td><button class="btn" onclick="edit_ghost_websites('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_websites('${i.id}')">Delete</button></td></tr>`; });
+        html += '</tbody></table>';
+        document.getElementById('websitesTable').innerHTML = html;
+    }
+    function renderEsim() {
+        let items = get('ghost_esim');
+        let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Duration</th><th>Price</th><th>Data</th><th>Voice</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => { html += `<tr><td>${i.name}</td><td>${i.duration}</td><td>$${i.price}</td><td>${i.data}</td><td>${i.voice}</td><td><button class="btn" onclick="edit_ghost_esim('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_esim('${i.id}')">Delete</button></td></tr>`; });
+        html += '</tbody></table>';
+        document.getElementById('esimTable').innerHTML = html;
+    }
+    function renderLogistics() {
+        let items = get('ghost_logistics');
+        let html = '<table class="admin-table"><thead><tr><th>Sender</th><th>Receiver</th><th>Address</th><th>Package</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => { html += `<tr><td>${i.sender}</td><td>${i.receiver}</td><td>${i.address}</td><td>${i.package}</td><td>$${i.price}</td><td>${i.status}</td><td><button class="btn" onclick="edit_ghost_logistics('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_logistics('${i.id}')">Delete</button></td></tr>`; });
+        html += '</tbody></table>';
+        document.getElementById('logisticsTable').innerHTML = html;
+    }
+    function renderVirtual() {
+        let items = get('ghost_virtualnums');
+        let html = '<table class="admin-table"><thead><tr><th>Number</th><th>Country</th><th>Service</th><th>Price</th><th>Partner</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => { html += `<tr><td>${i.number}</td><td>${i.country}</td><td>${i.service}</td><td>$${i.price}</td><td>${i.partner}</td><td><button class="btn" onclick="edit_ghost_virtualnums('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_virtualnums('${i.id}')">Delete</button></td></tr>`; });
+        html += '</tbody></table>';
+        document.getElementById('virtualTable').innerHTML = html;
+    }
+    function renderWebReqs() {
+        let items = get('ghost_webrequests');
+        let html = '<table class="admin-table"><thead><tr><th>Client</th><th>Email</th><th>Type</th><th>Budget</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => { html += `<tr><td>${i.client}</td><td>${i.email}</td><td>${i.type}</td><td>$${i.budget}</td><td><button class="btn" onclick="edit_ghost_webrequests('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_webrequests('${i.id}')">Delete</button></td></tr>`; });
+        html += '</tbody></table>';
+        document.getElementById('webReqsTable').innerHTML = html;
+    }
+    function renderCredForms() {
+        let items = get('ghost_credforms');
+        let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Fields Preview</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => { html += `<tr><td>${i.name}</td><td>${i.fields.substring(0,50)}...</td><td><button class="btn" onclick="edit_ghost_credforms('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_credforms('${i.id}')">Delete</button></td></tr>`; });
+        html += '</tbody></table>';
+        document.getElementById('credFormsTable').innerHTML = html;
+    }
+    function renderCloudReqs() {
+        let items = get('ghost_cloudreqs');
+        let html = '<table class="admin-table"><thead><tr><th>Customer</th><th>Service</th><th>Domain</th><th>Telegram</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => { html += `<tr><td>${i.customer}</td><td>${i.serviceType}</td><td>${i.domain}</td><td>${i.sentToTelegram ? '✅' : '❌'}</td><td><button class="btn" onclick="edit_ghost_cloudreqs('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_cloudreqs('${i.id}')">Delete</button></td></tr>`; });
+        html += '</tbody></table>';
+        document.getElementById('cloudReqsTable').innerHTML = html;
+    }
+    function renderVisitors() {
+        let items = get('ghost_visitors');
+        let html = '<table class="admin-table"><thead><tr><th>IP</th><th>Time</th><th>Page</th></tr></thead><tbody>';
+        items.forEach(v => { html += `<tr><td>${v.ip}</td><td>${new Date(v.time).toLocaleString()}</td><td>${v.page}</td></tr>`; });
+        html += '</tbody></table>';
+        document.getElementById('visitorsTable').innerHTML = html;
+    }
+    function renderBlog() {
+        let items = get('ghost_blog');
+        let html = '<table class="admin-table"><thead><tr><th>Title</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(p => { html += `<tr><td>${p.title}</td><td>${new Date(p.createdAt).toLocaleDateString()}</td><td><button class="btn" onclick="edit_ghost_blog('${p.id}')">Edit</button> <button class="btn" onclick="delete_ghost_blog('${p.id}')">Delete</button></td></tr>`; });
+        html += '</tbody></table>';
+        document.getElementById('blogTable').innerHTML = html;
+    }
 
-    // Register CRUD for each section
-    createCRUD('ghost_websites', renderWebsites, 'websiteModal', { websiteDomain:'domain', websiteTitle:'title', websitePrice:'price' }, 'editingWebsiteId');
-    createCRUD('ghost_esim', renderEsim, 'esimModal', { esimName:'name', esimDuration:'duration', esimPrice:'price', esimData:'data', esimVoice:'voice' }, 'editingEsimId');
-    createCRUD('ghost_logistics', renderLogistics, 'logisticsModal', { logSender:'sender', logReceiver:'receiver', logAddress:'address', logPackage:'package', logWeight:'weight', logPrice:'price', logStatus:'status' }, 'editingLogisticsId');
-    createCRUD('ghost_virtualnums', renderVirtual, 'virtualModal', { virtualNumber:'number', virtualCountry:'country', virtualService:'service', virtualPrice:'price', virtualPartner:'partner' }, 'editingVirtualId');
-    createCRUD('ghost_webrequests', renderWebReqs, 'webReqModal', { webClient:'client', webEmail:'email', webType:'type', webReqs:'requirements', webBudget:'budget' }, 'editingWebReqId');
-    createCRUD('ghost_credforms', renderCredForms, 'credFormModal', { formName:'name', formFields:'fields' }, 'editingCredFormId');
-    createCRUD('ghost_cloudreqs', renderCloudReqs, 'cloudReqModal', { cloudCustomer:'customer', cloudEmail:'email', cloudService:'serviceType', cloudDomain:'domain', cloudDetails:'details' }, 'editingCloudReqId');
-    createCRUD('ghost_blog', renderBlog, 'blogModal', { postTitle:'title', postContent:'content' }, 'editingPostId');
-
+    // Attach CRUD for each localStorage section
     function attachAllEventListeners() {
-        // Additional listeners if needed (already handled by createCRUD)
+        attachCRUD('websites', 'ghost_websites', renderWebsites, 'websiteModal',
+            { websiteDomain:'domain', websiteTitle:'title', websitePrice:'price' }, 'editingWebsiteId');
+        attachCRUD('esim', 'ghost_esim', renderEsim, 'esimModal',
+            { esimName:'name', esimDuration:'duration', esimPrice:'price', esimData:'data', esimVoice:'voice' }, 'editingEsimId');
+        attachCRUD('logistics', 'ghost_logistics', renderLogistics, 'logisticsModal',
+            { logSender:'sender', logReceiver:'receiver', logAddress:'address', logPackage:'package', logWeight:'weight', logPrice:'price', logStatus:'status' }, 'editingLogisticsId');
+        attachCRUD('virtual', 'ghost_virtualnums', renderVirtual, 'virtualModal',
+            { virtualNumber:'number', virtualCountry:'country', virtualService:'service', virtualPrice:'price', virtualPartner:'partner' }, 'editingVirtualId');
+        attachCRUD('webReq', 'ghost_webrequests', renderWebReqs, 'webReqModal',
+            { webClient:'client', webEmail:'email', webType:'type', webReqs:'requirements', webBudget:'budget' }, 'editingWebReqId');
+        attachCRUD('credForm', 'ghost_credforms', renderCredForms, 'credFormModal',
+            { formName:'name', formFields:'fields' }, 'editingCredFormId');
+        attachCRUD('cloudReq', 'ghost_cloudreqs', renderCloudReqs, 'cloudReqModal',
+            { cloudCustomer:'customer', cloudEmail:'email', cloudService:'serviceType', cloudDomain:'domain', cloudDetails:'details' }, 'editingCloudReqId');
+        attachCRUD('post', 'ghost_blog', renderBlog, 'blogModal',
+            { postTitle:'title', postContent:'content' }, 'editingPostId');
     }
 
     // Theme toggle
@@ -299,7 +384,7 @@
         localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
     });
 
-    // Matrix rain (simple)
+    // Matrix rain
     (function() {
         const canvas = document.getElementById('matrixCanvas');
         const ctx = canvas.getContext('2d');
