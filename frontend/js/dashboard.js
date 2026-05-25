@@ -1,4 +1,9 @@
 (async () => {
+    const ok = await initCommon();
+    if (!ok) return;
+
+    // ---- YOUR EXISTING CODE GOES BELOW ----
+    (async () => {
     const loggedIn = await initAuth('dashboard');
     if (!loggedIn) return;
 
@@ -156,3 +161,4 @@
     setInterval(triggerRandomPopup, 20000 + Math.random() * 15000);
     setTimeout(triggerRandomPopup, 5000);
 })();
+    })();
