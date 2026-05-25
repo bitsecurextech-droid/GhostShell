@@ -2,7 +2,7 @@
 const API = '/api';
 let currentUser = null;
 
-// Unified navigation builder
+// Unified navigation builder – add/remove pages here
 function buildNav() {
     const nav = document.getElementById('mainNav');
     if (!nav) return;
@@ -17,6 +17,7 @@ function buildNav() {
         { name: 'logistics', label: '📦 Logistics', href: 'logistics-tracking.html' },
         { name: 'blog', label: '💀 Blog', href: 'blog.html' }
     ];
+    // Admin link only visible to admin users
     if (currentUser && currentUser.role === 'admin') {
         pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
     }
