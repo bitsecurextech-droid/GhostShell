@@ -5,28 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>GHOST SHELL // BLOG – Tactical Cyber Insights</title>
     <meta name="description" content="GHOST SHELL Blog – tactical cybersecurity insights, changelog, tutorials, and news from the frontlines.">
-    <meta name="keywords" content="cyber blog, hacking blog, cybersecurity news, GHOST SHELL, tutorials, changelog">
-    <meta name="author" content="GHOST SHELL">
-    <meta name="robots" content="index, follow">
-
-    <meta property="og:title" content="GHOST SHELL | Blog">
-    <meta property="og:description" content="Tactical cybersecurity insights, changelog, and tutorials from GHOST SHELL.">
-    <meta property="og:image" content="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
-    <meta property="og:url" content="https://ghostshell-whe8.onrender.com/blog.html">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="GHOST SHELL | Blog">
-    <meta name="twitter:description" content="Tactical cybersecurity insights, changelog, and tutorials.">
-    <meta name="twitter:image" content="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
-
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#ff1a1a">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GHOST SHELL">
-    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
-
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
@@ -76,7 +54,7 @@
             display: flex;
             gap: 15px;
             align-items: center;
-            font-weight: bold;
+            flex-wrap: wrap;
         }
         .blog-category {
             display: inline-block;
@@ -112,162 +90,35 @@
         .single-post .back-btn { margin-bottom: 20px; }
         .skeleton .skel-bar { background:#1a1a1a; border-radius:3px; animation:pulse 1.5s infinite; }
         @keyframes pulse { 0%,100%{opacity:0.4;} 50%{opacity:0.8;} }
-        .blog-header-img { height:60px; margin-bottom:10px; }
     </style>
 </head>
 <body>
-    <canvas id="matrixCanvas"></canvas>
-    <div id="mainDashboard" style="position:relative; z-index:2;">
-        <header class="header">
-            <div class="logo-area">
-                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="GHOST SHELL logo">
-                <span class="site-name">GHOST SHELL</span>
-            </div>
-            <nav class="nav-links" id="mainNav" aria-label="Main navigation"></nav>
-            <button class="btn" id="themeToggle" style="border-color:#ffaa00; color:#ffaa00; margin-left:10px;">🌓</button>
-            <button class="btn" id="logoutBtn" style="margin-left:auto; border-color:#ffab00; color:#ffab00;" aria-label="Logout">EXIT</button>
-        </header>
+<canvas id="matrixCanvas"></canvas>
+<div id="mainDashboard" style="position:relative; z-index:2;">
+    <header class="header">
+        <div class="logo-area">
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="logo">
+            <span class="site-name">GHOST SHELL</span>
+        </div>
+        <nav class="nav-links" id="mainNav"></nav>
+        <button class="btn" id="themeToggle">🌓</button>
+        <button class="btn" id="logoutBtn">EXIT</button>
+    </header>
 
-        <main class="page active">
-            <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
-                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" alt="GHOST SHELL" style="height:65px; filter:drop-shadow(0 0 12px #ff0000aa);">
-                <h1 style="color:var(--red); font-family:var(--font-mono); letter-spacing:4px; text-shadow:0 0 15px rgba(255,0,0,0.6); font-size:2rem; font-weight:900;">GHOST BLOG</h1>
-            </div>
-            <p style="color:#ccc; font-family:var(--font-mono); font-size:0.85rem; margin-bottom:25px; font-weight:bold; letter-spacing:1px;">⚡ TACTICAL INSIGHTS FROM THE SHADOWS — STAY SHARP, STAY DANGEROUS.</p>
-            <!-- blog list view -->
-            <div id="blogList" class="blog-grid"></div>
-            <!-- single post view -->
-            <div id="singlePost" class="single-post" style="display:none;"></div>
-        </main>
-    </div>
+    <main class="page active">
+        <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" alt="GHOST SHELL" style="height:65px; filter:drop-shadow(0 0 12px #ff0000aa);">
+            <h1 style="color:var(--red); font-family:var(--font-mono); letter-spacing:4px; text-shadow:0 0 15px rgba(255,0,0,0.6); font-size:2rem; font-weight:900;">GHOST BLOG</h1>
+        </div>
+        <p style="color:#ccc; font-family:var(--font-mono); font-size:0.85rem; margin-bottom:25px; font-weight:bold; letter-spacing:1px;">⚡ TACTICAL INSIGHTS FROM THE SHADOWS — STAY SHARP, STAY DANGEROUS.</p>
+        <!-- blog list view -->
+        <div id="blogList" class="blog-grid"></div>
+        <!-- single post view -->
+        <div id="singlePost" class="single-post" style="display:none;"></div>
+    </main>
+</div>
 
-    <script src="js/matrix.js"></script>
-    <script>
-        const API = '/api';
-        let currentUser = null;
-
-        (async () => {
-            const token = localStorage.getItem('ghost_token');
-            if (!token) { window.location.href = 'index.html'; return; }
-            const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
-            if (!res.ok) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; return; }
-            currentUser = (await res.json()).user;
-
-            // Logout
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                localStorage.removeItem('ghost_token');
-                window.location.href = 'index.html';
-            });
-
-            // Theme toggle
-            const themeBtn = document.getElementById('themeToggle');
-            if (localStorage.getItem('theme') === 'light') {
-                document.body.classList.add('light');
-                themeBtn.textContent = '☀️';
-            }
-            themeBtn.addEventListener('click', () => {
-                document.body.classList.toggle('light');
-                const isLight = document.body.classList.contains('light');
-                themeBtn.textContent = isLight ? '☀️' : '🌓';
-                localStorage.setItem('theme', isLight ? 'light' : 'dark');
-            });
-
-            // Build navigation
-            const nav = document.getElementById('mainNav');
-            const pages = [
-                { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
-                { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
-                { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
-                { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
-                { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
-                { name: 'blog', label: '💀 Blog', href: 'blog.html' }
-            ];
-            if (currentUser.role === 'admin') pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
-            nav.innerHTML = '';
-            pages.forEach(p => {
-                const btn = document.createElement('button');
-                btn.className = 'nav-link' + (p.name === 'blog' ? ' active' : '');
-                btn.textContent = p.label;
-                btn.addEventListener('click', () => window.location.href = p.href);
-                nav.appendChild(btn);
-            });
-
-            loadPosts();
-        })();
-
-        async function loadPosts() {
-            const container = document.getElementById('blogList');
-            container.innerHTML = '';
-            for (let i = 0; i < 4; i++) {
-                const skel = document.createElement('div');
-                skel.className = 'blog-card skeleton';
-                skel.innerHTML = `
-                    <div class="skel-bar" style="width:70%; height:1.2rem; margin-bottom:10px;"></div>
-                    <div class="skel-bar" style="width:40%; height:0.7rem; margin-bottom:15px;"></div>
-                    <div class="skel-bar" style="width:100%; height:0.8rem; margin-bottom:6px;"></div>
-                    <div class="skel-bar" style="width:90%; height:0.8rem; margin-bottom:6px;"></div>
-                    <div class="skel-bar" style="width:60%; height:0.8rem;"></div>
-                `;
-                container.appendChild(skel);
-            }
-
-            const res = await fetch(`${API}/blog`);
-            const posts = await res.json();
-            container.innerHTML = posts.length ? '' : '<p style="color:#666; grid-column:1/-1; text-align:center; font-family:var(--font-mono);">No posts yet. Shadows are silent.</p>';
-
-            posts.forEach(post => {
-                const card = document.createElement('div');
-                card.className = 'blog-card';
-                card.onclick = () => showSinglePost(post);
-                const excerpt = stripHtml(post.content).substring(0, 180) + '...';
-                card.innerHTML = `
-                    <h3>⚡ ${post.title}</h3>
-                    <div class="blog-meta">
-                        <span>👤 ${post.author || 'Anonymous'}</span>
-                        <span>📅 ${new Date(post.createdAt).toLocaleDateString()}</span>
-                        <span class="blog-category cat-${post.category || 'general'}">${post.category || 'general'}</span>
-                    </div>
-                    <div class="blog-excerpt">${excerpt}</div>
-                    <span class="read-more">⟫ READ FULL REPORT ⟪</span>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function stripHtml(html) {
-            const tmp = document.createElement('div');
-            tmp.innerHTML = html;
-            return tmp.textContent || tmp.innerText || '';
-        }
-
-        function showSinglePost(post) {
-            document.getElementById('blogList').style.display = 'none';
-            const single = document.getElementById('singlePost');
-            single.style.display = 'block';
-            single.innerHTML = `
-                <button class="btn back-btn" onclick="backToList()">← BACK TO BLOG</button>
-                <div class="card" style="border-color:var(--red); box-shadow:var(--red-glow);">
-                    <h2 style="color:var(--red); font-family:var(--font-mono); font-weight:900; font-size:1.5rem; text-transform:uppercase;">⚡ ${post.title}</h2>
-                    <div class="blog-meta" style="font-size:0.8rem; margin-top:10px;">
-                        <span>👤 ${post.author || 'Anonymous'}</span>
-                        <span>📅 ${new Date(post.createdAt).toLocaleString()}</span>
-                        <span class="blog-category cat-${post.category || 'general'}">${post.category || 'general'}</span>
-                    </div>
-                    <div style="margin-top:20px; font-size:1rem; line-height:1.8; color:#ddd; font-weight:500; font-family:'Segoe UI', sans-serif;">${post.content}</div>
-                </div>
-            `;
-            window.scrollTo(0,0);
-        }
-
-        function backToList() {
-            document.getElementById('blogList').style.display = 'grid';
-            document.getElementById('singlePost').style.display = 'none';
-        }
-    </script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
-        }
-    </script>
+<script src="js/common.js"></script>
+<script src="js/blog.js"></script>
 </body>
 </html>
