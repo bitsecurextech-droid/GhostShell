@@ -12,7 +12,7 @@
         .logo-img { height: 45px; filter: drop-shadow(0 0 5px red); }
         .site-name { font-size: 1.6rem; color: #c0392b; text-shadow: 0 0 8px #ff0000; }
         .card { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
-        .plan-card { display: inline-block; width: 280px; margin: 15px; background: #0a0000; border: 1px solid #ff4444; padding: 15px; text-align: center; box-shadow: 0 0 10px rgba(255,0,0,0.3); }
+        .plan-card { display: inline-block; width: 280px; margin: 15px; background: #0a0000; border: 1px solid #ff4444; padding: 15px; text-align: center; }
         .plan-card h3 { color: #ff6666; }
         .price { font-size: 1.5rem; color: #00ff41; }
         .btn { background: #1a0000; border: 1px solid #8a0303; color: #ff6666; padding: 6px 14px; cursor: pointer; }
@@ -35,10 +35,7 @@
     function loadPlans() {
         const plans = JSON.parse(localStorage.getItem('ghost_esim') || '[]');
         const container = document.getElementById('plansList');
-        if (plans.length === 0) {
-            container.innerHTML = '<p>No eSIM plans available yet. Admin will add soon.</p>';
-            return;
-        }
+        if (plans.length === 0) { container.innerHTML = '<p>No eSIM plans available yet.</p>'; return; }
         let html = '';
         plans.forEach(p => {
             html += `<div class="plan-card">
@@ -53,7 +50,7 @@
         container.innerHTML = html;
     }
     loadPlans();
-    // Matrix rain (same as above)
+    // matrix rain
     (function() {
         const canvas = document.getElementById('matrixCanvas');
         const ctx = canvas.getContext('2d');
