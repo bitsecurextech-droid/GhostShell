@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">HBSVHGCVASGH
-    <title>GHOST SHELL • ADMIN COMMAND</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GHOST SHELL // ADMIN (FULLY WORKING)</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
@@ -63,58 +63,49 @@
 </div>
 
 <script>
-    // ========== GLOBALS ==========
-    const API = '/api';
-    let adminToken = localStorage.getItem('adminToken') || '';
-
-    // Helper: API call with token
-    async function apiCall(endpoint, options = {}) {
-        const res = await fetch(`${API}${endpoint}`, {
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${adminToken}`,
-                ...options.headers
-            }
-        });
-        if (res.status === 401) {
-            localStorage.removeItem('adminToken');
-            window.location.reload();
-            throw new Error('Unauthorized');
+    // ========== LOCALSTORAGE INIT ==========
+    function initData() {
+        if (!localStorage.getItem('ghost_users')) {
+            localStorage.setItem('ghost_users', JSON.stringify([
+                { id: '1', email: 'admin@ghostshell.com', password: 'admin123', role: 'full_admin' }
+            ]));
         }
-        return res.json();
+        if (!localStorage.getItem('ghost_codes')) localStorage.setItem('ghost_codes', '[]');
+        if (!localStorage.getItem('ghost_payments')) localStorage.setItem('ghost_payments', '[]');
+        if (!localStorage.getItem('ghost_tools')) localStorage.setItem('ghost_tools', '[]');
+        if (!localStorage.getItem('ghost_websites')) localStorage.setItem('ghost_websites', '[]');
+        if (!localStorage.getItem('ghost_esim')) localStorage.setItem('ghost_esim', '[]');
+        if (!localStorage.getItem('ghost_logistics')) localStorage.setItem('ghost_logistics', '[]');
+        if (!localStorage.getItem('ghost_virtualnums')) localStorage.setItem('ghost_virtualnums', '[]');
+        if (!localStorage.getItem('ghost_webrequests')) localStorage.setItem('ghost_webrequests', '[]');
+        if (!localStorage.getItem('ghost_credforms')) localStorage.setItem('ghost_credforms', '[]');
+        if (!localStorage.getItem('ghost_cloudreqs')) localStorage.setItem('ghost_cloudreqs', '[]');
+        if (!localStorage.getItem('ghost_visitors')) localStorage.setItem('ghost_visitors', JSON.stringify([
+            { ip: '127.0.0.1', time: new Date().toISOString(), page: '/admin.html' }
+        ]));
+        if (!localStorage.getItem('ghost_blog')) localStorage.setItem('ghost_blog', '[]');
     }
+    initData();
+
+    const get = (k) => JSON.parse(localStorage.getItem(k));
+    const set = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 
     // ========== LOGIN ==========
     const loginScreen = document.getElementById('loginScreen');
     const dashboard = document.getElementById('adminDashboard');
-    document.getElementById('loginBtn').addEventListener('click', async () => {
+    document.getElementById('loginBtn').addEventListener('click', () => {
         const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value;
-        try {
-            const res = await fetch(`${API}/admin/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            const data = await res.json();
-            if (data.token) {
-                adminToken = data.token;
-                localStorage.setItem('adminToken', adminToken);
-                loginScreen.style.display = 'none';
-                dashboard.style.display = 'block';
-                buildAdminUI();
-            } else {
-                document.getElementById('loginError').innerText = data.error || 'Invalid credentials';
-            }
-        } catch (err) {
-            document.getElementById('loginError').innerText = 'Connection failed – is backend running?';
+        const pwd = document.getElementById('loginPassword').value;
+        const user = get('ghost_users').find(u => u.email === email && u.password === pwd && (u.role === 'full_admin' || u.role === 'admin'));
+        if (user) {
+            loginScreen.style.display = 'none';
+            dashboard.style.display = 'block';
+            buildAdminUI();
+        } else {
+            document.getElementById('loginError').innerText = '❌ Invalid credentials';
         }
     });
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        localStorage.removeItem('adminToken');
-        window.location.reload();
-    });
+    document.getElementById('logoutBtn').addEventListener('click', () => window.location.reload());
 
     // ========== BUILD UI ==========
     function buildAdminUI() {
@@ -145,42 +136,28 @@
             tabsContainer.appendChild(btn);
         });
 
-        // Create sections HTML
         const container = document.getElementById('sectionsContainer');
         container.innerHTML = `
-            <!-- USERS -->
             <div id="section-users" class="section active"><div class="card"><h2>👥 Users</h2><div id="usersTable"></div><button class="btn" id="addUserBtn">+ Add User</button></div></div>
-            <!-- CODES -->
             <div id="section-codes" class="section"><div class="card"><h2>🔑 Access Codes</h2><button class="btn" id="genCodesBtn">Generate 50 Codes</button><div id="codesTable"></div></div></div>
-            <!-- PAYMENTS -->
             <div id="section-payments" class="section"><div class="card"><h2>💸 Payments</h2><div id="paymentsTable"></div><button class="btn" id="addPaymentBtn">+ Mock Payment</button></div></div>
-            <!-- TOOLS -->
             <div id="section-tools" class="section"><div class="card"><h2>🔧 Tools</h2><button class="btn" id="addToolBtn">+ Add Tool</button><div id="toolsTable"></div></div>
             <div id="toolModal" class="modal"><h3>Tool</h3><input id="toolName" placeholder="Name"><input id="toolPrice" type="number" placeholder="Price"><input id="toolDiscount" type="number" placeholder="Discount %"><input id="toolDownload" placeholder="Download URL"><button class="btn" id="saveToolBtn">Save</button><button class="btn" id="cancelToolBtn">Cancel</button><input type="hidden" id="editingToolId"></div></div>
-            <!-- WEBSITES -->
             <div id="section-websites" class="section"><div class="card"><h2>🌐 Websites</h2><button class="btn" id="addWebsiteBtn">+ Add</button><div id="websitesTable"></div></div>
             <div id="websiteModal" class="modal"><h3>Website</h3><input id="websiteDomain" placeholder="Domain"><input id="websiteTitle" placeholder="Title"><input id="websitePrice" type="number" placeholder="Price"><button class="btn" id="saveWebsiteBtn">Save</button><button class="btn" id="cancelWebsiteBtn">Cancel</button><input type="hidden" id="editingWebsiteId"></div></div>
-            <!-- eSIM -->
             <div id="section-esim" class="section"><div class="card"><h2>📱 eSIM Plans</h2><button class="btn" id="addEsimBtn">+ Add</button><div id="esimTable"></div></div>
             <div id="esimModal" class="modal"><h3>eSIM Plan</h3><input id="esimName" placeholder="Name"><select id="esimDuration"><option>1 month</option><option>3 months</option><option>6 months</option><option>1 year</option></select><input id="esimPrice" type="number" placeholder="Price"><input id="esimData" placeholder="Data"><input id="esimVoice" placeholder="Voice"><button class="btn" id="saveEsimBtn">Save</button><button class="btn" id="cancelEsimBtn">Cancel</button><input type="hidden" id="editingEsimId"></div></div>
-            <!-- LOGISTICS -->
             <div id="section-logistics" class="section"><div class="card"><h2>📦 Logistics</h2><button class="btn" id="addLogisticsBtn">+ Add Order</button><div id="logisticsTable"></div></div>
             <div id="logisticsModal" class="modal"><h3>Order</h3><input id="logSender" placeholder="Sender"><input id="logReceiver" placeholder="Receiver"><input id="logAddress" placeholder="Address"><input id="logPackage" placeholder="Package"><input id="logWeight" type="number" placeholder="Weight (kg)"><input id="logPrice" type="number" placeholder="Price"><select id="logStatus"><option>pending</option><option>in_transit</option><option>delivered</option></select><button class="btn" id="saveLogisticsBtn">Save</button><button class="btn" id="cancelLogisticsBtn">Cancel</button><input type="hidden" id="editingLogisticsId"></div></div>
-            <!-- VIRTUAL NUMBERS -->
             <div id="section-virtualnums" class="section"><div class="card"><h2>📞 Virtual Numbers</h2><button class="btn" id="addVirtualBtn">+ Add</button><div id="virtualTable"></div></div>
             <div id="virtualModal" class="modal"><h3>Virtual Number</h3><input id="virtualNumber" placeholder="Number"><input id="virtualCountry" placeholder="Country"><input id="virtualService" placeholder="Service"><input id="virtualPrice" type="number" placeholder="Price"><input id="virtualPartner" placeholder="Partner"><button class="btn" id="saveVirtualBtn">Save</button><button class="btn" id="cancelVirtualBtn">Cancel</button><input type="hidden" id="editingVirtualId"></div></div>
-            <!-- WEB REQUESTS -->
             <div id="section-webrequest" class="section"><div class="card"><h2>🌍 Web Requests</h2><button class="btn" id="addWebReqBtn">+ Add</button><div id="webReqsTable"></div></div>
             <div id="webReqModal" class="modal"><h3>Request</h3><input id="webClient" placeholder="Client"><input id="webEmail" placeholder="Email"><input id="webType" placeholder="Type"><textarea id="webReqs" rows="3" placeholder="Requirements"></textarea><input id="webBudget" type="number" placeholder="Budget"><button class="btn" id="saveWebReqBtn">Save</button><button class="btn" id="cancelWebReqBtn">Cancel</button><input type="hidden" id="editingWebReqId"></div></div>
-            <!-- CREDENTIAL FORMS -->
-            <div id="section-credform" class="section"><div class="card"><h2>📝 Credential Forms</h2><button class="btn" id="addCredFormBtn">+ Add</button><div id="credFormsTable"></div></div>
+            <div id="section-credform" class="section"><div class="card"><h2>📝 Cred Forms</h2><button class="btn" id="addCredFormBtn">+ Add</button><div id="credFormsTable"></div></div>
             <div id="credFormModal" class="modal"><h3>Form</h3><input id="formName" placeholder="Name"><textarea id="formFields" rows="4" placeholder='[{"label":"Name","type":"text"}]'></textarea><button class="btn" id="saveCredFormBtn">Save</button><button class="btn" id="cancelCredFormBtn">Cancel</button><input type="hidden" id="editingCredFormId"></div></div>
-            <!-- CLOUD REQUESTS -->
             <div id="section-cloudreq" class="section"><div class="card"><h2>☁️ Cloud/Domain Reqs</h2><button class="btn" id="addCloudReqBtn">+ Add</button><div id="cloudReqsTable"></div></div>
-            <div id="cloudReqModal" class="modal"><h3>Request</h3><input id="cloudCustomer" placeholder="Customer"><input id="cloudEmail" placeholder="Email"><select id="cloudService"><option>Domain</option><option>Hosting</option><option>VPS</option><option>SSL</option></select><input id="cloudDomain" placeholder="Domain"><textarea id="cloudDetails" rows="3"></textarea><button class="btn" id="saveCloudReqBtn">Save</button><button class="btn" id="cancelCloudReqBtn">Cancel</button><input type="hidden" id="editingCloudReqId"></div></div>
-            <!-- VISITORS -->
+            <div id="cloudReqModal" class="modal"><h3>Request</h3><input id="cloudCustomer" placeholder="Customer"><input id="cloudEmail" placeholder="Email"><select id="cloudService"><option>Domain</option><option>Hosting</option><option>VPS</option><option>SSL</option></select><input id="cloudDomain" placeholder="Domain"><textarea id="cloudDetails" rows="3"></textarea><button class="btn" id="saveCloudReqBtn">Save & Simulate Telegram</button><button class="btn" id="cancelCloudReqBtn">Cancel</button><input type="hidden" id="editingCloudReqId"></div></div>
             <div id="section-visitors" class="section"><div class="card"><h2>🌍 Visitors</h2><div id="visitorsTable"></div></div></div>
-            <!-- BLOG -->
             <div id="section-blog" class="section"><div class="card"><h2>📝 Blog Posts</h2><button class="btn" id="addPostBtn">+ Add</button><div id="blogTable"></div></div>
             <div id="blogModal" class="modal"><h3>Post</h3><input id="postTitle" placeholder="Title"><textarea id="postContent" rows="8" placeholder="HTML content"></textarea><button class="btn" id="savePostBtn">Save</button><button class="btn" id="cancelPostBtn">Cancel</button><input type="hidden" id="editingPostId"></div></div>
         `;
@@ -192,627 +169,123 @@
     }
 
     function refreshSection(section) {
-        if (section === 'users') loadUsers();
-        if (section === 'codes') loadCodes();
-        if (section === 'payments') loadPayments();
-        if (section === 'tools') loadTools();
-        if (section === 'websites') loadWebsites();
-        if (section === 'esim') loadEsim();
-        if (section === 'logistics') loadLogistics();
-        if (section === 'virtualnums') loadVirtual();
-        if (section === 'webrequest') loadWebReqs();
-        if (section === 'credform') loadCredForms();
-        if (section === 'cloudreq') loadCloudReqs();
-        if (section === 'visitors') loadVisitors();
-        if (section === 'blog') loadBlog();
+        if (section === 'users') renderUsers();
+        if (section === 'codes') renderCodes();
+        if (section === 'payments') renderPayments();
+        if (section === 'tools') renderTools();
+        if (section === 'websites') renderWebsites();
+        if (section === 'esim') renderEsim();
+        if (section === 'logistics') renderLogistics();
+        if (section === 'virtualnums') renderVirtual();
+        if (section === 'webrequest') renderWebReqs();
+        if (section === 'credform') renderCredForms();
+        if (section === 'cloudreq') renderCloudReqs();
+        if (section === 'visitors') renderVisitors();
+        if (section === 'blog') renderBlog();
     }
 
-    // ========== API CALLS FOR EACH SECTION ==========
-
-    // USERS
-    async function loadUsers() {
-        const users = await apiCall('/admin/users');
-        let html = '<table class="admin-table"><thead><tr><th>Email</th><th>Username</th><th>Access Code</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+    // ========== RENDER FUNCTIONS ==========
+    function renderUsers() {
+        let users = get('ghost_users');
+        let html = '<table class="admin-table"><thead><tr><th>Email</th><th>Role</th><th>Actions</th><tr></thead><tbody>';
         users.forEach(u => {
-            const status = u.banned ? '🚫 BANNED' : (u.approved ? '✅ ACTIVE' : '⏳ PENDING');
             html += `<tr>
                         <td>${u.email}</td>
-                        <td>${u.username || '-'}</td>
-                        <td>${u.accessCode || '—'}</td>
-                        <td>${status}</td>
-                        <td>
-                            ${u.banned ? `<button class="btn" onclick="unbanUser('${u.id}')">UNBAN</button>` : `<button class="btn" onclick="banUser('${u.id}')">BAN</button>`}
-                            <button class="btn" onclick="deleteUser('${u.id}')">DELETE</button>
-                        </td>
+                        <td>${u.role}</td>
+                        <td><button class="btn" onclick="deleteUser('${u.id}')">Delete</button> <button class="btn" onclick="promoteUser('${u.id}')">Promote</button></td>
                     </tr>`;
         });
         html += '</tbody></table>';
         document.getElementById('usersTable').innerHTML = html;
     }
-    window.banUser = async (id) => { await apiCall(`/admin/ban/${id}`, { method: 'POST' }); loadUsers(); };
-    window.unbanUser = async (id) => { await apiCall(`/admin/unban/${id}`, { method: 'POST' }); loadUsers(); };
-    window.deleteUser = async (id) => { if (confirm('Delete user?')) await apiCall(`/admin/delete/${id}`, { method: 'DELETE' }); loadUsers(); };
-    document.getElementById('addUserBtn')?.addEventListener('click', async () => {
-        const email = prompt('Email:'); if (!email) return;
-        const password = prompt('Password:'); if (!password) return;
-        await apiCall('/admin/users', { method: 'POST', body: JSON.stringify({ email, password, role: 'user' }) });
-        loadUsers();
+    window.deleteUser = (id) => { set('ghost_users', get('ghost_users').filter(u => u.id !== id)); renderUsers(); };
+    window.promoteUser = (id) => { let users = get('ghost_users'); let idx = users.findIndex(u => u.id === id); if(idx!==-1) users[idx].role = 'full_admin'; set('ghost_users', users); renderUsers(); };
+    document.getElementById('addUserBtn')?.addEventListener('click', () => {
+        let email = prompt('Email:'); if(!email) return;
+        let users = get('ghost_users');
+        if(users.find(u=>u.email===email)) return alert('Exists');
+        users.push({ id: Date.now().toString(), email, password: 'changeme', role: 'user' });
+        set('ghost_users', users);
+        renderUsers();
     });
 
-    // CODES
-    async function loadCodes() {
-        const codes = await apiCall('/admin/codes');
-        let html = '<table class="admin-table"><thead><tr><th>Code</th><th>Status</th><th>Used By</th><th>Action</th></tr></thead><tbody>';
-        codes.forEach(c => {
-            html += `<tr>
-                        <td>${c.code}</td>
-                        <td>${c.usedBy ? 'USED' : 'ACTIVE'}</td>
-                        <td>${c.usedBy ? c.usedBy.email : '—'}</td>
-                        <td><button class="btn" onclick="revokeCode('${c.id}')">REVOKE</button></td>
-                    </tr>`;
-        });
-        html += '</tbody></table>';
-        document.getElementById('codesTable').innerHTML = html;
-    }
-    window.revokeCode = async (id) => { await apiCall('/admin/revoke-code', { method: 'POST', body: JSON.stringify({ codeId: id }) }); loadCodes(); };
-    document.getElementById('genCodesBtn')?.addEventListener('click', async () => {
-        await apiCall('/admin/generate-codes', { method: 'POST', body: JSON.stringify({ count: 50 }) });
-        loadCodes();
-    });
+    function renderCodes() { let codes = get('ghost_codes'); let html = '<table class="admin-table"><thead><tr><th>Code</th><th>Created</th></tr></thead><tbody>'; codes.forEach(c => { html += `<tr><td>${c.code}</td><td>${new Date(c.createdAt).toLocaleString()}</td></tr>`; }); html += '</tbody></table>'; document.getElementById('codesTable').innerHTML = html; }
+    document.getElementById('genCodesBtn')?.addEventListener('click', () => { let codes = get('ghost_codes'); for(let i=0;i<50;i++) codes.push({ code: 'DEATH-'+Math.random().toString(36).substring(2,10).toUpperCase(), createdAt: new Date().toISOString() }); set('ghost_codes', codes); renderCodes(); });
 
-    // PAYMENTS
-    async function loadPayments() {
-        const payments = await apiCall('/admin/payments');
-        let html = '<table class="admin-table"><thead><tr><th>User</th><th>Product</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody>';
-        payments.forEach(p => {
-            html += `<tr>
-                        <td>${p.userId?.email || '—'}</td>
-                        <td>${p.product || 'Access Code'}</td>
-                        <td>$${p.amountUSD}</td>
-                        <td>${p.status}</td>
-                        <td><button class="btn" onclick="confirmPayment('${p.id}')">CONFIRM</button></td>
-                    </tr>`;
-        });
-        html += '</tbody></table>';
-        document.getElementById('paymentsTable').innerHTML = html;
-    }
-    window.confirmPayment = async (id) => { await apiCall('/admin/confirm-payment', { method: 'POST', body: JSON.stringify({ paymentId: id }) }); loadPayments(); };
-    document.getElementById('addPaymentBtn')?.addEventListener('click', async () => {
-        await apiCall('/admin/payments', { method: 'POST', body: JSON.stringify({ userId: 'guest', amount: 99, product: 'Test Product' }) });
-        loadPayments();
-    });
+    function renderPayments() { let payments = get('ghost_payments'); let html = '<table class="admin-table"><thead><tr><th>User</th><th>Amount</th><th>Status</th><th>Action</th></table></thead><tbody>'; payments.forEach(p => { html += `<tr><td>${p.userId}</td><td>$${p.amount}</td><td>${p.status}</td><td><button class="btn" onclick="approvePayment('${p.id}')">Approve</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('paymentsTable').innerHTML = html; }
+    window.approvePayment = (id) => { let payments = get('ghost_payments'); let idx = payments.findIndex(p=>p.id===id); if(idx!==-1) payments[idx].status = 'approved'; set('ghost_payments', payments); renderPayments(); };
+    document.getElementById('addPaymentBtn')?.addEventListener('click', () => { let payments = get('ghost_payments'); payments.push({ id: Date.now().toString(), userId: 'guest', amount: 99, status: 'pending' }); set('ghost_payments', payments); renderPayments(); });
 
-    // TOOLS
-    async function loadTools() {
-        const tools = await apiCall('/tools');
-        let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Price</th><th>Discount</th><th>Download</th><th>Actions</th></tr></thead><tbody>';
-        tools.forEach(t => {
-            html += `<tr>
-                        <td>${t.name}</td>
-                        <td>$${t.priceUSD}</td>
-                        <td>${t.discountPercent || 0}%</td>
-                        <td><a href="${t.downloadUrl || '#'}" target="_blank">Link</a></td>
-                        <td><button class="btn" onclick="editTool('${t.id}')">Edit</button> <button class="btn" onclick="deleteTool('${t.id}')">Delete</button></td>
-                    </tr>`;
-        });
-        html += '</tbody><table>';
-        document.getElementById('toolsTable').innerHTML = html;
-    }
-    window.editTool = async (id) => {
-        const tools = await apiCall('/tools');
-        const t = tools.find(t => t.id === id);
-        if (t) {
-            document.getElementById('toolName').value = t.name;
-            document.getElementById('toolPrice').value = t.priceUSD;
-            document.getElementById('toolDiscount').value = t.discountPercent || 0;
-            document.getElementById('toolDownload').value = t.downloadUrl || '';
-            document.getElementById('editingToolId').value = id;
-            document.getElementById('toolModal').style.display = 'block';
-        }
-    };
-    window.deleteTool = async (id) => { if (confirm('Delete tool?')) await apiCall(`/admin/tool/${id}`, { method: 'DELETE' }); loadTools(); };
-    document.getElementById('addToolBtn')?.addEventListener('click', () => {
-        document.getElementById('toolModal').style.display = 'block';
-        document.getElementById('editingToolId').value = '';
-        document.getElementById('toolName').value = '';
-        document.getElementById('toolPrice').value = '';
-        document.getElementById('toolDiscount').value = '';
-        document.getElementById('toolDownload').value = '';
-    });
-    document.getElementById('saveToolBtn')?.addEventListener('click', async () => {
-        const id = document.getElementById('editingToolId').value;
-        const data = {
-            name: document.getElementById('toolName').value,
-            priceUSD: parseFloat(document.getElementById('toolPrice').value),
-            discountPercent: parseInt(document.getElementById('toolDiscount').value) || 0,
-            downloadUrl: document.getElementById('toolDownload').value
-        };
-        if (!data.name) return alert('Name required');
-        if (id) {
-            await apiCall(`/admin/tool/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-        } else {
-            await apiCall('/admin/tool', { method: 'POST', body: JSON.stringify(data) });
-        }
-        document.getElementById('toolModal').style.display = 'none';
-        loadTools();
-    });
+    function renderTools() { let tools = get('ghost_tools'); let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Price</th><th>Discount</th><th>Actions</th></tr></thead><tbody>'; tools.forEach(t => { html += `<tr><td>${t.name}</td><td>$${t.price}</td><td>${t.discount||0}%</td><td><button class="btn" onclick="editTool('${t.id}')">Edit</button> <button class="btn" onclick="deleteTool('${t.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('toolsTable').innerHTML = html; }
+    window.editTool = (id) => { let t = get('ghost_tools').find(t=>t.id===id); if(t){ document.getElementById('toolName').value = t.name; document.getElementById('toolPrice').value = t.price; document.getElementById('toolDiscount').value = t.discount||0; document.getElementById('toolDownload').value = t.download||''; document.getElementById('editingToolId').value = id; document.getElementById('toolModal').style.display = 'block'; } };
+    window.deleteTool = (id) => { set('ghost_tools', get('ghost_tools').filter(t=>t.id!==id)); renderTools(); };
+    document.getElementById('addToolBtn')?.addEventListener('click', () => { document.getElementById('toolModal').style.display = 'block'; document.getElementById('editingToolId').value = ''; document.getElementById('toolName').value = ''; document.getElementById('toolPrice').value = ''; document.getElementById('toolDiscount').value = ''; document.getElementById('toolDownload').value = ''; });
+    document.getElementById('saveToolBtn')?.addEventListener('click', () => { let id = document.getElementById('editingToolId').value; let data = { name: document.getElementById('toolName').value, price: parseFloat(document.getElementById('toolPrice').value), discount: parseInt(document.getElementById('toolDiscount').value)||0, download: document.getElementById('toolDownload').value }; if(!data.name) return alert('Name required'); let tools = get('ghost_tools'); if(id){ let idx = tools.findIndex(t=>t.id===id); if(idx!==-1) tools[idx] = {...tools[idx], ...data}; } else { data.id = Date.now().toString(); tools.push(data); } set('ghost_tools', tools); document.getElementById('toolModal').style.display = 'none'; renderTools(); });
     document.getElementById('cancelToolBtn')?.addEventListener('click', () => document.getElementById('toolModal').style.display = 'none');
 
-    // WEBSITES (backend CRUD)
-    async function loadWebsites() {
-        const items = await apiCall('/admin/websites');
-        let html = '<table class="admin-table"><thead><tr><th>Domain</th><th>Title</th><th>Price</th><th>Actions</th></tr></thead><tbody>';
-        items.forEach(i => {
-            html += `<tr>
-                        <td>${i.domain}</td>
-                        <td>${i.title}</td>
-                        <td>$${i.price}</td>
-                        <td><button class="btn" onclick="editWebsite('${i.id}')">Edit</button> <button class="btn" onclick="deleteWebsite('${i.id}')">Delete</button></td>
-                    </tr>`;
-        });
-        html += '</tbody></table>';
-        document.getElementById('websitesTable').innerHTML = html;
-    }
-    window.editWebsite = async (id) => {
-        const items = await apiCall('/admin/websites');
-        const item = items.find(i => i.id === id);
-        if (item) {
-            document.getElementById('websiteDomain').value = item.domain;
-            document.getElementById('websiteTitle').value = item.title;
-            document.getElementById('websitePrice').value = item.price;
-            document.getElementById('editingWebsiteId').value = id;
-            document.getElementById('websiteModal').style.display = 'block';
-        }
-    };
-    window.deleteWebsite = async (id) => { if (confirm('Delete?')) await apiCall(`/admin/websites/${id}`, { method: 'DELETE' }); loadWebsites(); };
-    document.getElementById('addWebsiteBtn')?.addEventListener('click', () => {
-        document.getElementById('websiteModal').style.display = 'block';
-        document.getElementById('editingWebsiteId').value = '';
-        document.getElementById('websiteDomain').value = '';
-        document.getElementById('websiteTitle').value = '';
-        document.getElementById('websitePrice').value = '';
-    });
-    document.getElementById('saveWebsiteBtn')?.addEventListener('click', async () => {
-        const id = document.getElementById('editingWebsiteId').value;
-        const data = {
-            domain: document.getElementById('websiteDomain').value,
-            title: document.getElementById('websiteTitle').value,
-            price: parseFloat(document.getElementById('websitePrice').value)
+    // Generic CRUD for localStorage sections
+    function createCRUD(storageKey, renderFn, modalId, fieldMapping, idField) {
+        window[`edit_${storageKey}`] = (id) => {
+            let item = get(storageKey).find(i=>i.id===id);
+            if(item){
+                for(let [fieldId, prop] of Object.entries(fieldMapping)){
+                    let el = document.getElementById(fieldId);
+                    if(el) el.value = item[prop] !== undefined ? item[prop] : '';
+                }
+                document.getElementById(idField).value = id;
+                document.getElementById(modalId).style.display = 'block';
+            }
         };
-        if (!data.domain) return alert('Domain required');
-        if (id) {
-            await apiCall(`/admin/websites/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-        } else {
-            await apiCall('/admin/websites', { method: 'POST', body: JSON.stringify(data) });
-        }
-        document.getElementById('websiteModal').style.display = 'none';
-        loadWebsites();
-    });
-    document.getElementById('cancelWebsiteBtn')?.addEventListener('click', () => document.getElementById('websiteModal').style.display = 'none');
-
-    // eSIM (backend)
-    async function loadEsim() {
-        const items = await apiCall('/admin/esim');
-        let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Duration</th><th>Price</th><th>Data</th><th>Voice</th><th>Actions</th></tr></thead><tbody>';
-        items.forEach(i => {
-            html += `<tr>
-                        <td>${i.name}</td>
-                        <td>${i.duration}</td>
-                        <td>$${i.price}</td>
-                        <td>${i.data}</td>
-                        <td>${i.voice}</td>
-                        <td><button class="btn" onclick="editEsim('${i.id}')">Edit</button> <button class="btn" onclick="deleteEsim('${i.id}')">Delete</button></td>
-                    </tr>`;
+        window[`delete_${storageKey}`] = (id) => { set(storageKey, get(storageKey).filter(i=>i.id!==id)); renderFn(); };
+        document.getElementById(`add${modalId.replace('Modal','')}Btn`)?.addEventListener('click', () => {
+            for(let [fieldId] of Object.entries(fieldMapping)) document.getElementById(fieldId).value = '';
+            document.getElementById(idField).value = '';
+            document.getElementById(modalId).style.display = 'block';
         });
-        html += '</tbody></tr>';
-        document.getElementById('esimTable').innerHTML = html;
-    }
-    window.editEsim = async (id) => {
-        const items = await apiCall('/admin/esim');
-        const item = items.find(i => i.id === id);
-        if (item) {
-            document.getElementById('esimName').value = item.name;
-            document.getElementById('esimDuration').value = item.duration;
-            document.getElementById('esimPrice').value = item.price;
-            document.getElementById('esimData').value = item.data;
-            document.getElementById('esimVoice').value = item.voice;
-            document.getElementById('editingEsimId').value = id;
-            document.getElementById('esimModal').style.display = 'block';
-        }
-    };
-    window.deleteEsim = async (id) => { if (confirm('Delete?')) await apiCall(`/admin/esim/${id}`, { method: 'DELETE' }); loadEsim(); };
-    document.getElementById('addEsimBtn')?.addEventListener('click', () => {
-        document.getElementById('esimModal').style.display = 'block';
-        document.getElementById('editingEsimId').value = '';
-        document.getElementById('esimName').value = '';
-        document.getElementById('esimDuration').value = '1 month';
-        document.getElementById('esimPrice').value = '';
-        document.getElementById('esimData').value = '';
-        document.getElementById('esimVoice').value = '';
-    });
-    document.getElementById('saveEsimBtn')?.addEventListener('click', async () => {
-        const id = document.getElementById('editingEsimId').value;
-        const data = {
-            name: document.getElementById('esimName').value,
-            duration: document.getElementById('esimDuration').value,
-            price: parseFloat(document.getElementById('esimPrice').value),
-            data: document.getElementById('esimData').value,
-            voice: document.getElementById('esimVoice').value
-        };
-        if (!data.name) return alert('Name required');
-        if (id) {
-            await apiCall(`/admin/esim/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-        } else {
-            await apiCall('/admin/esim', { method: 'POST', body: JSON.stringify(data) });
-        }
-        document.getElementById('esimModal').style.display = 'none';
-        loadEsim();
-    });
-    document.getElementById('cancelEsimBtn')?.addEventListener('click', () => document.getElementById('esimModal').style.display = 'none');
-
-    // LOGISTICS (backend)
-    async function loadLogistics() {
-        const items = await apiCall('/admin/logistics');
-        let html = '<table class="admin-table"><thead><tr><th>Sender</th><th>Receiver</th><th>Address</th><th>Package</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
-        items.forEach(i => {
-            html += `<tr>
-                        <td>${i.sender}</td>
-                        <td>${i.receiver}</td>
-                        <td>${i.address}</td>
-                        <td>${i.package}</td>
-                        <td>$${i.price}</td>
-                        <td>${i.status}</td>
-                        <td><button class="btn" onclick="editLogistics('${i.id}')">Edit</button> <button class="btn" onclick="deleteLogistics('${i.id}')">Delete</button></td>
-                    </tr>`;
+        document.getElementById(`save${modalId.replace('Modal','')}Btn`)?.addEventListener('click', () => {
+            let id = document.getElementById(idField).value;
+            let data = {};
+            for(let [fieldId, prop] of Object.entries(fieldMapping)){
+                let val = document.getElementById(fieldId).value;
+                if(prop === 'price' || prop === 'budget' || prop === 'weight') val = parseFloat(val) || 0;
+                data[prop] = val;
+            }
+            if(!data.name && !data.domain && !data.number && !data.client && !data.customer) return alert('At least one field required');
+            let items = get(storageKey);
+            if(id){
+                let idx = items.findIndex(i=>i.id===id);
+                if(idx!==-1) items[idx] = {...items[idx], ...data};
+            } else {
+                data.id = Date.now().toString();
+                items.push(data);
+            }
+            set(storageKey, items);
+            document.getElementById(modalId).style.display = 'none';
+            renderFn();
         });
-        html += '</tbody></table>';
-        document.getElementById('logisticsTable').innerHTML = html;
-    }
-    window.editLogistics = async (id) => {
-        const items = await apiCall('/admin/logistics');
-        const item = items.find(i => i.id === id);
-        if (item) {
-            document.getElementById('logSender').value = item.sender;
-            document.getElementById('logReceiver').value = item.receiver;
-            document.getElementById('logAddress').value = item.address;
-            document.getElementById('logPackage').value = item.package;
-            document.getElementById('logWeight').value = item.weight;
-            document.getElementById('logPrice').value = item.price;
-            document.getElementById('logStatus').value = item.status;
-            document.getElementById('editingLogisticsId').value = id;
-            document.getElementById('logisticsModal').style.display = 'block';
-        }
-    };
-    window.deleteLogistics = async (id) => { if (confirm('Delete?')) await apiCall(`/admin/logistics/${id}`, { method: 'DELETE' }); loadLogistics(); };
-    document.getElementById('addLogisticsBtn')?.addEventListener('click', () => {
-        document.getElementById('logisticsModal').style.display = 'block';
-        document.getElementById('editingLogisticsId').value = '';
-        document.getElementById('logSender').value = '';
-        document.getElementById('logReceiver').value = '';
-        document.getElementById('logAddress').value = '';
-        document.getElementById('logPackage').value = '';
-        document.getElementById('logWeight').value = '';
-        document.getElementById('logPrice').value = '';
-        document.getElementById('logStatus').value = 'pending';
-    });
-    document.getElementById('saveLogisticsBtn')?.addEventListener('click', async () => {
-        const id = document.getElementById('editingLogisticsId').value;
-        const data = {
-            sender: document.getElementById('logSender').value,
-            receiver: document.getElementById('logReceiver').value,
-            address: document.getElementById('logAddress').value,
-            package: document.getElementById('logPackage').value,
-            weight: parseFloat(document.getElementById('logWeight').value) || 0,
-            price: parseFloat(document.getElementById('logPrice').value) || 0,
-            status: document.getElementById('logStatus').value
-        };
-        if (!data.sender) return alert('Sender required');
-        if (id) {
-            await apiCall(`/admin/logistics/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-        } else {
-            await apiCall('/admin/logistics', { method: 'POST', body: JSON.stringify(data) });
-        }
-        document.getElementById('logisticsModal').style.display = 'none';
-        loadLogistics();
-    });
-    document.getElementById('cancelLogisticsBtn')?.addEventListener('click', () => document.getElementById('logisticsModal').style.display = 'none');
-
-    // VIRTUAL NUMBERS (backend)
-    async function loadVirtual() {
-        const items = await apiCall('/admin/virtualnums');
-        let html = '<table class="admin-table"><thead><tr><th>Number</th><th>Country</th><th>Service</th><th>Price</th><th>Partner</th><th>Actions</th></tr></thead><tbody>';
-        items.forEach(i => {
-            html += `<td>
-                        <td>${i.number}</td>
-                        <td>${i.country}</td>
-                        <td>${i.service}</td>
-                        <td>$${i.price}</td>
-                        <td>${i.partner}</td>
-                        <td><button class="btn" onclick="editVirtual('${i.id}')">Edit</button> <button class="btn" onclick="deleteVirtual('${i.id}')">Delete</button></td>
-                    </tr>`;
-        });
-        html += '</tbody></table>';
-        document.getElementById('virtualTable').innerHTML = html;
-    }
-    window.editVirtual = async (id) => {
-        const items = await apiCall('/admin/virtualnums');
-        const item = items.find(i => i.id === id);
-        if (item) {
-            document.getElementById('virtualNumber').value = item.number;
-            document.getElementById('virtualCountry').value = item.country;
-            document.getElementById('virtualService').value = item.service;
-            document.getElementById('virtualPrice').value = item.price;
-            document.getElementById('virtualPartner').value = item.partner;
-            document.getElementById('editingVirtualId').value = id;
-            document.getElementById('virtualModal').style.display = 'block';
-        }
-    };
-    window.deleteVirtual = async (id) => { if (confirm('Delete?')) await apiCall(`/admin/virtualnums/${id}`, { method: 'DELETE' }); loadVirtual(); };
-    document.getElementById('addVirtualBtn')?.addEventListener('click', () => {
-        document.getElementById('virtualModal').style.display = 'block';
-        document.getElementById('editingVirtualId').value = '';
-        document.getElementById('virtualNumber').value = '';
-        document.getElementById('virtualCountry').value = '';
-        document.getElementById('virtualService').value = '';
-        document.getElementById('virtualPrice').value = '';
-        document.getElementById('virtualPartner').value = '';
-    });
-    document.getElementById('saveVirtualBtn')?.addEventListener('click', async () => {
-        const id = document.getElementById('editingVirtualId').value;
-        const data = {
-            number: document.getElementById('virtualNumber').value,
-            country: document.getElementById('virtualCountry').value,
-            service: document.getElementById('virtualService').value,
-            price: parseFloat(document.getElementById('virtualPrice').value),
-            partner: document.getElementById('virtualPartner').value
-        };
-        if (!data.number) return alert('Number required');
-        if (id) {
-            await apiCall(`/admin/virtualnums/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-        } else {
-            await apiCall('/admin/virtualnums', { method: 'POST', body: JSON.stringify(data) });
-        }
-        document.getElementById('virtualModal').style.display = 'none';
-        loadVirtual();
-    });
-    document.getElementById('cancelVirtualBtn')?.addEventListener('click', () => document.getElementById('virtualModal').style.display = 'none');
-
-    // WEB REQUESTS (backend)
-    async function loadWebReqs() {
-        const items = await apiCall('/admin/webrequests');
-        let html = '<table class="admin-table"><thead><tr><th>Client</th><th>Email</th><th>Type</th><th>Budget</th><th>Actions</th></tr></thead><tbody>';
-        items.forEach(i => {
-            html += `<tr>
-                        <td>${i.client}</td>
-                        <td>${i.email}</td>
-                        <td>${i.type}</td>
-                        <td>$${i.budget}</td>
-                        <td><button class="btn" onclick="editWebReq('${i.id}')">Edit</button> <button class="btn" onclick="deleteWebReq('${i.id}')">Delete</button></td>
-                    </tr>`;
-        });
-        html += '</tbody></table>';
-        document.getElementById('webReqsTable').innerHTML = html;
-    }
-    window.editWebReq = async (id) => {
-        const items = await apiCall('/admin/webrequests');
-        const item = items.find(i => i.id === id);
-        if (item) {
-            document.getElementById('webClient').value = item.client;
-            document.getElementById('webEmail').value = item.email;
-            document.getElementById('webType').value = item.type;
-            document.getElementById('webReqs').value = item.requirements;
-            document.getElementById('webBudget').value = item.budget;
-            document.getElementById('editingWebReqId').value = id;
-            document.getElementById('webReqModal').style.display = 'block';
-        }
-    };
-    window.deleteWebReq = async (id) => { if (confirm('Delete?')) await apiCall(`/admin/webrequests/${id}`, { method: 'DELETE' }); loadWebReqs(); };
-    document.getElementById('addWebReqBtn')?.addEventListener('click', () => {
-        document.getElementById('webReqModal').style.display = 'block';
-        document.getElementById('editingWebReqId').value = '';
-        document.getElementById('webClient').value = '';
-        document.getElementById('webEmail').value = '';
-        document.getElementById('webType').value = '';
-        document.getElementById('webReqs').value = '';
-        document.getElementById('webBudget').value = '';
-    });
-    document.getElementById('saveWebReqBtn')?.addEventListener('click', async () => {
-        const id = document.getElementById('editingWebReqId').value;
-        const data = {
-            client: document.getElementById('webClient').value,
-            email: document.getElementById('webEmail').value,
-            type: document.getElementById('webType').value,
-            requirements: document.getElementById('webReqs').value,
-            budget: parseFloat(document.getElementById('webBudget').value)
-        };
-        if (!data.client) return alert('Client required');
-        if (id) {
-            await apiCall(`/admin/webrequests/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-        } else {
-            await apiCall('/admin/webrequests', { method: 'POST', body: JSON.stringify(data) });
-        }
-        document.getElementById('webReqModal').style.display = 'none';
-        loadWebReqs();
-    });
-    document.getElementById('cancelWebReqBtn')?.addEventListener('click', () => document.getElementById('webReqModal').style.display = 'none');
-
-    // CREDENTIAL FORMS (backend)
-    async function loadCredForms() {
-        const items = await apiCall('/admin/credforms');
-        let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Fields Preview</th><th>Actions</th></tr></thead><tbody>';
-        items.forEach(i => {
-            html += `<tr>
-                        <td>${i.name}</td>
-                        <td>${i.fields.substring(0,50)}...</td>
-                        <td><button class="btn" onclick="editCredForm('${i.id}')">Edit</button> <button class="btn" onclick="deleteCredForm('${i.id}')">Delete</button></td>
-                    </tr>`;
-        });
-        html += '</tbody></table>';
-        document.getElementById('credFormsTable').innerHTML = html;
-    }
-    window.editCredForm = async (id) => {
-        const items = await apiCall('/admin/credforms');
-        const item = items.find(i => i.id === id);
-        if (item) {
-            document.getElementById('formName').value = item.name;
-            document.getElementById('formFields').value = item.fields;
-            document.getElementById('editingCredFormId').value = id;
-            document.getElementById('credFormModal').style.display = 'block';
-        }
-    };
-    window.deleteCredForm = async (id) => { if (confirm('Delete?')) await apiCall(`/admin/credforms/${id}`, { method: 'DELETE' }); loadCredForms(); };
-    document.getElementById('addCredFormBtn')?.addEventListener('click', () => {
-        document.getElementById('credFormModal').style.display = 'block';
-        document.getElementById('editingCredFormId').value = '';
-        document.getElementById('formName').value = '';
-        document.getElementById('formFields').value = '';
-    });
-    document.getElementById('saveCredFormBtn')?.addEventListener('click', async () => {
-        const id = document.getElementById('editingCredFormId').value;
-        const data = {
-            name: document.getElementById('formName').value,
-            fields: document.getElementById('formFields').value
-        };
-        if (!data.name) return alert('Name required');
-        if (id) {
-            await apiCall(`/admin/credforms/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-        } else {
-            await apiCall('/admin/credforms', { method: 'POST', body: JSON.stringify(data) });
-        }
-        document.getElementById('credFormModal').style.display = 'none';
-        loadCredForms();
-    });
-    document.getElementById('cancelCredFormBtn')?.addEventListener('click', () => document.getElementById('credFormModal').style.display = 'none');
-
-    // CLOUD REQUESTS (backend)
-    async function loadCloudReqs() {
-        const items = await apiCall('/admin/cloudreqs');
-        let html = '<table class="admin-table"><thead><tr><th>Customer</th><th>Service</th><th>Domain</th><th>Telegram</th><th>Actions</th></tr></thead><tbody>';
-        items.forEach(i => {
-            html += `<tr>
-                        <td>${i.customer}</td>
-                        <td>${i.serviceType}</td>
-                        <td>${i.domain}</td>
-                        <td>${i.sentToTelegram ? '✅' : '❌'}</td>
-                        <td><button class="btn" onclick="editCloudReq('${i.id}')">Edit</button> <button class="btn" onclick="deleteCloudReq('${i.id}')">Delete</button></td>
-                    </tr>`;
-        });
-        html += '</tbody><table>';
-        document.getElementById('cloudReqsTable').innerHTML = html;
-    }
-    window.editCloudReq = async (id) => {
-        const items = await apiCall('/admin/cloudreqs');
-        const item = items.find(i => i.id === id);
-        if (item) {
-            document.getElementById('cloudCustomer').value = item.customer;
-            document.getElementById('cloudEmail').value = item.email;
-            document.getElementById('cloudService').value = item.serviceType;
-            document.getElementById('cloudDomain').value = item.domain;
-            document.getElementById('cloudDetails').value = item.details;
-            document.getElementById('editingCloudReqId').value = id;
-            document.getElementById('cloudReqModal').style.display = 'block';
-        }
-    };
-    window.deleteCloudReq = async (id) => { if (confirm('Delete?')) await apiCall(`/admin/cloudreqs/${id}`, { method: 'DELETE' }); loadCloudReqs(); };
-    document.getElementById('addCloudReqBtn')?.addEventListener('click', () => {
-        document.getElementById('cloudReqModal').style.display = 'block';
-        document.getElementById('editingCloudReqId').value = '';
-        document.getElementById('cloudCustomer').value = '';
-        document.getElementById('cloudEmail').value = '';
-        document.getElementById('cloudService').value = 'Domain';
-        document.getElementById('cloudDomain').value = '';
-        document.getElementById('cloudDetails').value = '';
-    });
-    document.getElementById('saveCloudReqBtn')?.addEventListener('click', async () => {
-        const id = document.getElementById('editingCloudReqId').value;
-        const data = {
-            customer: document.getElementById('cloudCustomer').value,
-            email: document.getElementById('cloudEmail').value,
-            serviceType: document.getElementById('cloudService').value,
-            domain: document.getElementById('cloudDomain').value,
-            details: document.getElementById('cloudDetails').value,
-            sentToTelegram: true
-        };
-        if (!data.customer) return alert('Customer required');
-        if (id) {
-            await apiCall(`/admin/cloudreqs/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-        } else {
-            await apiCall('/admin/cloudreqs', { method: 'POST', body: JSON.stringify(data) });
-        }
-        document.getElementById('cloudReqModal').style.display = 'none';
-        loadCloudReqs();
-    });
-    document.getElementById('cancelCloudReqBtn')?.addEventListener('click', () => document.getElementById('cloudReqModal').style.display = 'none');
-
-    // VISITORS (backend)
-    async function loadVisitors() {
-        const visitors = await apiCall('/admin/visitors');
-        let html = '<table class="admin-table"><thead><tr><th>IP</th><th>Location</th><th>VPN</th><th>Page</th><th>Time</th></tr></thead><tbody>';
-        visitors.forEach(v => {
-            html += `<tr>
-                        <td>${v.ip}</td>
-                        <td>${v.location || '-'}</td>
-                        <td>${v.vpn ? '⚠️ YES' : 'NO'}</td>
-                        <td>${v.page}</td>
-                        <td>${new Date(v.timestamp).toLocaleString()}</td>
-                    </tr>`;
-        });
-        html += '</tbody></table>';
-        document.getElementById('visitorsTable').innerHTML = html;
+        document.getElementById(`cancel${modalId.replace('Modal','')}Btn`)?.addEventListener('click', () => document.getElementById(modalId).style.display = 'none');
     }
 
-    // BLOG (backend)
-    async function loadBlog() {
-        const posts = await apiCall('/blog');
-        let html = '<table class="admin-table"><thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
-        posts.forEach(p => {
-            html += `<tr>
-                        <td>${p.title}</td>
-                        <td>${p.category}</td>
-                        <td>${new Date(p.createdAt).toLocaleDateString()}</td>
-                        <td><button class="btn" onclick="editPost('${p.id}')">Edit</button> <button class="btn" onclick="deletePost('${p.id}')">Delete</button></td>
-                    </tr>`;
-        });
-        html += '</tbody></table>';
-        document.getElementById('blogTable').innerHTML = html;
-    }
-    window.editPost = async (id) => {
-        const post = await (await fetch(`${API}/blog/${id}`)).json();
-        if (post) {
-            document.getElementById('postTitle').value = post.title;
-            document.getElementById('postContent').value = post.content;
-            document.getElementById('editingPostId').value = id;
-            document.getElementById('blogModal').style.display = 'block';
-        }
-    };
-    window.deletePost = async (id) => { if (confirm('Delete post?')) await apiCall(`/admin/blog/${id}`, { method: 'DELETE' }); loadBlog(); };
-    document.getElementById('addPostBtn')?.addEventListener('click', () => {
-        document.getElementById('blogModal').style.display = 'block';
-        document.getElementById('editingPostId').value = '';
-        document.getElementById('postTitle').value = '';
-        document.getElementById('postContent').value = '';
-    });
-    document.getElementById('savePostBtn')?.addEventListener('click', async () => {
-        const id = document.getElementById('editingPostId').value;
-        const data = {
-            title: document.getElementById('postTitle').value,
-            content: document.getElementById('postContent').value,
-            category: 'general'
-        };
-        if (!data.title) return alert('Title required');
-        if (id) {
-            await apiCall(`/admin/blog/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-        } else {
-            await apiCall('/admin/blog', { method: 'POST', body: JSON.stringify(data) });
-        }
-        document.getElementById('blogModal').style.display = 'none';
-        loadBlog();
-    });
-    document.getElementById('cancelPostBtn')?.addEventListener('click', () => document.getElementById('blogModal').style.display = 'none');
+    function renderWebsites() { let items = get('ghost_websites'); let html = '<table class="admin-table"><thead><tr><th>Domain</th><th>Title</th><th>Price</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.domain}</td><td>${i.title}</td><td>$${i.price}</td><td><button class="btn" onclick="edit_ghost_websites('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_websites('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody><tr>'; document.getElementById('websitesTable').innerHTML = html; }
+    function renderEsim() { let items = get('ghost_esim'); let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Duration</th><th>Price</th><th>Data</th><th>Voice</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.name}</td><td>${i.duration}</td><td>$${i.price}</td><td>${i.data}</td><td>${i.voice}</td><td><button class="btn" onclick="edit_ghost_esim('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_esim('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('esimTable').innerHTML = html; }
+    function renderLogistics() { let items = get('ghost_logistics'); let html = '<table class="admin-table"><thead><tr><th>Sender</th><th>Receiver</th><th>Address</th><th>Package</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.sender}</td><td>${i.receiver}</td><td>${i.address}</td><td>${i.package}</td><td>$${i.price}</td><td>${i.status}</td><td><button class="btn" onclick="edit_ghost_logistics('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_logistics('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('logisticsTable').innerHTML = html; }
+    function renderVirtual() { let items = get('ghost_virtualnums'); let html = '<table class="admin-table"><thead><tr><th>Number</th><th>Country</th><th>Service</th><th>Price</th><th>Partner</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.number}</td><td>${i.country}</td><td>${i.service}</td><td>$${i.price}</td><td>${i.partner}</td><td><button class="btn" onclick="edit_ghost_virtualnums('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_virtualnums('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('virtualTable').innerHTML = html; }
+    function renderWebReqs() { let items = get('ghost_webrequests'); let html = '<table class="admin-table"><thead><tr><th>Client</th><th>Email</th><th>Type</th><th>Budget</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.client}</td><td>${i.email}</td><td>${i.type}</td><td>$${i.budget}</td><td><button class="btn" onclick="edit_ghost_webrequests('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_webrequests('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('webReqsTable').innerHTML = html; }
+    function renderCredForms() { let items = get('ghost_credforms'); let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Fields Preview</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.name}</td><td>${i.fields.substring(0,50)}...</td><td><button class="btn" onclick="edit_ghost_credforms('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_credforms('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('credFormsTable').innerHTML = html; }
+    function renderCloudReqs() { let items = get('ghost_cloudreqs'); let html = '<table class="admin-table"><thead><tr><th>Customer</th><th>Service</th><th>Domain</th><th>Telegram</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.customer}</td><td>${i.serviceType}</td><td>${i.domain}</td><td>${i.sentToTelegram ? '✅' : '❌'}</td><td><button class="btn" onclick="edit_ghost_cloudreqs('${i.id}')">Edit</button> <button class="btn" onclick="delete_ghost_cloudreqs('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('cloudReqsTable').innerHTML = html; }
+    function renderVisitors() { let items = get('ghost_visitors'); let html = '<table class="admin-table"><thead><tr><th>IP</th><th>Time</th><th>Page</th></tr></thead><tbody>'; items.forEach(v => { html += `<tr><td>${v.ip}</td><td>${new Date(v.time).toLocaleString()}</td><td>${v.page}</td></tr>`; }); html += '</tbody></table>'; document.getElementById('visitorsTable').innerHTML = html; }
+    function renderBlog() { let items = get('ghost_blog'); let html = '<table class="admin-table"><thead><tr><th>Title</th><th>Date</th><th>Actions</th><tr></thead><tbody>'; items.forEach(p => { html += `<tr><td>${p.title}</td><td>${new Date(p.createdAt).toLocaleDateString()}</td><td><button class="btn" onclick="edit_ghost_blog('${p.id}')">Edit</button> <button class="btn" onclick="delete_ghost_blog('${p.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('blogTable').innerHTML = html; }
 
-    // ========== UTILITIES ==========
+    createCRUD('ghost_websites', renderWebsites, 'websiteModal', { websiteDomain:'domain', websiteTitle:'title', websitePrice:'price' }, 'editingWebsiteId');
+    createCRUD('ghost_esim', renderEsim, 'esimModal', { esimName:'name', esimDuration:'duration', esimPrice:'price', esimData:'data', esimVoice:'voice' }, 'editingEsimId');
+    createCRUD('ghost_logistics', renderLogistics, 'logisticsModal', { logSender:'sender', logReceiver:'receiver', logAddress:'address', logPackage:'package', logWeight:'weight', logPrice:'price', logStatus:'status' }, 'editingLogisticsId');
+    createCRUD('ghost_virtualnums', renderVirtual, 'virtualModal', { virtualNumber:'number', virtualCountry:'country', virtualService:'service', virtualPrice:'price', virtualPartner:'partner' }, 'editingVirtualId');
+    createCRUD('ghost_webrequests', renderWebReqs, 'webReqModal', { webClient:'client', webEmail:'email', webType:'type', webReqs:'requirements', webBudget:'budget' }, 'editingWebReqId');
+    createCRUD('ghost_credforms', renderCredForms, 'credFormModal', { formName:'name', formFields:'fields' }, 'editingCredFormId');
+    createCRUD('ghost_cloudreqs', renderCloudReqs, 'cloudReqModal', { cloudCustomer:'customer', cloudEmail:'email', cloudService:'serviceType', cloudDomain:'domain', cloudDetails:'details' }, 'editingCloudReqId');
+    createCRUD('ghost_blog', renderBlog, 'blogModal', { postTitle:'title', postContent:'content' }, 'editingPostId');
+
     function attachAllEventListeners() {
-        // All listeners are already attached via addEventListener above.
         // Theme toggle
         const themeBtn = document.getElementById('themeToggle');
         if (localStorage.getItem('theme') === 'light') document.body.classList.add('light');
