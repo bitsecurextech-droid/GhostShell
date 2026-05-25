@@ -1,8 +1,7 @@
-// js/common.js
+// js/common.js – shared header, auth, theme, logout
 const API = '/api';
 let currentUser = null;
 
-// Unified navigation builder – add/remove pages here
 function buildNav() {
     const nav = document.getElementById('mainNav');
     if (!nav) return;
@@ -17,7 +16,6 @@ function buildNav() {
         { name: 'logistics', label: '📦 Logistics', href: 'logistics-tracking.html' },
         { name: 'blog', label: '💀 Blog', href: 'blog.html' }
     ];
-    // Admin link only visible to admin users
     if (currentUser && currentUser.role === 'admin') {
         pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
     }
@@ -31,7 +29,6 @@ function buildNav() {
     });
 }
 
-// Theme toggle
 function initThemeToggle() {
     const themeBtn = document.getElementById('themeToggle');
     if (!themeBtn) return;
@@ -47,7 +44,6 @@ function initThemeToggle() {
     });
 }
 
-// Logout handler
 function initLogout() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
@@ -58,7 +54,6 @@ function initLogout() {
     }
 }
 
-// Authentication check – redirects to index if not logged in
 async function checkAuth() {
     const token = localStorage.getItem('ghost_token');
     if (!token) {
@@ -80,7 +75,6 @@ async function checkAuth() {
     }
 }
 
-// Initialize common components on every page
 async function initCommon() {
     const authenticated = await checkAuth();
     if (!authenticated) return false;
@@ -90,7 +84,6 @@ async function initCommon() {
     return true;
 }
 
-// API helper (with token)
 async function apiCall(endpoint, options = {}) {
     const token = localStorage.getItem('ghost_token');
     const res = await fetch(`${API}${endpoint}`, {
@@ -109,7 +102,6 @@ async function apiCall(endpoint, options = {}) {
     return res.json();
 }
 
-// Helper to strip HTML for excerpts
 function stripHtml(html) {
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
