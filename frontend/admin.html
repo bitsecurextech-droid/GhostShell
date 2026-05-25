@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL // COMPLETE ADMIN // LOGISTICS + VIRTUAL NUMBERS + REQUESTS</title>
+    <title>GHOST SHELL // COMPLETE ADMIN (ALL CLICKABLE)</title>
     <style>
         * {
             margin: 0;
@@ -187,7 +187,7 @@
     <header class="header">
         <div class="logo-area">
             <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
-            <span class="site-name">💀 GHOST SHELL • COMPLETE ADMIN 💀</span>
+            <span class="site-name">💀 GHOST SHELL • COMPLETE ADMIN (CLICKABLE) 💀</span>
         </div>
         <nav class="nav-links">
             <button class="nav-link" onclick="window.location.href='dashboard.html'">⌖ OPS</button>
@@ -197,7 +197,7 @@
         <button class="btn" id="logoutAdminBtn">⛧ EXIT</button>
     </header>
 
-    <h1 style="color:#ff3333; text-align:center;">⚡ COMPLETE ADMIN OVERLORD ⚡</h1>
+    <h1 style="color:#ff3333; text-align:center;">⚡ COMPLETE ADMIN OVERLORD (ALL SECTIONS CLICKABLE) ⚡</h1>
     <div class="admin-nav">
         <button class="admin-nav-btn active" data-section="users">👥 USERS</button>
         <button class="admin-nav-btn" data-section="codes">🔑 CODES</button>
@@ -217,129 +217,195 @@
 
     <!-- ========== USERS ========== -->
     <section id="section-users" class="admin-section active">
-        <div class="card"><h2>👥 USERS</h2><div id="userTableContainer"></div><button class="btn" id="exportCsvBtn">📀 EXPORT CSV</button></div>
+        <div class="card">
+            <h2>👥 USER MANAGEMENT</h2>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <input type="email" id="newUserEmail" placeholder="Email">
+                <input type="password" id="newUserPass" placeholder="Password">
+                <select id="newUserRole"><option value="user">User</option><option value="full_admin">Admin</option></select>
+                <button class="btn" id="addUserBtn">➕ ADD USER</button>
+            </div>
+            <div id="userTableContainer"></div>
+            <button class="btn" id="exportCsvBtn">📀 EXPORT USERS CSV</button>
+        </div>
     </section>
 
     <!-- ========== CODES ========== -->
-    <section id="section-codes" class="admin-section"><div class="card"><h2>🔑 CODES</h2><button class="btn" id="generateCodesBtn">⚡ GENERATE 50</button><div id="codesTableContainer"></div></div></section>
+    <section id="section-codes" class="admin-section">
+        <div class="card">
+            <h2>🔑 ACCESS CODES</h2>
+            <button class="btn" id="generateCodesBtn">⚡ GENERATE 50 CODES</button>
+            <div id="codesTableContainer" style="margin-top:15px;"></div>
+        </div>
+    </section>
 
     <!-- ========== PAYMENTS ========== -->
-    <section id="section-payments" class="admin-section"><div class="card"><h2>💸 PAYMENTS</h2><div id="paymentsContainer"></div></div></section>
+    <section id="section-payments" class="admin-section">
+        <div class="card">
+            <h2>💸 PENDING PAYMENTS</h2>
+            <button class="btn" id="addPaymentBtn">➕ ADD MOCK PAYMENT</button>
+            <div id="paymentsContainer" style="margin-top:15px;"></div>
+        </div>
+    </section>
 
     <!-- ========== TOOLS ========== -->
-    <section id="section-tools" class="admin-section"><div class="card"><h2>🔧 TOOLS</h2><button class="btn" id="addToolBtn">➕ ADD</button><div id="adminToolsContainer"></div></div><div id="toolFormModal" style="display:none;" class="card">...</div></section>
+    <section id="section-tools" class="admin-section">
+        <div class="card">
+            <h2>🔧 MARKETPLACE TOOLS</h2>
+            <button class="btn" id="addToolBtn">➕ ADD TOOL</button>
+            <div id="adminToolsContainer" style="margin-top:15px;"></div>
+        </div>
+        <div id="toolFormModal" style="display:none;" class="card">
+            <h3>✍️ EDIT TOOL</h3>
+            <input type="text" id="toolName" placeholder="Tool Name">
+            <input type="number" id="toolPrice" placeholder="Price">
+            <input type="text" id="toolPromoName" placeholder="Promo Name (optional)">
+            <input type="number" id="toolPromoPrice" placeholder="Promo Price (optional)">
+            <button class="btn" id="saveToolBtn">💀 SAVE</button>
+            <button class="btn" id="cancelToolBtn">CANCEL</button>
+            <input type="hidden" id="editingToolId">
+        </div>
+    </section>
 
-    <!-- ========== PROMO ========== -->
-    <section id="section-promos" class="admin-section"><div class="card"><h2>🔥 PROMO ENGINE</h2><div id="promoManagerContainer"></div></div></section>
+    <!-- ========== PROMO MANAGER ========== -->
+    <section id="section-promos" class="admin-section">
+        <div class="card">
+            <h2>🔥 ACTIVE PROMOTIONS</h2>
+            <div id="promoManagerContainer"></div>
+        </div>
+    </section>
 
-    <!-- ========== WEBSITES ========== -->
-    <section id="section-websites" class="admin-section"><div class="card"><h2>🌐 WEBSITES FOR SALE</h2><button class="btn" id="addWebsiteBtn">➕ ADD</button><div id="websiteTableContainer"></div></div><div id="websiteFormModal" style="display:none;" class="card">...</div></section>
+    <!-- ========== WEBSITES FOR SALE ========== -->
+    <section id="section-websites" class="admin-section">
+        <div class="card">
+            <h2>🌐 WEBSITES FOR SALE</h2>
+            <button class="btn" id="addWebsiteBtn">➕ ADD WEBSITE</button>
+            <div id="websiteTableContainer" style="margin-top:15px;"></div>
+        </div>
+        <div id="websiteFormModal" style="display:none;" class="card">
+            <h3>✍️ WEBSITE</h3>
+            <input type="text" id="websiteDomain" placeholder="Domain">
+            <input type="text" id="websiteTitle" placeholder="Title">
+            <input type="number" id="websitePrice" placeholder="Price">
+            <button class="btn" id="saveWebsiteBtn">💀 SAVE</button>
+            <button class="btn" id="cancelWebsiteBtn">CANCEL</button>
+            <input type="hidden" id="editingWebsiteId">
+        </div>
+    </section>
 
-    <!-- ========== eSIM ========== -->
-    <section id="section-esim" class="admin-section"><div class="card"><h2>📱 eSIM PLANS</h2><button class="btn" id="addEsimBtn">➕ ADD</button><div id="esimTableContainer"></div></div><div id="esimFormModal" style="display:none;" class="card">...</div></section>
+    <!-- ========== eSIM PLANS ========== -->
+    <section id="section-esim" class="admin-section">
+        <div class="card">
+            <h2>📱 eSIM PLANS</h2>
+            <button class="btn" id="addEsimBtn">➕ ADD eSIM PLAN</button>
+            <div id="esimTableContainer" style="margin-top:15px;"></div>
+        </div>
+        <div id="esimFormModal" style="display:none;" class="card">
+            <h3>✍️ eSIM PLAN</h3>
+            <input type="text" id="esimName" placeholder="Plan Name">
+            <select id="esimDuration"><option>1 month</option><option>3 months</option><option>6 months</option><option>1 year</option></select>
+            <input type="number" id="esimPrice" placeholder="Price">
+            <input type="text" id="esimData" placeholder="Data (e.g., 10GB)">
+            <input type="text" id="esimVoice" placeholder="Voice (e.g., Unlimited)">
+            <button class="btn" id="saveEsimBtn">💀 SAVE</button>
+            <button class="btn" id="cancelEsimBtn">CANCEL</button>
+            <input type="hidden" id="editingEsimId">
+        </div>
+    </section>
 
     <!-- ========== LOGISTICS (Package Delivery) ========== -->
     <section id="section-logistics" class="admin-section">
         <div class="card">
             <h2>📦 NATIONWIDE & INTERNATIONAL LOGISTICS</h2>
-            <button class="btn" id="addLogisticsOrderBtn">➕ CREATE DELIVERY ORDER</button>
+            <button class="btn" id="addLogisticsBtn">➕ CREATE DELIVERY ORDER</button>
             <div id="logisticsTableContainer" style="margin-top:15px;"></div>
         </div>
         <div id="logisticsFormModal" style="display:none;" class="card">
             <h3>✍️ DELIVERY ORDER</h3>
-            <input type="text" id="logisticsSender" placeholder="Sender Name">
-            <input type="text" id="logisticsReceiver" placeholder="Receiver Name">
-            <input type="text" id="logisticsAddress" placeholder="Delivery Address (City, Country)">
-            <input type="text" id="logisticsPackage" placeholder="Package Description">
+            <input type="text" id="logisticsSender" placeholder="Sender">
+            <input type="text" id="logisticsReceiver" placeholder="Receiver">
+            <input type="text" id="logisticsAddress" placeholder="Address (City, Country)">
+            <input type="text" id="logisticsPackage" placeholder="Package description">
             <input type="number" id="logisticsWeight" placeholder="Weight (kg)">
             <input type="number" id="logisticsPrice" placeholder="Delivery Fee (USD)">
-            <select id="logisticsStatus">
-                <option value="pending">Pending</option>
-                <option value="in_transit">In Transit</option>
-                <option value="delivered">Delivered</option>
-            </select>
+            <select id="logisticsStatus"><option>pending</option><option>in_transit</option><option>delivered</option></select>
             <button class="btn" id="saveLogisticsBtn">💀 SAVE ORDER</button>
             <button class="btn" id="cancelLogisticsBtn">CANCEL</button>
             <input type="hidden" id="editingLogisticsId">
         </div>
     </section>
 
-    <!-- ========== VIRTUAL NUMBERS (Logs for sale) ========== -->
+    <!-- ========== VIRTUAL NUMBERS FOR SALE ========== -->
     <section id="section-virtualnums" class="admin-section">
         <div class="card">
-            <h2>📞 VIRTUAL NUMBERS FOR SALE (SMS / VOICE)</h2>
-            <button class="btn" id="addVirtualNumberBtn">➕ ADD NUMBER</button>
-            <div id="virtualNumbersContainer"></div>
+            <h2>📞 VIRTUAL NUMBERS FOR SALE</h2>
+            <button class="btn" id="addVirtualBtn">➕ ADD NUMBER</button>
+            <div id="virtualNumbersContainer" style="margin-top:15px;"></div>
         </div>
         <div id="virtualFormModal" style="display:none;" class="card">
             <h3>✍️ VIRTUAL NUMBER</h3>
-            <input type="text" id="virtualNumber" placeholder="Phone Number (e.g., +1 234 567 8900)">
+            <input type="text" id="virtualNumber" placeholder="Phone number">
             <input type="text" id="virtualCountry" placeholder="Country">
-            <input type="text" id="virtualService" placeholder="Service (SMS/Calls/OTP)">
+            <input type="text" id="virtualService" placeholder="Service (SMS/Voice/OTP)">
             <input type="number" id="virtualPrice" placeholder="Price (USD)">
-            <input type="text" id="virtualPartner" placeholder="Partner Site (e.g., sms-activate)">
-            <button class="btn" id="saveVirtualBtn">💀 SAVE NUMBER</button>
+            <input type="text" id="virtualPartner" placeholder="Partner site">
+            <button class="btn" id="saveVirtualBtn">💀 SAVE</button>
             <button class="btn" id="cancelVirtualBtn">CANCEL</button>
             <input type="hidden" id="editingVirtualId">
         </div>
     </section>
 
-    <!-- ========== WEB BUILDING REQUEST (from clients) ========== -->
+    <!-- ========== WEB BUILDING REQUESTS ========== -->
     <section id="section-webrequest" class="admin-section">
         <div class="card">
             <h2>🌍 WEB BUILDING REQUESTS</h2>
-            <button class="btn" id="addWebRequestBtn">➕ NEW CLIENT REQUEST</button>
-            <div id="webRequestsContainer"></div>
+            <button class="btn" id="addWebRequestBtn">➕ NEW REQUEST</button>
+            <div id="webRequestsContainer" style="margin-top:15px;"></div>
         </div>
         <div id="webRequestFormModal" style="display:none;" class="card">
             <h3>✍️ WEB REQUEST</h3>
-            <input type="text" id="webClientName" placeholder="Client Name / Business">
+            <input type="text" id="webClientName" placeholder="Client/Business">
             <input type="email" id="webClientEmail" placeholder="Email">
             <input type="text" id="webType" placeholder="Type (ecommerce, blog, business)">
             <textarea id="webRequirements" placeholder="Requirements" rows="3"></textarea>
             <input type="number" id="webBudget" placeholder="Budget (USD)">
-            <button class="btn" id="saveWebRequestBtn">💀 SAVE REQUEST</button>
+            <button class="btn" id="saveWebRequestBtn">💀 SAVE</button>
             <button class="btn" id="cancelWebRequestBtn">CANCEL</button>
             <input type="hidden" id="editingWebRequestId">
         </div>
     </section>
 
-    <!-- ========== CREDENTIAL FORM BUILDER (for business/org) ========== -->
+    <!-- ========== CREDENTIAL FORM BUILDER ========== -->
     <section id="section-credform" class="admin-section">
         <div class="card">
             <h2>📝 CREDENTIAL FORM BUILDER</h2>
             <button class="btn" id="addCredFormBtn">➕ NEW FORM</button>
-            <div id="credFormsContainer"></div>
+            <div id="credFormsContainer" style="margin-top:15px;"></div>
         </div>
         <div id="credFormModal" style="display:none;" class="card">
             <h3>✍️ FORM BUILDER</h3>
-            <input type="text" id="formName" placeholder="Form Name (e.g., Business Registration)">
-            <textarea id="formFields" placeholder="Fields (JSON array: [{'label':'Full Name','type':'text'},{'label':'Email','type':'email'}])" rows="4"></textarea>
+            <input type="text" id="formName" placeholder="Form Name">
+            <textarea id="formFields" placeholder='Fields as JSON: [{"label":"Full Name","type":"text"},{"label":"Email","type":"email"}]' rows="4"></textarea>
             <button class="btn" id="saveCredFormBtn">💀 SAVE FORM</button>
             <button class="btn" id="cancelCredFormBtn">CANCEL</button>
             <input type="hidden" id="editingCredFormId">
         </div>
     </section>
 
-    <!-- ========== CLOUD / DOMAIN SETUP REQUEST (to Telegram Bot) ========== -->
+    <!-- ========== CLOUD / DOMAIN SETUP REQUESTS (to Telegram Bot) ========== -->
     <section id="section-cloudreq" class="admin-section">
         <div class="card">
             <h2>☁️ CLOUD & DOMAIN SETUP REQUESTS</h2>
             <button class="btn" id="addCloudReqBtn">➕ NEW REQUEST</button>
-            <div id="cloudRequestsContainer"></div>
-            <p style="margin-top:10px; color:#ff8888;">⚠️ Requests are automatically sent to Telegram Bot (simulated – you can integrate real API)</p>
+            <div id="cloudRequestsContainer" style="margin-top:15px;"></div>
+            <p style="margin-top:10px; color:#ff8888;">⚠️ Requests are sent to Telegram Bot (simulated).</p>
         </div>
         <div id="cloudReqFormModal" style="display:none;" class="card">
             <h3>✍️ CLOUD/DOMAIN REQUEST</h3>
             <input type="text" id="cloudCustomer" placeholder="Customer Name">
             <input type="email" id="cloudEmail" placeholder="Email">
-            <select id="cloudServiceType">
-                <option value="domain">Domain Registration</option>
-                <option value="hosting">Web Hosting</option>
-                <option value="vps">VPS / Cloud Server</option>
-                <option value="ssl">SSL Certificate</option>
-            </select>
-            <input type="text" id="cloudDomain" placeholder="Domain name (if applicable)">
+            <select id="cloudServiceType"><option>Domain Registration</option><option>Web Hosting</option><option>VPS / Cloud Server</option><option>SSL Certificate</option></select>
+            <input type="text" id="cloudDomain" placeholder="Domain name (if any)">
             <textarea id="cloudDetails" placeholder="Additional details" rows="3"></textarea>
             <button class="btn" id="saveCloudReqBtn">💀 SEND TO TELEGRAM BOT</button>
             <button class="btn" id="cancelCloudReqBtn">CANCEL</button>
@@ -348,16 +414,37 @@
     </section>
 
     <!-- ========== VISITORS ========== -->
-    <section id="section-visitors" class="admin-section"><div class="card"><h2>🌍 VISITORS</h2><div id="visitorsTableContainer"></div></div></section>
+    <section id="section-visitors" class="admin-section">
+        <div class="card">
+            <h2>🌍 VISITOR LOGS</h2>
+            <div id="visitorsTableContainer"></div>
+        </div>
+    </section>
 
     <!-- ========== BLOG ========== -->
-    <section id="section-blog" class="admin-section"><div class="card"><h2>📜 BLOG</h2><button class="btn" id="addPostBtn">➕ NEW</button><div id="blogPostsContainer"></div></div><div id="postFormModal" style="display:none;" class="card">...</div></section>
+    <section id="section-blog" class="admin-section">
+        <div class="card">
+            <h2>📜 BLOG POSTS</h2>
+            <button class="btn" id="addPostBtn">➕ NEW POST</button>
+            <div id="blogPostsContainer" style="margin-top:15px;"></div>
+        </div>
+        <div id="postFormModal" style="display:none;" class="card">
+            <h3>✍️ BLOG POST</h3>
+            <input type="text" id="postTitle" placeholder="Title">
+            <textarea id="postContent" placeholder="Content (HTML allowed)" rows="8"></textarea>
+            <button class="btn" id="savePostBtn">💀 SAVE</button>
+            <button class="btn" id="cancelPostBtn">CANCEL</button>
+            <input type="hidden" id="editingPostId">
+        </div>
+    </section>
 </div>
 
 <script>
     // ========== LOCALSTORAGE INIT ==========
     function initData() {
         if (!localStorage.getItem('ghost_users')) localStorage.setItem('ghost_users', JSON.stringify([{ id:'1', email:'admin@ghostshell.com', password:'admin123', role:'full_admin' }]));
+        if (!localStorage.getItem('ghost_codes')) localStorage.setItem('ghost_codes', '[]');
+        if (!localStorage.getItem('ghost_payments')) localStorage.setItem('ghost_payments', JSON.stringify([{ id:'p1', userId:'1', product:'Test Product', amount:49.99, status:'pending' }]));
         if (!localStorage.getItem('ghost_tools')) localStorage.setItem('ghost_tools', JSON.stringify([]));
         if (!localStorage.getItem('ghost_websites')) localStorage.setItem('ghost_websites', JSON.stringify([]));
         if (!localStorage.getItem('ghost_esim')) localStorage.setItem('ghost_esim', JSON.stringify([]));
@@ -366,24 +453,21 @@
         if (!localStorage.getItem('ghost_webrequests')) localStorage.setItem('ghost_webrequests', JSON.stringify([]));
         if (!localStorage.getItem('ghost_credforms')) localStorage.setItem('ghost_credforms', JSON.stringify([]));
         if (!localStorage.getItem('ghost_cloudreqs')) localStorage.setItem('ghost_cloudreqs', JSON.stringify([]));
-        if (!localStorage.getItem('ghost_codes')) localStorage.setItem('ghost_codes', '[]');
-        if (!localStorage.getItem('ghost_payments')) localStorage.setItem('ghost_payments', '[]');
-        if (!localStorage.getItem('ghost_visitors')) localStorage.setItem('ghost_visitors', '[]');
-        if (!localStorage.getItem('ghost_blog')) localStorage.setItem('ghost_blog', '[]');
+        if (!localStorage.getItem('ghost_visitors')) localStorage.setItem('ghost_visitors', JSON.stringify([{ ip:'127.0.0.1', time:new Date().toISOString(), page:'/admin.html' }]));
+        if (!localStorage.getItem('ghost_blog')) localStorage.setItem('ghost_blog', JSON.stringify([]));
     }
     initData();
 
-    // helpers
-    const get = (key) => JSON.parse(localStorage.getItem(key));
-    const set = (key, val) => localStorage.setItem(key, JSON.stringify(val));
+    const get = (k) => JSON.parse(localStorage.getItem(k));
+    const set = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 
-    // login
+    // LOGIN
     const loginModal = document.getElementById('adminLoginModal');
     const dashboardDiv = document.getElementById('adminDashboard');
     document.getElementById('adminLoginBtn').addEventListener('click', () => {
         const email = document.getElementById('adminEmail').value.trim();
         const pwd = document.getElementById('adminPassword').value;
-        const user = get('ghost_users').find(u => u.email === email && u.password === pwd && u.role.includes('admin'));
+        const user = get('ghost_users').find(u => u.email === email && u.password === pwd && (u.role === 'full_admin' || u.role === 'admin'));
         if (user) {
             localStorage.setItem('adminSession', 'true');
             loginModal.style.display = 'none';
@@ -395,7 +479,7 @@
     });
     document.getElementById('logoutAdminBtn').addEventListener('click', () => { localStorage.removeItem('adminSession'); window.location.reload(); });
 
-    // theme
+    // Theme toggle
     document.getElementById('themeToggle').addEventListener('click', () => {
         document.body.classList.toggle('light');
         const btn = document.getElementById('themeToggle');
@@ -404,7 +488,7 @@
         else document.body.style.background = '';
     });
 
-    // section switching
+    // SECTION SWITCHING
     function switchSection(section) {
         document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
         document.getElementById(`section-${section}`).classList.add('active');
@@ -431,90 +515,150 @@
         });
     });
 
-    function loadAllSections() { renderUsers(); renderCodes(); renderPayments(); renderTools(); renderPromoManager(); renderWebsites(); renderEsim(); renderLogistics(); renderVirtualNumbers(); renderWebRequests(); renderCredForms(); renderCloudRequests(); renderVisitors(); renderBlog(); }
+    function loadAllSections() {
+        renderUsers(); renderCodes(); renderPayments(); renderTools(); renderPromoManager();
+        renderWebsites(); renderEsim(); renderLogistics(); renderVirtualNumbers();
+        renderWebRequests(); renderCredForms(); renderCloudRequests(); renderVisitors(); renderBlog();
+    }
 
     // ========== USERS ==========
-    function renderUsers() { let html = '<table class="admin-table"><tr><th>Email</th><th>Role</th><th>Action</th></tr>'; get('ghost_users').forEach(u => { html += `<tr><td>${u.email}</td><td>${u.role}</td><td><button class="btn" onclick="deleteUser('${u.id}')">💀 PURGE</button></td></tr>`; }); html += '</table>'; document.getElementById('userTableContainer').innerHTML = html; }
+    function renderUsers() {
+        let users = get('ghost_users');
+        let html = '<table class="admin-table"><tr><th>Email</th><th>Role</th><th>Actions</th></tr>';
+        users.forEach(u => {
+            html += `<tr><td>${u.email}</td><td>${u.role}</td><td><button class="btn" onclick="deleteUser('${u.id}')">💀 DELETE</button> <button class="btn" onclick="promoteUser('${u.id}')">👑 MAKE ADMIN</button></td></tr>`;
+        });
+        html += '</table>';
+        document.getElementById('userTableContainer').innerHTML = html;
+    }
     window.deleteUser = (id) => { set('ghost_users', get('ghost_users').filter(u => u.id !== id)); renderUsers(); };
-    document.getElementById('exportCsvBtn').addEventListener('click', () => { const emails = get('ghost_users').map(u => u.email).join('\n'); const blob = new Blob([emails], {type:'text/csv'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'users.csv'; a.click(); });
+    window.promoteUser = (id) => { let users = get('ghost_users'); let idx = users.findIndex(u => u.id === id); if(idx !== -1) { users[idx].role = 'full_admin'; set('ghost_users', users); renderUsers(); } };
+    document.getElementById('addUserBtn').addEventListener('click', () => {
+        let email = document.getElementById('newUserEmail').value.trim();
+        let pass = document.getElementById('newUserPass').value;
+        let role = document.getElementById('newUserRole').value;
+        if (!email || !pass) return alert('Email and password required');
+        let users = get('ghost_users');
+        if (users.find(u => u.email === email)) return alert('User exists');
+        users.push({ id: Date.now().toString(), email, password: pass, role });
+        set('ghost_users', users);
+        renderUsers();
+        document.getElementById('newUserEmail').value = '';
+        document.getElementById('newUserPass').value = '';
+    });
+    document.getElementById('exportCsvBtn').addEventListener('click', () => {
+        let csv = get('ghost_users').map(u => u.email).join('\n');
+        let blob = new Blob([csv], {type:'text/csv'});
+        let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'users.csv'; a.click();
+    });
 
     // CODES
-    function renderCodes() { let html = '<table class="admin-table"><tr><th>Code</th><th>Created</th></tr>'; get('ghost_codes').forEach(c => { html += `<tr><td>${c.code}</td><td>${new Date(c.createdAt).toLocaleString()}</td></tr>`; }); html += '</table>'; document.getElementById('codesTableContainer').innerHTML = html; }
+    function renderCodes() { let codes = get('ghost_codes'); let html = '<table class="admin-table"><tr><th>Code</th><th>Created</th></tr>'; codes.forEach(c => { html += `<tr><td>${c.code}</td><td>${new Date(c.createdAt).toLocaleString()}</td></tr>`; }); html += '</table>'; document.getElementById('codesTableContainer').innerHTML = html; }
     document.getElementById('generateCodesBtn').addEventListener('click', () => { let codes = get('ghost_codes'); for(let i=0;i<50;i++) codes.push({ code: 'DEATH-'+Math.random().toString(36).substring(2,10).toUpperCase(), createdAt: new Date().toISOString() }); set('ghost_codes', codes); renderCodes(); });
 
-    // PAYMENTS (mock)
-    function renderPayments() { let html = '<table class="admin-table"><tr><th>User</th><th>Product</th><th>Amount</th><th>Status</th></tr>'; get('ghost_payments').forEach(p => { html += `<tr><td>${p.userId}</td><td>${p.product}</td><td>$${p.amount}</td><td>${p.status}</td></tr>`; }); html += '</table>'; document.getElementById('paymentsContainer').innerHTML = html; }
+    // PAYMENTS
+    function renderPayments() { let payments = get('ghost_payments'); let html = '<table class="admin-table"><tr><th>User</th><th>Product</th><th>Amount</th><th>Status</th><th>Action</th></tr>'; payments.forEach(p => { html += `<tr><td>${p.userId}</td><td>${p.product}</td><td>$${p.amount}</td><td>${p.status}</td><td><button class="btn" onclick="approvePayment('${p.id}')">✅ Approve</button> <button class="btn" onclick="deletePayment('${p.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('paymentsContainer').innerHTML = html; }
+    window.approvePayment = (id) => { let payments = get('ghost_payments'); let idx = payments.findIndex(p => p.id === id); if(idx !== -1) payments[idx].status = 'approved'; set('ghost_payments', payments); renderPayments(); };
+    window.deletePayment = (id) => { set('ghost_payments', get('ghost_payments').filter(p => p.id !== id)); renderPayments(); };
+    document.getElementById('addPaymentBtn').addEventListener('click', () => { let payments = get('ghost_payments'); let newId = Date.now().toString(); payments.push({ id: newId, userId: 'guest', product: 'New Order', amount: 99.99, status: 'pending' }); set('ghost_payments', payments); renderPayments(); });
 
-    // TOOLS (simplified)
-    function renderTools() { let html = '<table class="admin-table"><tr><th>Name</th><th>Price</th><th>Promo</th><th>Actions</th></tr>'; get('ghost_tools').forEach(t => { html += `<tr><td>${t.name}</td><td>$${t.price}</td><td>${t.promoName||'none'}</td><td><button class="btn" onclick="deleteTool('${t.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('adminToolsContainer').innerHTML = html; }
+    // TOOLS & PROMO
+    function renderTools() { let tools = get('ghost_tools'); let html = '<table class="admin-table"><tr><th>Name</th><th>Price</th><th>Promo</th><th>Actions</th></tr>'; tools.forEach(t => { html += `<tr><td>${t.name}</td><td>$${t.price}</td><td>${t.promoName ? t.promoName+' $'+t.promoPrice : 'none'}</td><td><button class="btn" onclick="editTool('${t.id}')">✏️</button> <button class="btn" onclick="deleteTool('${t.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('adminToolsContainer').innerHTML = html; }
+    window.editTool = (id) => { let tool = get('ghost_tools').find(t => t.id === id); if(tool) { document.getElementById('toolName').value = tool.name; document.getElementById('toolPrice').value = tool.price; document.getElementById('toolPromoName').value = tool.promoName || ''; document.getElementById('toolPromoPrice').value = tool.promoPrice || ''; document.getElementById('editingToolId').value = id; document.getElementById('toolFormModal').style.display = 'block'; } };
     window.deleteTool = (id) => { set('ghost_tools', get('ghost_tools').filter(t => t.id !== id)); renderTools(); renderPromoManager(); };
-    document.getElementById('addToolBtn').addEventListener('click', () => { let name = prompt('Tool name:'); if(name) { let price = parseFloat(prompt('Price:')); set('ghost_tools', [...get('ghost_tools'), { id: Date.now().toString(), name, price, promoName: '', promoPrice: null }]); renderTools(); renderPromoManager(); } });
-    function renderPromoManager() { let html = '<table class="admin-table"><tr><th>Tool</th><th>Promo Name</th><th>Sale Price</th><th>Apply</th></tr>'; get('ghost_tools').forEach(t => { html += `<tr><td>${t.name}</td><td><input type="text" id="promoName_${t.id}" value="${t.promoName||''}"></td><td><input type="number" id="promoPrice_${t.id}" value="${t.promoPrice||''}"></td><td><button class="btn" onclick="updatePromo('${t.id}')">🔥 SET</button></td></tr>`; }); html += '</table>'; document.getElementById('promoManagerContainer').innerHTML = html; }
-    window.updatePromo = (id) => { let tools = get('ghost_tools'); let idx = tools.findIndex(t => t.id === id); if(idx!==-1) { tools[idx].promoName = document.getElementById(`promoName_${id}`).value; tools[idx].promoPrice = parseFloat(document.getElementById(`promoPrice_${id}`).value); set('ghost_tools', tools); renderPromoManager(); renderTools(); } };
+    document.getElementById('addToolBtn').addEventListener('click', () => { document.getElementById('toolFormModal').style.display = 'block'; document.getElementById('editingToolId').value = ''; document.getElementById('toolName').value = ''; document.getElementById('toolPrice').value = ''; document.getElementById('toolPromoName').value = ''; document.getElementById('toolPromoPrice').value = ''; });
+    document.getElementById('saveToolBtn').addEventListener('click', () => { let id = document.getElementById('editingToolId').value; let toolData = { name: document.getElementById('toolName').value, price: parseFloat(document.getElementById('toolPrice').value), promoName: document.getElementById('toolPromoName').value, promoPrice: parseFloat(document.getElementById('toolPromoPrice').value) || null }; let tools = get('ghost_tools'); if(id) { let idx = tools.findIndex(t => t.id === id); if(idx !== -1) tools[idx] = { ...tools[idx], ...toolData }; } else { toolData.id = Date.now().toString(); tools.push(toolData); } set('ghost_tools', tools); document.getElementById('toolFormModal').style.display = 'none'; renderTools(); renderPromoManager(); });
+    document.getElementById('cancelToolBtn').addEventListener('click', () => document.getElementById('toolFormModal').style.display = 'none');
 
-    // WEBSITES, eSIM (keep basic CRUD)
-    function renderWebsites() { let html = '<table class="admin-table"><tr><th>Domain</th><th>Price</th><th>Actions</th></tr>'; get('ghost_websites').forEach(s => { html += `<tr><td>${s.domain}</td><td>$${s.price}</td><td><button class="btn" onclick="deleteWebsite('${s.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('websiteTableContainer').innerHTML = html; }
-    window.deleteWebsite = (id) => { set('ghost_websites', get('ghost_websites').filter(w => w.id !== id)); renderWebsites(); };
-    document.getElementById('addWebsiteBtn').addEventListener('click', () => { let domain = prompt('Domain:'); if(domain) { let price = parseFloat(prompt('Price:')); set('ghost_websites', [...get('ghost_websites'), { id: Date.now().toString(), domain, title: domain, price }]); renderWebsites(); } });
-    function renderEsim() { let html = '<table class="admin-table"><tr><th>Plan</th><th>Duration</th><th>Price</th><th>Actions</th></tr>'; get('ghost_esim').forEach(e => { html += `<tr><td>${e.name}</td><td>${e.duration}</td><td>$${e.price}</td><td><button class="btn" onclick="deleteEsim('${e.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('esimTableContainer').innerHTML = html; }
-    window.deleteEsim = (id) => { set('ghost_esim', get('ghost_esim').filter(e => e.id !== id)); renderEsim(); };
-    document.getElementById('addEsimBtn').addEventListener('click', () => { let name = prompt('Plan name:'); if(name) { let duration = prompt('Duration (1 month, 1 year):'); let price = parseFloat(prompt('Price:')); set('ghost_esim', [...get('ghost_esim'), { id: Date.now().toString(), name, duration, price, data: '10GB', voice: 'Unlimited' }]); renderEsim(); } });
+    function renderPromoManager() { let tools = get('ghost_tools'); let html = '<table class="admin-table"><tr><th>Tool</th><th>Current Promo</th><th>New Promo Name</th><th>New Sale Price</th><th>Apply</th></tr>'; tools.forEach(t => { html += `<tr><td>${t.name}</td><td>${t.promoName ? t.promoName + ' $' + t.promoPrice : 'none'}</td><td><input type="text" id="promoName_${t.id}" placeholder="Name"></td><td><input type="number" id="promoPrice_${t.id}" placeholder="Price"></td><td><button class="btn" onclick="applyPromo('${t.id}')">🔥 APPLY</button></td></tr>`; }); html += '</table>'; document.getElementById('promoManagerContainer').innerHTML = html; }
+    window.applyPromo = (id) => { let name = document.getElementById(`promoName_${id}`).value; let price = parseFloat(document.getElementById(`promoPrice_${id}`).value); let tools = get('ghost_tools'); let idx = tools.findIndex(t => t.id === id); if(idx !== -1) { tools[idx].promoName = name || null; tools[idx].promoPrice = isNaN(price) ? null : price; set('ghost_tools', tools); renderTools(); renderPromoManager(); } };
 
-    // ========== LOGISTICS ==========
-    function renderLogistics() { let html = '<table class="admin-table"><tr><th>Sender</th><th>Receiver</th><th>Address</th><th>Fee</th><th>Status</th><th>Actions</th></tr>'; get('ghost_logistics').forEach(l => { html += `<tr><td>${l.sender}</td><td>${l.receiver}</td><td>${l.address}</td><td>$${l.price}</td><td>${l.status}</td><td><button class="btn" onclick="editLogistics('${l.id}')">✏️</button> <button class="btn" onclick="deleteLogistics('${l.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('logisticsTableContainer').innerHTML = html; }
-    window.editLogistics = (id) => { let item = get('ghost_logistics').find(l => l.id === id); if(item){ document.getElementById('logisticsSender').value = item.sender; document.getElementById('logisticsReceiver').value = item.receiver; document.getElementById('logisticsAddress').value = item.address; document.getElementById('logisticsPackage').value = item.package; document.getElementById('logisticsWeight').value = item.weight; document.getElementById('logisticsPrice').value = item.price; document.getElementById('logisticsStatus').value = item.status; document.getElementById('editingLogisticsId').value = id; document.getElementById('logisticsFormModal').style.display = 'block'; } };
+    // WEBSITES
+    function renderWebsites() { let sites = get('ghost_websites'); let html = '<table class="admin-table"><tr><th>Domain</th><th>Title</th><th>Price</th><th>Actions</th></tr>'; sites.forEach(s => { html += `<tr><td>${s.domain}</td><td>${s.title}</td><td>$${s.price}</td><td><button class="btn" onclick="editWebsite('${s.id}')">✏️</button> <button class="btn" onclick="deleteWebsite('${s.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('websiteTableContainer').innerHTML = html; }
+    window.editWebsite = (id) => { let site = get('ghost_websites').find(s => s.id === id); if(site) { document.getElementById('websiteDomain').value = site.domain; document.getElementById('websiteTitle').value = site.title; document.getElementById('websitePrice').value = site.price; document.getElementById('editingWebsiteId').value = id; document.getElementById('websiteFormModal').style.display = 'block'; } };
+    window.deleteWebsite = (id) => { set('ghost_websites', get('ghost_websites').filter(s => s.id !== id)); renderWebsites(); };
+    document.getElementById('addWebsiteBtn').addEventListener('click', () => { document.getElementById('websiteFormModal').style.display = 'block'; document.getElementById('editingWebsiteId').value = ''; document.getElementById('websiteDomain').value = ''; document.getElementById('websiteTitle').value = ''; document.getElementById('websitePrice').value = ''; });
+    document.getElementById('saveWebsiteBtn').addEventListener('click', () => { let id = document.getElementById('editingWebsiteId').value; let data = { domain: document.getElementById('websiteDomain').value, title: document.getElementById('websiteTitle').value, price: parseFloat(document.getElementById('websitePrice').value) }; let sites = get('ghost_websites'); if(id) { let idx = sites.findIndex(s => s.id === id); if(idx !== -1) sites[idx] = { ...sites[idx], ...data }; } else { data.id = Date.now().toString(); sites.push(data); } set('ghost_websites', sites); document.getElementById('websiteFormModal').style.display = 'none'; renderWebsites(); });
+    document.getElementById('cancelWebsiteBtn').addEventListener('click', () => document.getElementById('websiteFormModal').style.display = 'none');
+
+    // eSIM
+    function renderEsim() { let plans = get('ghost_esim'); let html = '<table class="admin-table"><tr><th>Name</th><th>Duration</th><th>Price</th><th>Data</th><th>Voice</th><th>Actions</th></tr>'; plans.forEach(p => { html += `<tr><td>${p.name}</td><td>${p.duration}</td><td>$${p.price}</td><td>${p.data}</td><td>${p.voice}</td><td><button class="btn" onclick="editEsim('${p.id}')">✏️</button> <button class="btn" onclick="deleteEsim('${p.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('esimTableContainer').innerHTML = html; }
+    window.editEsim = (id) => { let plan = get('ghost_esim').find(p => p.id === id); if(plan) { document.getElementById('esimName').value = plan.name; document.getElementById('esimDuration').value = plan.duration; document.getElementById('esimPrice').value = plan.price; document.getElementById('esimData').value = plan.data; document.getElementById('esimVoice').value = plan.voice; document.getElementById('editingEsimId').value = id; document.getElementById('esimFormModal').style.display = 'block'; } };
+    window.deleteEsim = (id) => { set('ghost_esim', get('ghost_esim').filter(p => p.id !== id)); renderEsim(); };
+    document.getElementById('addEsimBtn').addEventListener('click', () => { document.getElementById('esimFormModal').style.display = 'block'; document.getElementById('editingEsimId').value = ''; document.getElementById('esimName').value = ''; document.getElementById('esimDuration').value = '1 month'; document.getElementById('esimPrice').value = ''; document.getElementById('esimData').value = ''; document.getElementById('esimVoice').value = ''; });
+    document.getElementById('saveEsimBtn').addEventListener('click', () => { let id = document.getElementById('editingEsimId').value; let data = { name: document.getElementById('esimName').value, duration: document.getElementById('esimDuration').value, price: parseFloat(document.getElementById('esimPrice').value), data: document.getElementById('esimData').value, voice: document.getElementById('esimVoice').value }; let plans = get('ghost_esim'); if(id) { let idx = plans.findIndex(p => p.id === id); if(idx !== -1) plans[idx] = { ...plans[idx], ...data }; } else { data.id = Date.now().toString(); plans.push(data); } set('ghost_esim', plans); document.getElementById('esimFormModal').style.display = 'none'; renderEsim(); });
+    document.getElementById('cancelEsimBtn').addEventListener('click', () => document.getElementById('esimFormModal').style.display = 'none');
+
+    // LOGISTICS (same pattern, but full implementation)
+    function renderLogistics() { let items = get('ghost_logistics'); let html = '<table class="admin-table"><tr><th>Sender</th><th>Receiver</th><th>Address</th><th>Package</th><th>Fee</th><th>Status</th><th>Actions</th></tr>'; items.forEach(l => { html += `<tr><td>${l.sender}</td><td>${l.receiver}</td><td>${l.address}</td><td>${l.package}</td><td>$${l.price}</td><td>${l.status}</td><td><button class="btn" onclick="editLogistics('${l.id}')">✏️</button> <button class="btn" onclick="deleteLogistics('${l.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('logisticsTableContainer').innerHTML = html; }
+    window.editLogistics = (id) => { let item = get('ghost_logistics').find(l => l.id === id); if(item) { document.getElementById('logisticsSender').value = item.sender; document.getElementById('logisticsReceiver').value = item.receiver; document.getElementById('logisticsAddress').value = item.address; document.getElementById('logisticsPackage').value = item.package; document.getElementById('logisticsWeight').value = item.weight; document.getElementById('logisticsPrice').value = item.price; document.getElementById('logisticsStatus').value = item.status; document.getElementById('editingLogisticsId').value = id; document.getElementById('logisticsFormModal').style.display = 'block'; } };
     window.deleteLogistics = (id) => { set('ghost_logistics', get('ghost_logistics').filter(l => l.id !== id)); renderLogistics(); };
-    document.getElementById('addLogisticsOrderBtn').addEventListener('click', () => { document.getElementById('logisticsFormModal').style.display = 'block'; document.getElementById('editingLogisticsId').value = ''; document.getElementById('logisticsSender').value = ''; document.getElementById('logisticsReceiver').value = ''; document.getElementById('logisticsAddress').value = ''; document.getElementById('logisticsPackage').value = ''; document.getElementById('logisticsWeight').value = ''; document.getElementById('logisticsPrice').value = ''; document.getElementById('logisticsStatus').value = 'pending'; });
-    document.getElementById('saveLogisticsBtn').addEventListener('click', () => { const id = document.getElementById('editingLogisticsId').value; const data = { sender: document.getElementById('logisticsSender').value, receiver: document.getElementById('logisticsReceiver').value, address: document.getElementById('logisticsAddress').value, package: document.getElementById('logisticsPackage').value, weight: parseFloat(document.getElementById('logisticsWeight').value), price: parseFloat(document.getElementById('logisticsPrice').value), status: document.getElementById('logisticsStatus').value }; let arr = get('ghost_logistics'); if(id){ let idx = arr.findIndex(l => l.id === id); if(idx!==-1) arr[idx] = { ...arr[idx], ...data }; } else { data.id = Date.now().toString(); arr.push(data); } set('ghost_logistics', arr); document.getElementById('logisticsFormModal').style.display = 'none'; renderLogistics(); });
+    document.getElementById('addLogisticsBtn').addEventListener('click', () => { document.getElementById('logisticsFormModal').style.display = 'block'; document.getElementById('editingLogisticsId').value = ''; document.getElementById('logisticsSender').value = ''; document.getElementById('logisticsReceiver').value = ''; document.getElementById('logisticsAddress').value = ''; document.getElementById('logisticsPackage').value = ''; document.getElementById('logisticsWeight').value = ''; document.getElementById('logisticsPrice').value = ''; document.getElementById('logisticsStatus').value = 'pending'; });
+    document.getElementById('saveLogisticsBtn').addEventListener('click', () => { let id = document.getElementById('editingLogisticsId').value; let data = { sender: document.getElementById('logisticsSender').value, receiver: document.getElementById('logisticsReceiver').value, address: document.getElementById('logisticsAddress').value, package: document.getElementById('logisticsPackage').value, weight: parseFloat(document.getElementById('logisticsWeight').value), price: parseFloat(document.getElementById('logisticsPrice').value), status: document.getElementById('logisticsStatus').value }; let items = get('ghost_logistics'); if(id) { let idx = items.findIndex(l => l.id === id); if(idx !== -1) items[idx] = { ...items[idx], ...data }; } else { data.id = Date.now().toString(); items.push(data); } set('ghost_logistics', items); document.getElementById('logisticsFormModal').style.display = 'none'; renderLogistics(); });
     document.getElementById('cancelLogisticsBtn').addEventListener('click', () => document.getElementById('logisticsFormModal').style.display = 'none');
 
     // VIRTUAL NUMBERS
-    function renderVirtualNumbers() { let html = '<table class="admin-table"><tr><th>Number</th><th>Country</th><th>Service</th><th>Price</th><th>Partner</th><th>Actions</th></tr>'; get('ghost_virtualnums').forEach(v => { html += `<tr><td>${v.number}</td><td>${v.country}</td><td>${v.service}</td><td>$${v.price}</td><td>${v.partner}</td><td><button class="btn" onclick="editVirtual('${v.id}')">✏️</button> <button class="btn" onclick="deleteVirtual('${v.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('virtualNumbersContainer').innerHTML = html; }
-    window.editVirtual = (id) => { let v = get('ghost_virtualnums').find(v => v.id === id); if(v){ document.getElementById('virtualNumber').value = v.number; document.getElementById('virtualCountry').value = v.country; document.getElementById('virtualService').value = v.service; document.getElementById('virtualPrice').value = v.price; document.getElementById('virtualPartner').value = v.partner; document.getElementById('editingVirtualId').value = id; document.getElementById('virtualFormModal').style.display = 'block'; } };
+    function renderVirtualNumbers() { let nums = get('ghost_virtualnums'); let html = '<table class="admin-table"><tr><th>Number</th><th>Country</th><th>Service</th><th>Price</th><th>Partner</th><th>Actions</th></tr>'; nums.forEach(v => { html += `<tr><td>${v.number}</td><td>${v.country}</td><td>${v.service}</td><td>$${v.price}</td><td>${v.partner}</td><td><button class="btn" onclick="editVirtual('${v.id}')">✏️</button> <button class="btn" onclick="deleteVirtual('${v.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('virtualNumbersContainer').innerHTML = html; }
+    window.editVirtual = (id) => { let v = get('ghost_virtualnums').find(v => v.id === id); if(v) { document.getElementById('virtualNumber').value = v.number; document.getElementById('virtualCountry').value = v.country; document.getElementById('virtualService').value = v.service; document.getElementById('virtualPrice').value = v.price; document.getElementById('virtualPartner').value = v.partner; document.getElementById('editingVirtualId').value = id; document.getElementById('virtualFormModal').style.display = 'block'; } };
     window.deleteVirtual = (id) => { set('ghost_virtualnums', get('ghost_virtualnums').filter(v => v.id !== id)); renderVirtualNumbers(); };
-    document.getElementById('addVirtualNumberBtn').addEventListener('click', () => { document.getElementById('virtualFormModal').style.display = 'block'; document.getElementById('editingVirtualId').value = ''; document.getElementById('virtualNumber').value = ''; document.getElementById('virtualCountry').value = ''; document.getElementById('virtualService').value = ''; document.getElementById('virtualPrice').value = ''; document.getElementById('virtualPartner').value = ''; });
-    document.getElementById('saveVirtualBtn').addEventListener('click', () => { const id = document.getElementById('editingVirtualId').value; const data = { number: document.getElementById('virtualNumber').value, country: document.getElementById('virtualCountry').value, service: document.getElementById('virtualService').value, price: parseFloat(document.getElementById('virtualPrice').value), partner: document.getElementById('virtualPartner').value }; let arr = get('ghost_virtualnums'); if(id){ let idx = arr.findIndex(v => v.id === id); if(idx!==-1) arr[idx] = { ...arr[idx], ...data }; } else { data.id = Date.now().toString(); arr.push(data); } set('ghost_virtualnums', arr); document.getElementById('virtualFormModal').style.display = 'none'; renderVirtualNumbers(); });
+    document.getElementById('addVirtualBtn').addEventListener('click', () => { document.getElementById('virtualFormModal').style.display = 'block'; document.getElementById('editingVirtualId').value = ''; document.getElementById('virtualNumber').value = ''; document.getElementById('virtualCountry').value = ''; document.getElementById('virtualService').value = ''; document.getElementById('virtualPrice').value = ''; document.getElementById('virtualPartner').value = ''; });
+    document.getElementById('saveVirtualBtn').addEventListener('click', () => { let id = document.getElementById('editingVirtualId').value; let data = { number: document.getElementById('virtualNumber').value, country: document.getElementById('virtualCountry').value, service: document.getElementById('virtualService').value, price: parseFloat(document.getElementById('virtualPrice').value), partner: document.getElementById('virtualPartner').value }; let nums = get('ghost_virtualnums'); if(id) { let idx = nums.findIndex(v => v.id === id); if(idx !== -1) nums[idx] = { ...nums[idx], ...data }; } else { data.id = Date.now().toString(); nums.push(data); } set('ghost_virtualnums', nums); document.getElementById('virtualFormModal').style.display = 'none'; renderVirtualNumbers(); });
     document.getElementById('cancelVirtualBtn').addEventListener('click', () => document.getElementById('virtualFormModal').style.display = 'none');
 
     // WEB REQUESTS
-    function renderWebRequests() { let html = '<table class="admin-table"><tr><th>Client</th><th>Email</th><th>Type</th><th>Budget</th><th>Actions</th></tr>'; get('ghost_webrequests').forEach(r => { html += `<tr><td>${r.client}</td><td>${r.email}</td><td>${r.type}</td><td>$${r.budget}</td><td><button class="btn" onclick="deleteWebRequest('${r.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('webRequestsContainer').innerHTML = html; }
+    function renderWebRequests() { let reqs = get('ghost_webrequests'); let html = '<table class="admin-table"><tr><th>Client</th><th>Email</th><th>Type</th><th>Budget</th><th>Actions</th></tr>'; reqs.forEach(r => { html += `<tr><td>${r.client}</td><td>${r.email}</td><td>${r.type}</td><td>$${r.budget}</td><td><button class="btn" onclick="editWebRequest('${r.id}')">✏️</button> <button class="btn" onclick="deleteWebRequest('${r.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('webRequestsContainer').innerHTML = html; }
+    window.editWebRequest = (id) => { let r = get('ghost_webrequests').find(r => r.id === id); if(r) { document.getElementById('webClientName').value = r.client; document.getElementById('webClientEmail').value = r.email; document.getElementById('webType').value = r.type; document.getElementById('webRequirements').value = r.requirements; document.getElementById('webBudget').value = r.budget; document.getElementById('editingWebRequestId').value = id; document.getElementById('webRequestFormModal').style.display = 'block'; } };
     window.deleteWebRequest = (id) => { set('ghost_webrequests', get('ghost_webrequests').filter(r => r.id !== id)); renderWebRequests(); };
-    document.getElementById('addWebRequestBtn').addEventListener('click', () => { let client = prompt('Client name:'); if(client){ let email = prompt('Email:'); let type = prompt('Website type:'); let budget = parseFloat(prompt('Budget:')); set('ghost_webrequests', [...get('ghost_webrequests'), { id: Date.now().toString(), client, email, type, budget }]); renderWebRequests(); } });
+    document.getElementById('addWebRequestBtn').addEventListener('click', () => { document.getElementById('webRequestFormModal').style.display = 'block'; document.getElementById('editingWebRequestId').value = ''; document.getElementById('webClientName').value = ''; document.getElementById('webClientEmail').value = ''; document.getElementById('webType').value = ''; document.getElementById('webRequirements').value = ''; document.getElementById('webBudget').value = ''; });
+    document.getElementById('saveWebRequestBtn').addEventListener('click', () => { let id = document.getElementById('editingWebRequestId').value; let data = { client: document.getElementById('webClientName').value, email: document.getElementById('webClientEmail').value, type: document.getElementById('webType').value, requirements: document.getElementById('webRequirements').value, budget: parseFloat(document.getElementById('webBudget').value) }; let reqs = get('ghost_webrequests'); if(id) { let idx = reqs.findIndex(r => r.id === id); if(idx !== -1) reqs[idx] = { ...reqs[idx], ...data }; } else { data.id = Date.now().toString(); reqs.push(data); } set('ghost_webrequests', reqs); document.getElementById('webRequestFormModal').style.display = 'none'; renderWebRequests(); });
+    document.getElementById('cancelWebRequestBtn').addEventListener('click', () => document.getElementById('webRequestFormModal').style.display = 'none');
 
     // CREDENTIAL FORMS
-    function renderCredForms() { let html = '<table class="admin-table"><tr><th>Form Name</th><th>Fields</th><th>Actions</th></tr>'; get('ghost_credforms').forEach(f => { html += `<tr><td>${f.name}</td><td>${f.fields.substring(0,50)}...</td><td><button class="btn" onclick="deleteCredForm('${f.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('credFormsContainer').innerHTML = html; }
+    function renderCredForms() { let forms = get('ghost_credforms'); let html = '<table class="admin-table"><tr><th>Name</th><th>Fields Preview</th><th>Actions</th></tr>'; forms.forEach(f => { html += `<tr><td>${f.name}</td><td>${f.fields.substring(0,50)}...</td><td><button class="btn" onclick="editCredForm('${f.id}')">✏️</button> <button class="btn" onclick="deleteCredForm('${f.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('credFormsContainer').innerHTML = html; }
+    window.editCredForm = (id) => { let f = get('ghost_credforms').find(f => f.id === id); if(f) { document.getElementById('formName').value = f.name; document.getElementById('formFields').value = f.fields; document.getElementById('editingCredFormId').value = id; document.getElementById('credFormModal').style.display = 'block'; } };
     window.deleteCredForm = (id) => { set('ghost_credforms', get('ghost_credforms').filter(f => f.id !== id)); renderCredForms(); };
-    document.getElementById('addCredFormBtn').addEventListener('click', () => { let name = prompt('Form name:'); if(name){ let fields = prompt('Fields (JSON array e.g., [{"label":"Name","type":"text"}])'); set('ghost_credforms', [...get('ghost_credforms'), { id: Date.now().toString(), name, fields: fields || '[]' }]); renderCredForms(); } });
+    document.getElementById('addCredFormBtn').addEventListener('click', () => { document.getElementById('credFormModal').style.display = 'block'; document.getElementById('editingCredFormId').value = ''; document.getElementById('formName').value = ''; document.getElementById('formFields').value = ''; });
+    document.getElementById('saveCredFormBtn').addEventListener('click', () => { let id = document.getElementById('editingCredFormId').value; let data = { name: document.getElementById('formName').value, fields: document.getElementById('formFields').value }; let forms = get('ghost_credforms'); if(id) { let idx = forms.findIndex(f => f.id === id); if(idx !== -1) forms[idx] = { ...forms[idx], ...data }; } else { data.id = Date.now().toString(); forms.push(data); } set('ghost_credforms', forms); document.getElementById('credFormModal').style.display = 'none'; renderCredForms(); });
+    document.getElementById('cancelCredFormBtn').addEventListener('click', () => document.getElementById('credFormModal').style.display = 'none');
 
-    // CLOUD REQUESTS (send to Telegram simulation)
-    function renderCloudRequests() { let html = '<table class="admin-table"><tr><th>Customer</th><th>Service</th><th>Domain</th><th>Telegram Status</th><th>Actions</th></tr>'; get('ghost_cloudreqs').forEach(r => { html += `<tr><td>${r.customer}</td><td>${r.serviceType}</td><td>${r.domain}</td><td>${r.sentToTelegram ? '✅ Sent' : '❌ Not sent'}</td><td><button class="btn" onclick="deleteCloudReq('${r.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('cloudRequestsContainer').innerHTML = html; }
+    // CLOUD REQUESTS (with Telegram simulation)
+    function renderCloudRequests() { let reqs = get('ghost_cloudreqs'); let html = '<table class="admin-table"><tr><th>Customer</th><th>Service</th><th>Domain</th><th>Telegram Status</th><th>Actions</th></tr>'; reqs.forEach(r => { html += `<tr><td>${r.customer}</td><td>${r.serviceType}</td><td>${r.domain}</td><td>${r.sentToTelegram ? '✅ Sent' : '❌ Not sent'}</td><td><button class="btn" onclick="deleteCloudReq('${r.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('cloudRequestsContainer').innerHTML = html; }
     window.deleteCloudReq = (id) => { set('ghost_cloudreqs', get('ghost_cloudreqs').filter(r => r.id !== id)); renderCloudRequests(); };
-    document.getElementById('addCloudReqBtn').addEventListener('click', () => { document.getElementById('cloudReqFormModal').style.display = 'block'; document.getElementById('editingCloudReqId').value = ''; document.getElementById('cloudCustomer').value = ''; document.getElementById('cloudEmail').value = ''; document.getElementById('cloudServiceType').value = 'domain'; document.getElementById('cloudDomain').value = ''; document.getElementById('cloudDetails').value = ''; });
-    document.getElementById('saveCloudReqBtn').addEventListener('click', () => { const customer = document.getElementById('cloudCustomer').value; const email = document.getElementById('cloudEmail').value; const serviceType = document.getElementById('cloudServiceType').value; const domain = document.getElementById('cloudDomain').value; const details = document.getElementById('cloudDetails').value; if(!customer || !email) return alert('Customer and email required'); const reqData = { id: Date.now().toString(), customer, email, serviceType, domain, details, sentToTelegram: false }; let arr = get('ghost_cloudreqs'); arr.push(reqData); set('ghost_cloudreqs', arr); // simulate Telegram bot message
-        alert(`✅ Request sent to Telegram Bot (simulated).\nMessage: New ${serviceType} request from ${customer} (${email}) for domain ${domain}. Details: ${details}`);
-        reqData.sentToTelegram = true; arr[arr.length-1] = reqData; set('ghost_cloudreqs', arr); renderCloudRequests(); document.getElementById('cloudReqFormModal').style.display = 'none'; });
+    document.getElementById('addCloudReqBtn').addEventListener('click', () => { document.getElementById('cloudReqFormModal').style.display = 'block'; document.getElementById('editingCloudReqId').value = ''; document.getElementById('cloudCustomer').value = ''; document.getElementById('cloudEmail').value = ''; document.getElementById('cloudServiceType').value = 'Domain Registration'; document.getElementById('cloudDomain').value = ''; document.getElementById('cloudDetails').value = ''; });
+    document.getElementById('saveCloudReqBtn').addEventListener('click', () => { let customer = document.getElementById('cloudCustomer').value; let email = document.getElementById('cloudEmail').value; let serviceType = document.getElementById('cloudServiceType').value; let domain = document.getElementById('cloudDomain').value; let details = document.getElementById('cloudDetails').value; if(!customer || !email) return alert('Customer and email required'); let reqs = get('ghost_cloudreqs'); let newId = Date.now().toString(); let newReq = { id: newId, customer, email, serviceType, domain, details, sentToTelegram: true }; // simulate sending
+        alert(`✅ Request sent to Telegram Bot (simulated).\nMessage: New ${serviceType} request from ${customer} (${email}) for domain ${domain}.\nDetails: ${details}`);
+        reqs.push(newReq);
+        set('ghost_cloudreqs', reqs);
+        renderCloudRequests();
+        document.getElementById('cloudReqFormModal').style.display = 'none';
+    });
     document.getElementById('cancelCloudReqBtn').addEventListener('click', () => document.getElementById('cloudReqFormModal').style.display = 'none');
 
-    // VISITORS & BLOG (simplified)
-    function renderVisitors() { let html = '<table class="admin-table"><tr><th>IP</th><th>Time</th><th>Page</th></tr>'; get('ghost_visitors').forEach(v => { html += `<tr><td>${v.ip}</td><td>${new Date(v.time).toLocaleString()}</td><td>${v.page}</td></tr>`; }); html += '</table>'; document.getElementById('visitorsTableContainer').innerHTML = html; }
-    function renderBlog() { let html = '<table class="admin-table"><tr><th>Title</th><th>Date</th><th>Actions</th></tr>'; get('ghost_blog').forEach(p => { html += `<tr><td>${p.title}</td><td>${new Date(p.createdAt).toLocaleDateString()}</td><td><button class="btn" onclick="deletePost('${p.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('blogPostsContainer').innerHTML = html; }
-    window.deletePost = (id) => { set('ghost_blog', get('ghost_blog').filter(p => p.id !== id)); renderBlog(); };
-    document.getElementById('addPostBtn').addEventListener('click', () => { let title = prompt('Post title:'); if(title){ let content = prompt('Content:'); set('ghost_blog', [...get('ghost_blog'), { id: Date.now().toString(), title, content, createdAt: new Date().toISOString() }]); renderBlog(); } });
+    // VISITORS
+    function renderVisitors() { let visitors = get('ghost_visitors'); let html = '<table class="admin-table"><tr><th>IP</th><th>Time</th><th>Page</th></tr>'; visitors.forEach(v => { html += `<tr><td>${v.ip}</td><td>${new Date(v.time).toLocaleString()}</td><td>${v.page}</td></tr>`; }); html += '</table>'; document.getElementById('visitorsTableContainer').innerHTML = html; }
 
-    // Matrix rain
+    // BLOG
+    function renderBlog() { let posts = get('ghost_blog'); let html = '<table class="admin-table"><tr><th>Title</th><th>Date</th><th>Actions</th></tr>'; posts.forEach(p => { html += `<tr><td>${p.title}</td><td>${new Date(p.createdAt).toLocaleDateString()}</td><td><button class="btn" onclick="editPost('${p.id}')">✏️</button> <button class="btn" onclick="deletePost('${p.id}')">🗑️</button></td></tr>`; }); html += '</table>'; document.getElementById('blogPostsContainer').innerHTML = html; }
+    window.editPost = (id) => { let post = get('ghost_blog').find(p => p.id === id); if(post) { document.getElementById('postTitle').value = post.title; document.getElementById('postContent').value = post.content; document.getElementById('editingPostId').value = id; document.getElementById('postFormModal').style.display = 'block'; } };
+    window.deletePost = (id) => { set('ghost_blog', get('ghost_blog').filter(p => p.id !== id)); renderBlog(); };
+    document.getElementById('addPostBtn').addEventListener('click', () => { document.getElementById('postFormModal').style.display = 'block'; document.getElementById('editingPostId').value = ''; document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = ''; });
+    document.getElementById('savePostBtn').addEventListener('click', () => { let id = document.getElementById('editingPostId').value; let data = { title: document.getElementById('postTitle').value, content: document.getElementById('postContent').value, createdAt: new Date().toISOString() }; let posts = get('ghost_blog'); if(id) { let idx = posts.findIndex(p => p.id === id); if(idx !== -1) posts[idx] = { ...posts[idx], ...data }; } else { data.id = Date.now().toString(); posts.push(data); } set('ghost_blog', posts); document.getElementById('postFormModal').style.display = 'none'; renderBlog(); });
+    document.getElementById('cancelPostBtn').addEventListener('click', () => document.getElementById('postFormModal').style.display = 'none');
+
+    // MATRIX RAIN
     (function() {
         const canvas = document.getElementById('matrixCanvas');
         const ctx = canvas.getContext('2d');
-        let w,h,drops=[];
+        let w, h, drops = [];
         const chars = "💀☠️🔪🩸🔥⚡";
-        function resize() { w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; drops=Array(Math.floor(w/20)).fill(0); }
+        function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; drops = Array(Math.floor(w/20)).fill(0); }
         function draw() {
-            ctx.fillStyle='rgba(0,0,0,0.07)'; ctx.fillRect(0,0,w,h);
-            ctx.fillStyle='#aa2a2a'; ctx.font='bold 20px monospace';
-            for(let i=0;i<drops.length;i++){ ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*20, drops[i]*22); if(drops[i]*22>h && Math.random()>0.98) drops[i]=0; drops[i]++; }
+            ctx.fillStyle = 'rgba(0,0,0,0.07)'; ctx.fillRect(0,0,w,h);
+            ctx.fillStyle = '#aa2a2a'; ctx.font = 'bold 20px monospace';
+            for(let i=0; i<drops.length; i++) { ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*20, drops[i]*22); if(drops[i]*22 > h && Math.random() > 0.98) drops[i] = 0; drops[i]++; }
             requestAnimationFrame(draw);
         }
-        window.addEventListener('resize',resize); resize(); draw();
+        window.addEventListener('resize', resize); resize(); draw();
     })();
 </script>
 </body>
