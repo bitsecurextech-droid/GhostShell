@@ -1,4 +1,9 @@
 (async () => {
+    const ok = await initCommon();
+    if (!ok) return;
+
+    // ---- YOUR EXISTING CODE GOES BELOW ----
+    (async () => {
     const loggedIn = await initAuth('chat');
     if (!loggedIn) return;
 
@@ -38,3 +43,4 @@
     addMessage('ZeroDay', 'New CVE-2024 dropped. Patching now.');
     addMessage('ShadowOp', 'Intel received from darknet relay.');
 })();
+    })();
