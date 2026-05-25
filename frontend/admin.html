@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL // DARK ADMIN // APEX OVERRIDE</title>
+    <title>GHOST SHELL // ADMIN OVERLORD // WEBSITES + eSIM</title>
     <style>
         * {
             margin: 0;
@@ -11,26 +11,21 @@
             box-sizing: border-box;
         }
 
-        /* ========== SCARY HACKER PREMIUM THEME ========== */
         :root {
             --blood: #8a0303;
             --deep-red: #5e0000;
             --glow-red: #ff0a0a;
             --dark-bg: #050505;
             --card-bg: #0a0505cc;
-            --skull-white: #d4af37;
-            --matrix-green: #00ff41;
         }
 
         body {
             background: radial-gradient(circle at 20% 30%, #0a0000, #000000);
-            font-family: 'Courier New', 'Fira Code', 'Orbitron', monospace;
+            font-family: 'Courier New', 'Fira Code', monospace;
             color: #9e9e9e;
             overflow-x: hidden;
-            position: relative;
         }
 
-        /* BLOOD RAIN + SKULL OVERLAY */
         body::before {
             content: '';
             position: fixed;
@@ -38,17 +33,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(0deg, 
-                rgba(139, 0, 0, 0.08) 0px, 
-                rgba(139, 0, 0, 0.08) 2px,
-                transparent 2px,
-                transparent 6px);
+            background: repeating-linear-gradient(0deg, rgba(139,0,0,0.08) 0px, rgba(139,0,0,0.08) 2px, transparent 2px, transparent 6px);
             pointer-events: none;
             z-index: 1;
         }
 
         body::after {
-            content: '⚠️ SYSTEM BREACH ⚠️';
+            content: '⚠️ ADMIN OVERRIDE ACTIVE ⚠️';
             position: fixed;
             bottom: 15px;
             right: 15px;
@@ -60,11 +51,10 @@
             font-weight: bold;
             animation: blinkWarning 1.2s infinite;
             z-index: 99;
-            letter-spacing: 2px;
         }
 
         @keyframes blinkWarning {
-            0%, 100% { opacity: 0.3; text-shadow: none; }
+            0%,100% { opacity: 0.3; }
             50% { opacity: 1; text-shadow: 0 0 8px red; }
         }
 
@@ -75,17 +65,16 @@
             width: 100%;
             height: 100%;
             z-index: 0;
-            opacity: 0.4;
+            opacity: 0.35;
             pointer-events: none;
         }
 
-        /* GLOWING BORDERS & SCARY CARDS */
         .header, .card, .admin-nav-btn, .btn, input, select, textarea, .auth-card {
             backdrop-filter: blur(2px);
             background: rgba(0, 0, 0, 0.85);
             border: 1px solid var(--blood);
-            box-shadow: 0 0 8px rgba(139, 0, 0, 0.6), inset 0 0 4px rgba(255, 0, 0, 0.2);
-            transition: all 0.2s;
+            box-shadow: 0 0 8px rgba(139, 0, 0, 0.6);
+            transition: 0.2s;
         }
 
         .card:hover, .admin-nav-btn:hover {
@@ -100,6 +89,9 @@
             font-weight: bold;
             letter-spacing: 2px;
             cursor: pointer;
+            padding: 6px 12px;
+            border: none;
+            margin: 4px;
         }
 
         .btn:hover {
@@ -113,22 +105,30 @@
             background: #0d0000;
             color: #ff9999;
             border-color: #8a0303;
+            padding: 8px;
+            width: 100%;
+            margin: 5px 0;
         }
 
-        /* SCARY TYPOGRAPHY */
         h1, h2, h3 {
-            font-family: 'Orbitron', 'Courier New', monospace;
             text-transform: uppercase;
             letter-spacing: 4px;
-            text-shadow: 0 0 5px red, 0 0 1px darkred;
+            text-shadow: 0 0 5px red;
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 25px 0;
         }
 
         .admin-nav-btn {
-            font-family: monospace;
-            font-weight: bold;
             background: #080000;
-            border-radius: 0;
-            letter-spacing: 1.5px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
         .admin-nav-btn.active {
@@ -138,50 +138,46 @@
             box-shadow: 0 0 12px red;
         }
 
-        /* SKULL ICON / DECOR */
-        .logo-img {
-            filter: drop-shadow(0 0 5px red) brightness(1.2);
+        .admin-section {
+            display: none;
         }
 
-        .site-name {
-            color: #c0392b;
-            text-shadow: 0 0 10px #ff0000;
-            font-size: 1.6rem;
+        .admin-section.active {
+            display: block;
         }
 
-        /* CUSTOM SCROLLBAR */
-        ::-webkit-scrollbar {
-            width: 6px;
-            background: black;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #8a0303;
-            border-radius: 0px;
-        }
-
-        /* TABLES WITH HORROR VIBE */
         .admin-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.75rem;
         }
+
         .admin-table th {
             background: #2a0000;
             color: #ff6a6a;
             border: 1px solid #8a0303;
             padding: 8px;
         }
+
         .admin-table td {
             border: 1px solid #3a1a1a;
             padding: 6px;
-            color: #dddddd;
         }
 
-        /* LOGIN MODAL - EVIL */
         #adminLoginModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0,0,0,0.98);
             backdrop-filter: blur(6px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
         }
+
         .auth-card {
             background: #0a0101;
             border: 2px solid #a00000;
@@ -190,10 +186,8 @@
             text-align: center;
             box-shadow: 0 0 40px rgba(255,0,0,0.4);
         }
+
         .auth-card h1 {
-            font-size: 2rem;
-            color: #ff4c4c;
-            margin: 10px 0;
             animation: glitchText 1.2s infinite;
         }
 
@@ -203,147 +197,209 @@
             50% { text-shadow: 2px -2px red; }
         }
 
-        /* BLOOD PULSE ANIMATION */
-        @keyframes bloodPulse {
-            0% { border-color: #5a0000; }
-            100% { border-color: #ff2a2a; box-shadow: 0 0 20px red; }
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            margin-bottom: 25px;
         }
 
-        .admin-section.active .card {
-            animation: bloodPulse 1.5s infinite alternate;
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            height: 45px;
+            filter: drop-shadow(0 0 5px red);
+        }
+
+        .site-name {
+            color: #c0392b;
+            text-shadow: 0 0 10px #ff0000;
+            font-size: 1.6rem;
+        }
+
+        .promo-badge {
+            background: #8a0303;
+            color: gold;
+            font-size: 0.7rem;
+            padding: 2px 5px;
+            border-radius: 2px;
         }
     </style>
 </head>
 <body>
 <canvas id="matrixCanvas"></canvas>
 
-<!-- LOGIN MODAL - TERRIFYING -->
+<!-- LOGIN MODAL -->
 <div id="adminLoginModal">
     <div class="auth-card">
         <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:65px; filter: drop-shadow(0 0 12px red);" alt="skull">
         <h1>⌧ ADMIN OVERRIDE ⌧</h1>
-        <div style="border-bottom:2px solid red; width:60px; margin:10px auto;"></div>
         <input type="email" id="adminEmail" placeholder="CLASSIFIED EMAIL" autocomplete="off">
         <input type="password" id="adminPassword" placeholder="DECRYPT KEY">
-        <button class="btn" id="adminLoginBtn" style="width:100%; margin-top: 12px;">⛧ UNLOCK DARKNESS ⛧</button>
-        <div id="adminLoginError" style="color:#ff5555; margin-top:12px; font-weight:bold;"></div>
-        <div style="margin-top:20px; font-size:0.7rem; color:#6a1a1a;">⚠️ unauthorized access is logged</div>
+        <button class="btn" id="adminLoginBtn" style="width:100%; margin-top:12px;">⛧ UNLOCK DARKNESS ⛧</button>
+        <div id="adminLoginError" style="color:#ff5555; margin-top:12px;"></div>
     </div>
 </div>
 
-<!-- ADMIN DASHBOARD - SADISTIC INTERFACE -->
+<!-- MAIN DASHBOARD -->
 <div id="adminDashboard" style="display:none; position:relative; z-index:10; padding:0 20px 40px;">
-    <header class="header" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; padding:12px 20px; margin-bottom:25px;">
+    <header class="header">
         <div class="logo-area">
-            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" style="height:45px;">
-            <span class="site-name">💀 GHOST SHELL • DARK COMMAND 💀</span>
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
+            <span class="site-name">💀 GHOST SHELL • ADMIN DARK COMMAND 💀</span>
         </div>
         <nav class="nav-links" id="mainNav">
             <button class="nav-link" onclick="window.location.href='dashboard.html'">⌖ OPS CENTER</button>
             <button class="nav-link" onclick="window.location.href='tools.html'">⚔️ CYBER TOOLS</button>
         </nav>
-        <button class="btn" id="themeToggle" style="border-color:#aa3333;">🌙 BLOOD MODE</button>
-        <button class="btn" id="logoutAdminBtn" style="margin-left:10px;">⛧ EXIT ⛧</button>
+        <button class="btn" id="themeToggle">🌙 BLOOD MODE</button>
+        <button class="btn" id="logoutAdminBtn">⛧ EXIT ⛧</button>
     </header>
 
-    <h1 style="color:#ff3333; text-align:center; letter-spacing: 8px;">⚡ ADMIN COMMAND • NEXUS OF FEAR ⚡</h1>
-    <div class="admin-nav" style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:25px 0;">
-        <button class="admin-nav-btn active" data-section="users">👁️ USERS • PURGE</button>
-        <button class="admin-nav-btn" data-section="codes">🔑 ACCESS CODES • BLOOD KEYS</button>
-        <button class="admin-nav-btn" data-section="payments">💀 PAYMENTS • SACRIFICES</button>
-        <button class="admin-nav-btn" data-section="tools">🔧 WEAPON TOOLS • EDIT</button>
-        <button class="admin-nav-btn" data-section="visitors">🌐 VISITOR LOGS • TRACE</button>
-        <button class="admin-nav-btn" data-section="blog">📜 BLOGGED EVIL</button>
+    <h1 style="color:#ff3333; text-align:center;">⚡ ADMIN COMMAND • NEXUS OF FEAR ⚡</h1>
+    <div class="admin-nav">
+        <button class="admin-nav-btn active" data-section="users">👥 USERS</button>
+        <button class="admin-nav-btn" data-section="codes">🔑 CODES</button>
+        <button class="admin-nav-btn" data-section="payments">💸 PAYMENTS</button>
+        <button class="admin-nav-btn" data-section="tools">🔧 TOOLS</button>
+        <button class="admin-nav-btn" data-section="promos">🔥 PROMO ENGINE</button>
+        <button class="admin-nav-btn" data-section="websites">🌐 WEBSITE LISTINGS</button>
+        <button class="admin-nav-btn" data-section="esim">📱 eSIM PLANS</button>
+        <button class="admin-nav-btn" data-section="visitors">🌍 VISITORS</button>
+        <button class="admin-nav-btn" data-section="blog">📜 BLOG</button>
     </div>
 
-    <!-- SECTION: USERS -->
+    <!-- ========== SECTION: USERS ========== -->
     <section id="section-users" class="admin-section active">
         <div class="card">
-            <h2 style="color:#ff4d4d;">➕ PROMOTE TO DARK ADMIN</h2>
-            <div class="add-admin-form" style="display:flex; gap:10px; flex-wrap:wrap;">
-                <input type="email" id="newAdminEmail" placeholder="TARGET EMAIL">
-                <input type="password" id="newAdminPassword" placeholder="PASSWORD (IF NEW)">
+            <h2>➕ PROMOTE TO DARK ADMIN</h2>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <input type="email" id="newAdminEmail" placeholder="EMAIL">
+                <input type="password" id="newAdminPassword" placeholder="PASSWORD">
                 <select id="newAdminRole">
-                    <option value="full_admin">☠️ FULL ADMIN ☠️</option>
+                    <option value="full_admin">☠️ FULL ADMIN</option>
                     <option value="tools_admin">🔧 TOOLS ADMIN</option>
-                    <option value="user_admin">👥 USER ADMIN</option>
                 </select>
-                <button class="btn" id="addAdminBtn">🔥 CORRUPT / PROMOTE</button>
+                <button class="btn" id="addAdminBtn">🔥 PROMOTE</button>
             </div>
         </div>
         <div class="card">
-            <h2>👥 USER DATABASE • TERMINATE LIST</h2>
+            <h2>👥 USER DATABASE</h2>
             <div id="userTableContainer" style="max-height:400px; overflow:auto;"></div>
-            <button class="btn" id="exportCsvBtn" style="margin-top:10px;">📀 EXPORT EMails (CSV) 📀</button>
+            <button class="btn" id="exportCsvBtn">📀 EXPORT EMAILS CSV</button>
         </div>
     </section>
 
-    <!-- SECTION: CODES -->
+    <!-- ========== SECTION: CODES ========== -->
     <section id="section-codes" class="admin-section">
         <div class="card">
-            <h2>🔑 ACCESS CODES • DARK KEYS</h2>
-            <button class="btn" id="generateCodesBtn">⚡ GENERATE 50 BLOOD CODES</button>
+            <h2>🔑 ACCESS CODES</h2>
+            <button class="btn" id="generateCodesBtn">⚡ GENERATE 50 CODES</button>
             <div id="codesTableContainer" style="margin-top:15px; max-height:400px; overflow:auto;"></div>
         </div>
     </section>
 
-    <!-- SECTION: PAYMENTS -->
+    <!-- ========== SECTION: PAYMENTS ========== -->
     <section id="section-payments" class="admin-section">
-        <div class="card">
-            <h2>💸 PENDING TRIBUTES</h2>
-            <div id="paymentsContainer"></div>
-        </div>
+        <div class="card"><h2>💸 PENDING TRIBUTES</h2><div id="paymentsContainer"></div></div>
     </section>
 
-    <!-- TOOLS MANAGEMENT -->
+    <!-- ========== SECTION: TOOLS (with promo fields) ========== -->
     <section id="section-tools" class="admin-section">
         <div class="card">
-            <h2>🔧 MANIPULATE MARKETPLACE WEAPONS</h2>
-            <button class="btn" id="addToolBtn">➕ ADD NEW WEAPON</button>
+            <h2>🔧 MARKETPLACE WEAPONS</h2>
+            <button class="btn" id="addToolBtn">➕ ADD WEAPON</button>
             <div id="adminToolsContainer" style="margin-top:15px;"></div>
         </div>
         <div id="toolFormModal" style="display:none;" class="card">
-            <h3 id="toolFormTitle" style="color:#ff6666;">✍️ EDIT TOOL</h3>
+            <h3 id="toolFormTitle">✍️ EDIT WEAPON</h3>
             <input type="text" id="toolName" placeholder="WEAPON NAME">
-            <textarea id="toolDesc" placeholder="DESCRIPTION (SCARY)" rows="3"></textarea>
-            <input type="number" id="toolPrice" placeholder="PRICE (USD)">
-            <input type="text" id="toolCategory" placeholder="CATEGORY (RAT, EXPLOIT, etc)">
-            <textarea id="toolImageUrls" placeholder="IMAGE URLS (one per line)" rows="2"></textarea>
-            <input type="text" id="toolVideoUrl" placeholder="VIDEO URL">
-            <input type="text" id="toolDownloadUrl" placeholder="DOWNLOAD LINK">
-            <input type="text" id="toolPaymentLink" placeholder="PAYMENT LINK (SELAR)">
-            <button class="btn" id="saveToolBtn">💀 SAVE WEAPON 💀</button>
+            <textarea id="toolDesc" placeholder="DESCRIPTION" rows="3"></textarea>
+            <input type="number" id="toolPrice" placeholder="ORIGINAL PRICE">
+            <input type="text" id="toolCategory" placeholder="CATEGORY">
+            <input type="text" id="toolPromoName" placeholder="PROMO NAME (e.g., ILEYA SALES)">
+            <input type="number" id="toolPromoPrice" placeholder="DISCOUNTED PRICE">
+            <button class="btn" id="saveToolBtn">💀 SAVE</button>
             <button class="btn" id="cancelToolBtn">CANCEL</button>
             <input type="hidden" id="editingToolId">
         </div>
     </section>
 
-    <!-- VISITORS -->
-    <section id="section-visitors" class="admin-section">
+    <!-- ========== SECTION: PROMO MANAGER ========== -->
+    <section id="section-promos" class="admin-section">
         <div class="card">
-            <h2>🌍 VISITOR LOGS • TRACE ID</h2>
-            <div id="visitorsTableContainer" style="max-height:400px; overflow:auto;"></div>
+            <h2>🔥 ACTIVE PROMOTIONS (SALES ENGINE)</h2>
+            <div id="promoManagerContainer"></div>
         </div>
     </section>
 
-    <!-- BLOG -->
-    <section id="section-blog" class="admin-section">
+    <!-- ========== SECTION: WEBSITE LISTINGS (NEW) ========== -->
+    <section id="section-websites" class="admin-section">
         <div class="card">
-            <h2>📝 EVIL BLOG POSTS</h2>
-            <button class="btn" id="addPostBtn">➕ NEW POST</button>
-            <div id="blogPostsContainer" style="margin-top:15px;"></div>
+            <h2>🌐 WEBSITE LISTINGS FOR SALE</h2>
+            <button class="btn" id="addWebsiteBtn">➕ ADD WEBSITE</button>
+            <div id="websiteTableContainer" style="margin-top:15px; max-height:400px; overflow:auto;"></div>
         </div>
-        <div id="postFormModal" style="display:none;" class="card">
-            <h3 id="postFormTitle">📜 BLOOD POST</h3>
-            <input type="text" id="postTitle" placeholder="TITLE OF DARKNESS">
-            <select id="postCategory">
-                <option value="general">GENERAL</option>
-                <option value="changelog">CHANGELOG</option>
-                <option value="tutorial">TUTORIAL</option>
-                <option value="news">NEWS</option>
+        <div id="websiteFormModal" style="display:none;" class="card">
+            <h3 id="websiteFormTitle">✍️ ADD/EDIT WEBSITE</h3>
+            <input type="text" id="websiteDomain" placeholder="Domain name (e.g., example.com)">
+            <input type="text" id="websiteTitle" placeholder="Title / Description">
+            <input type="number" id="websitePrice" placeholder="Price (USD)">
+            <input type="text" id="websiteCategory" placeholder="Category (e.g., Ecommerce, Blog)">
+            <input type="text" id="websiteImage" placeholder="Image URL (optional)">
+            <textarea id="websiteDetails" placeholder="Extra details (revenue, traffic, etc.)" rows="3"></textarea>
+            <button class="btn" id="saveWebsiteBtn">💀 SAVE WEBSITE</button>
+            <button class="btn" id="cancelWebsiteBtn">CANCEL</button>
+            <input type="hidden" id="editingWebsiteId">
+        </div>
+    </section>
+
+    <!-- ========== SECTION: eSIM PLANS (1 month - 1 year) ========== -->
+    <section id="section-esim" class="admin-section">
+        <div class="card">
+            <h2>📱 eSIM PLANS (DATA & VOICE)</h2>
+            <button class="btn" id="addEsimBtn">➕ ADD eSIM PLAN</button>
+            <div id="esimTableContainer" style="margin-top:15px; max-height:400px; overflow:auto;"></div>
+        </div>
+        <div id="esimFormModal" style="display:none;" class="card">
+            <h3 id="esimFormTitle">✍️ ADD/EDIT eSIM PLAN</h3>
+            <input type="text" id="esimName" placeholder="Plan name (e.g., 5GB 30 Days)">
+            <select id="esimDuration">
+                <option value="1 month">1 month</option>
+                <option value="2 months">2 months</option>
+                <option value="3 months">3 months</option>
+                <option value="6 months">6 months</option>
+                <option value="1 year">1 year</option>
             </select>
-            <textarea id="postContent" placeholder="HTML CONTENT (SUPPORTS SCRIPTS? maybe not)" rows="12"></textarea>
-            <button class="btn" id="savePostBtn">💀 SAVE POST 💀</button>
+            <input type="number" id="esimPrice" placeholder="Price (USD)">
+            <input type="text" id="esimData" placeholder="Data amount (e.g., 10GB)">
+            <input type="text" id="esimVoice" placeholder="Voice minutes (e.g., Unlimited)">
+            <textarea id="esimDescription" placeholder="Additional info" rows="3"></textarea>
+            <button class="btn" id="saveEsimBtn">💀 SAVE eSIM PLAN</button>
+            <button class="btn" id="cancelEsimBtn">CANCEL</button>
+            <input type="hidden" id="editingEsimId">
+        </div>
+    </section>
+
+    <!-- ========== SECTION: VISITORS ========== -->
+    <section id="section-visitors" class="admin-section">
+        <div class="card"><h2>🌍 VISITOR LOGS</h2><div id="visitorsTableContainer" style="max-height:400px; overflow:auto;"></div></div>
+    </section>
+
+    <!-- ========== SECTION: BLOG ========== -->
+    <section id="section-blog" class="admin-section">
+        <div class="card"><h2>📝 BLOG POSTS</h2><button class="btn" id="addPostBtn">➕ NEW POST</button><div id="blogPostsContainer" style="margin-top:15px;"></div></div>
+        <div id="postFormModal" style="display:none;" class="card">
+            <h3 id="postFormTitle">📜 POST</h3>
+            <input type="text" id="postTitle" placeholder="Title">
+            <textarea id="postContent" placeholder="Content" rows="8"></textarea>
+            <button class="btn" id="savePostBtn">SAVE</button>
             <button class="btn" id="cancelPostBtn">CANCEL</button>
             <input type="hidden" id="editingPostId">
         </div>
@@ -351,101 +407,93 @@
 </div>
 
 <script>
-    // ========== LOCALSTORAGE DATA LAYER (PERSISTENT) ==========
+    // ========== LOCALSTORAGE INIT ==========
     function initData() {
         if (!localStorage.getItem('ghost_users')) {
-            const defaultUsers = [
-                { id: '1', email: 'admin@ghostshell.com', password: 'admin123', role: 'full_admin', createdAt: new Date().toISOString() },
-                { id: '2', email: 'victim@darkweb.com', password: 'pass', role: 'user', createdAt: new Date().toISOString() }
-            ];
-            localStorage.setItem('ghost_users', JSON.stringify(defaultUsers));
-        }
-        if (!localStorage.getItem('ghost_codes')) localStorage.setItem('ghost_codes', '[]');
-        if (!localStorage.getItem('ghost_payments')) {
-            localStorage.setItem('ghost_payments', JSON.stringify([
-                { id: 'pay1', userId: '2', amount: 499.99, product: 'RAT PRO', status: 'pending', date: new Date().toISOString() },
-                { id: 'pay2', userId: '1', amount: 99.99, product: 'VPN LEAK', status: 'pending', date: new Date().toISOString() }
+            localStorage.setItem('ghost_users', JSON.stringify([
+                { id: '1', email: 'admin@ghostshell.com', password: 'admin123', role: 'full_admin', createdAt: new Date().toISOString() }
             ]));
         }
         if (!localStorage.getItem('ghost_tools')) {
             localStorage.setItem('ghost_tools', JSON.stringify([
-                { id: 't1', name: '🔪 Silent Injector', description: 'undetectable payload', price: 299, category: 'Exploit', imageUrls: [], videoUrl: '', downloadUrl: '#', paymentLink: '' }
+                { id: 't1', name: '🔪 Silent Injector', price: 299, promoName: '', promoPrice: null }
             ]));
         }
-        if (!localStorage.getItem('ghost_visitors')) {
-            localStorage.setItem('ghost_visitors', JSON.stringify([
-                { ip: '10.0.0.1', time: new Date().toISOString(), page: '/admin.html' },
-                { ip: '172.16.1.99', time: new Date(Date.now()-3600000).toISOString(), page: '/tools.html' }
+        if (!localStorage.getItem('ghost_websites')) {
+            localStorage.setItem('ghost_websites', JSON.stringify([
+                { id: 'w1', domain: 'hackersparadise.com', title: 'Hacker Forum', price: 499, category: 'Forum', image: '', details: 'Monthly revenue $200' }
             ]));
         }
-        if (!localStorage.getItem('ghost_blog')) {
-            localStorage.setItem('ghost_blog', JSON.stringify([
-                { id: 'post1', title: '🔮 THE AWAKENING', category: 'news', content: '<p>Ghost Shell Rises. Fear the unknown.</p>', createdAt: new Date().toISOString() }
+        if (!localStorage.getItem('ghost_esim')) {
+            localStorage.setItem('ghost_esim', JSON.stringify([
+                { id: 'e1', name: '5GB 30 Days', duration: '1 month', price: 19.99, data: '5GB', voice: '100 mins', description: 'eSIM for travel' },
+                { id: 'e2', name: '20GB 1 Year', duration: '1 year', price: 129.99, data: '20GB', voice: '500 mins', description: 'Yearly plan' }
             ]));
         }
+        if (!localStorage.getItem('ghost_codes')) localStorage.setItem('ghost_codes', '[]');
+        if (!localStorage.getItem('ghost_payments')) localStorage.setItem('ghost_payments', JSON.stringify([]));
+        if (!localStorage.getItem('ghost_visitors')) localStorage.setItem('ghost_visitors', JSON.stringify([]));
+        if (!localStorage.getItem('ghost_blog')) localStorage.setItem('ghost_blog', JSON.stringify([]));
     }
     initData();
 
+    // helpers
     function getUsers() { return JSON.parse(localStorage.getItem('ghost_users')); }
     function saveUsers(u) { localStorage.setItem('ghost_users', JSON.stringify(u)); }
+    function getTools() { return JSON.parse(localStorage.getItem('ghost_tools')); }
+    function saveTools(t) { localStorage.setItem('ghost_tools', JSON.stringify(t)); }
+    function getWebsites() { return JSON.parse(localStorage.getItem('ghost_websites')); }
+    function saveWebsites(w) { localStorage.setItem('ghost_websites', JSON.stringify(w)); }
+    function getEsim() { return JSON.parse(localStorage.getItem('ghost_esim')); }
+    function saveEsim(e) { localStorage.setItem('ghost_esim', JSON.stringify(e)); }
     function getCodes() { return JSON.parse(localStorage.getItem('ghost_codes')); }
     function saveCodes(c) { localStorage.setItem('ghost_codes', JSON.stringify(c)); }
     function getPayments() { return JSON.parse(localStorage.getItem('ghost_payments')); }
     function savePayments(p) { localStorage.setItem('ghost_payments', JSON.stringify(p)); }
-    function getTools() { return JSON.parse(localStorage.getItem('ghost_tools')); }
-    function saveTools(t) { localStorage.setItem('ghost_tools', JSON.stringify(t)); }
     function getVisitors() { return JSON.parse(localStorage.getItem('ghost_visitors')); }
     function getBlog() { return JSON.parse(localStorage.getItem('ghost_blog')); }
     function saveBlog(b) { localStorage.setItem('ghost_blog', JSON.stringify(b)); }
 
-    // LOGIN (SCARY)
-    const loginBtn = document.getElementById('adminLoginBtn');
+    // LOGIN
     const loginModal = document.getElementById('adminLoginModal');
-    const dashboard = document.getElementById('adminDashboard');
-    const loginError = document.getElementById('adminLoginError');
-
-    loginBtn.addEventListener('click', () => {
+    const dashboardDiv = document.getElementById('adminDashboard');
+    document.getElementById('adminLoginBtn').addEventListener('click', () => {
         const email = document.getElementById('adminEmail').value.trim();
-        const password = document.getElementById('adminPassword').value;
-        const users = getUsers();
-        const adminUser = users.find(u => u.email === email && u.password === password && (u.role === 'full_admin' || u.role === 'tools_admin' || u.role === 'user_admin'));
-        if (adminUser) {
-            localStorage.setItem('adminSession', JSON.stringify({ email: adminUser.email, role: adminUser.role }));
+        const pwd = document.getElementById('adminPassword').value;
+        const user = getUsers().find(u => u.email === email && u.password === pwd && u.role.includes('admin'));
+        if (user) {
+            localStorage.setItem('adminSession', JSON.stringify({ email: user.email }));
             loginModal.style.display = 'none';
-            dashboard.style.display = 'block';
+            dashboardDiv.style.display = 'block';
             loadAllSections();
         } else {
-            loginError.innerHTML = '❌ ACCESS DENIED • YOUR IP IS LOGGED ❌';
-            loginError.style.textShadow = '0 0 4px red';
+            document.getElementById('adminLoginError').innerText = '❌ ACCESS DENIED';
         }
     });
+    document.getElementById('logoutAdminBtn').addEventListener('click', () => { localStorage.removeItem('adminSession'); window.location.reload(); });
 
-    function logout() { localStorage.removeItem('adminSession'); window.location.reload(); }
-    document.getElementById('logoutAdminBtn')?.addEventListener('click', logout);
-
-    // BLOOD MODE (theme toggle)
-    const themeBtn = document.getElementById('themeToggle');
-    themeBtn.addEventListener('click', () => {
+    // Theme toggle
+    document.getElementById('themeToggle').addEventListener('click', () => {
         document.body.classList.toggle('light');
-        if (document.body.classList.contains('light')) {
-            document.body.style.background = '#2a0a0a';
-            themeBtn.textContent = '🩸 BLOOD MODE';
-        } else {
-            document.body.style.background = '';
-            themeBtn.textContent = '🌙 BLOOD MODE';
-        }
+        const btn = document.getElementById('themeToggle');
+        btn.textContent = document.body.classList.contains('light') ? '🩸 BLOOD MODE' : '🌙 BLOOD MODE';
+        if (document.body.classList.contains('light')) document.body.style.background = '#2a0a0a';
+        else document.body.style.background = '';
     });
 
-    // SECTION SWITCH
-    function switchSection(sectionId) {
-        document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
-        document.getElementById(`section-${sectionId}`).classList.add('active');
-        if (sectionId === 'users') renderUsers();
-        else if (sectionId === 'codes') renderCodes();
-        else if (sectionId === 'payments') renderPayments();
-        else if (sectionId === 'tools') renderAdminTools();
-        else if (sectionId === 'visitors') renderVisitors();
-        else if (sectionId === 'blog') renderBlogPosts();
+    // Navigation
+    function switchSection(section) {
+        document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(`section-${section}`).classList.add('active');
+        if (section === 'users') renderUsers();
+        if (section === 'codes') renderCodes();
+        if (section === 'payments') renderPayments();
+        if (section === 'tools') renderTools();
+        if (section === 'promos') renderPromoManager();
+        if (section === 'websites') renderWebsites();
+        if (section === 'esim') renderEsim();
+        if (section === 'visitors') renderVisitors();
+        if (section === 'blog') renderBlog();
     }
     document.querySelectorAll('.admin-nav-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -455,227 +503,95 @@
         });
     });
 
-    function loadAllSections() { renderUsers(); renderCodes(); renderPayments(); renderAdminTools(); renderVisitors(); renderBlogPosts(); }
+    function loadAllSections() { renderUsers(); renderCodes(); renderPayments(); renderTools(); renderPromoManager(); renderWebsites(); renderEsim(); renderVisitors(); renderBlog(); }
 
     // ========== USERS ==========
     function renderUsers() {
         const users = getUsers();
-        let html = `<table class="admin-table"><thead><tr><th>EMAIL (DARK)</th><th>ROLE</th><th>CREATED</th><th>ACTIONS</th></tr></thead><tbody>`;
+        let html = `<table class="admin-table"><tr><th>Email</th><th>Role</th><th>Actions</th></tr>`;
         users.forEach(u => {
-            html += `<tr>
-                        <td>${u.email}</td>
-                        <td style="color:${u.role.includes('admin')?'#ff5555':'#bbb'}">${u.role}</td>
-                        <td>${new Date(u.createdAt).toLocaleDateString()}</td>
-                        <td>
-                            ${u.role !== 'full_admin' ? `<button class="btn" onclick="promoteToAdmin('${u.id}')">🔺 PROMOTE</button>` : ''}
-                            <button class="btn" onclick="deleteUser('${u.id}')" style="border-color:#aa0000;">💀 PURGE</button>
-                        </td>
-                    </tr>`;
+            html += `<tr><td>${u.email}</td><td>${u.role}</td><td><button class="btn" onclick="deleteUser('${u.id}')">💀 PURGE</button></td></tr>`;
         });
-        html += `</tbody></table>`;
+        html += `</table>`;
         document.getElementById('userTableContainer').innerHTML = html;
     }
-    window.promoteToAdmin = (id) => {
-        let users = getUsers();
-        const idx = users.findIndex(u => u.id === id);
-        if (idx !== -1) { users[idx].role = 'full_admin'; saveUsers(users); renderUsers(); }
-    };
-    window.deleteUser = (id) => {
-        let users = getUsers();
-        users = users.filter(u => u.id !== id);
-        saveUsers(users); renderUsers();
-    };
-    document.getElementById('addAdminBtn')?.addEventListener('click', () => {
+    window.deleteUser = (id) => { let users = getUsers().filter(u => u.id !== id); saveUsers(users); renderUsers(); };
+    document.getElementById('addAdminBtn').addEventListener('click', () => {
         const email = document.getElementById('newAdminEmail').value.trim();
-        const password = document.getElementById('newAdminPassword').value.trim();
+        const pwd = document.getElementById('newAdminPassword').value;
         const role = document.getElementById('newAdminRole').value;
-        if (!email) return alert('ENTER EMAIL');
+        if (!email) return alert('Email required');
         let users = getUsers();
-        const existing = users.find(u => u.email === email);
-        if (existing) {
-            existing.role = role;
-            if (password) existing.password = password;
-            saveUsers(users);
-            alert(`🔥 ${email} now holds ${role} authority`);
-        } else {
-            if (!password) return alert('Password required for new user');
-            users.push({ id: Date.now().toString(), email, password, role, createdAt: new Date().toISOString() });
-            saveUsers(users);
-            alert(`☠️ New dark lord ${email} created`);
-        }
+        if (users.find(u => u.email === email)) return alert('User exists');
+        users.push({ id: Date.now().toString(), email, password: pwd || 'changeme', role, createdAt: new Date().toISOString() });
+        saveUsers(users);
         renderUsers();
-        document.getElementById('newAdminEmail').value = '';
-        document.getElementById('newAdminPassword').value = '';
+        alert('Admin added');
     });
-    document.getElementById('exportCsvBtn')?.addEventListener('click', () => {
-        const users = getUsers();
-        const csv = users.map(u => u.email).join('\n');
-        const blob = new Blob([csv], {type: 'text/csv'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'victims.csv'; a.click();
+    document.getElementById('exportCsvBtn').addEventListener('click', () => {
+        const emails = getUsers().map(u => u.email).join('\n');
+        const blob = new Blob([emails], { type: 'text/csv' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'users.csv'; a.click();
     });
 
     // CODES
-    function renderCodes() {
-        const codes = getCodes();
-        let html = `<table class="admin-table"><tr><th>💀 BLOOD CODE 💀</th><th>CREATED</th></tr>`;
-        codes.forEach(c => { html += `<tr><td>${c.code}</td><td>${new Date(c.createdAt).toLocaleString()}</td></tr>`; });
-        html += `</table>`;
-        document.getElementById('codesTableContainer').innerHTML = html;
-    }
-    document.getElementById('generateCodesBtn')?.addEventListener('click', () => {
-        const newCodes = [];
-        for (let i=0;i<50;i++) { newCodes.push({ code: 'DEATH-' + Math.random().toString(36).substring(2,10).toUpperCase(), createdAt: new Date().toISOString() }); }
-        saveCodes([...getCodes(), ...newCodes]);
-        renderCodes();
-    });
+    function renderCodes() { const codes = getCodes(); let html = `<table class="admin-table"><tr><th>Code</th><th>Created</th></tr>`; codes.forEach(c => { html += `<tr><td>${c.code}</td><td>${new Date(c.createdAt).toLocaleString()}</td></tr>`; }); html += `</table>`; document.getElementById('codesTableContainer').innerHTML = html; }
+    document.getElementById('generateCodesBtn').addEventListener('click', () => { let codes = getCodes(); for(let i=0;i<50;i++) codes.push({ code: 'DEATH-'+Math.random().toString(36).substring(2,10).toUpperCase(), createdAt: new Date().toISOString() }); saveCodes(codes); renderCodes(); });
 
     // PAYMENTS
-    function renderPayments() {
-        const payments = getPayments();
-        let html = `<table class="admin-table"><tr><th>USER ID</th><th>PRODUCT</th><th>AMOUNT</th><th>STATUS</th><th>ACTION</th></tr>`;
-        payments.forEach(p => {
-            html += `<tr><td>${p.userId}</td><td>${p.product}</td><td>$${p.amount}</td><td>${p.status}</td>
-            <td>${p.status==='pending'? `<button class="btn" onclick="approvePayment('${p.id}')">✅ APPROVE</button> <button class="btn" onclick="declinePayment('${p.id}')" style="border-color:red;">❌ DECLINE</button>` : 'PROCESSED'}</td></tr>`;
-        });
-        html += `</table>`;
-        document.getElementById('paymentsContainer').innerHTML = html;
-    }
-    window.approvePayment = (id) => { let p = getPayments(); const idx = p.findIndex(x=>x.id===id); if(idx!==-1) p[idx].status='approved'; savePayments(p); renderPayments(); };
-    window.declinePayment = (id) => { let p = getPayments(); p = p.filter(x=>x.id!==id); savePayments(p); renderPayments(); };
+    function renderPayments() { const payments = getPayments(); let html = `<table class="admin-table"><tr><th>User</th><th>Product</th><th>Amount</th><th>Status</th><th>Action</th></tr>`; payments.forEach(p => { html += `<tr><td>${p.userId}</td><td>${p.product}</td><td>$${p.amount}</td><td>${p.status}</td><td><button class="btn" onclick="approvePayment('${p.id}')">✅</button></td></tr>`; }); html += `</table>`; document.getElementById('paymentsContainer').innerHTML = html; }
+    window.approvePayment = (id) => { let p = getPayments(); p = p.filter(pay => pay.id !== id); savePayments(p); renderPayments(); };
 
     // TOOLS
-    function renderAdminTools() {
-        const tools = getTools();
-        let html = `<table class="admin-table"><tr><th>WEAPON</th><th>PRICE</th><th>CATEGORY</th><th>ACTION</th></tr>`;
-        tools.forEach(t => {
-            html += `<tr><td>${t.name}</td><td>$${t.price}</td><td>${t.category}</td><td><button class="btn" onclick="editTool('${t.id}')">✏️ EDIT</button> <button class="btn" onclick="deleteTool('${t.id}')" style="color:red;">💀 DELETE</button></td></tr>`;
-        });
-        html += `</table>`;
-        document.getElementById('adminToolsContainer').innerHTML = html;
-    }
-    window.editTool = (id) => { const tool = getTools().find(t=>t.id===id); if(tool){ fillToolForm(tool); } };
-    window.deleteTool = (id) => { if(confirm('ERASE THIS WEAPON?')){ let tools = getTools().filter(t=>t.id!==id); saveTools(tools); renderAdminTools(); } };
-    function fillToolForm(tool=null){
-        document.getElementById('toolFormModal').style.display='block';
-        if(tool){
-            document.getElementById('toolFormTitle').innerText = '✍️ EDIT WEAPON';
-            document.getElementById('toolName').value = tool.name;
-            document.getElementById('toolDesc').value = tool.description;
-            document.getElementById('toolPrice').value = tool.price;
-            document.getElementById('toolCategory').value = tool.category;
-            document.getElementById('toolImageUrls').value = tool.imageUrls?.join('\n')||'';
-            document.getElementById('toolVideoUrl').value = tool.videoUrl||'';
-            document.getElementById('toolDownloadUrl').value = tool.downloadUrl||'';
-            document.getElementById('toolPaymentLink').value = tool.paymentLink||'';
-            document.getElementById('editingToolId').value = tool.id;
-        } else {
-            document.getElementById('toolFormTitle').innerText = '➕ NEW WEAPON';
-            document.getElementById('toolName').value = ''; document.getElementById('toolDesc').value = ''; document.getElementById('toolPrice').value = '';
-            document.getElementById('toolCategory').value = ''; document.getElementById('toolImageUrls').value = ''; document.getElementById('toolVideoUrl').value = '';
-            document.getElementById('toolDownloadUrl').value = ''; document.getElementById('toolPaymentLink').value = ''; document.getElementById('editingToolId').value = '';
-        }
-    }
-    document.getElementById('addToolBtn')?.addEventListener('click',()=>fillToolForm(null));
-    document.getElementById('saveToolBtn')?.addEventListener('click',()=>{
-        const id = document.getElementById('editingToolId').value;
-        const toolData = {
-            name: document.getElementById('toolName').value,
-            description: document.getElementById('toolDesc').value,
-            price: parseFloat(document.getElementById('toolPrice').value),
-            category: document.getElementById('toolCategory').value,
-            imageUrls: document.getElementById('toolImageUrls').value.split('\n').filter(l=>l.trim()),
-            videoUrl: document.getElementById('toolVideoUrl').value,
-            downloadUrl: document.getElementById('toolDownloadUrl').value,
-            paymentLink: document.getElementById('toolPaymentLink').value,
-        };
-        let tools = getTools();
-        if(id){
-            const idx = tools.findIndex(t=>t.id===id);
-            if(idx!==-1) tools[idx] = {...tools[idx], ...toolData};
-        } else {
-            toolData.id = Date.now().toString();
-            tools.push(toolData);
-        }
-        saveTools(tools);
-        document.getElementById('toolFormModal').style.display='none';
-        renderAdminTools();
-    });
-    document.getElementById('cancelToolBtn')?.addEventListener('click',()=>document.getElementById('toolFormModal').style.display='none');
+    function renderTools() { const tools = getTools(); let html = `<table class="admin-table"><tr><th>Name</th><th>Price</th><th>Promo</th><th>Actions</th></tr>`; tools.forEach(t => { html += `<tr><td>${t.name}</td><td>$${t.price}</td><td>${t.promoName ? t.promoName + ' $' + t.promoPrice : 'none'}</td><td><button class="btn" onclick="editTool('${t.id}')">✏️</button> <button class="btn" onclick="deleteTool('${t.id}')">🗑️</button></td></tr>`; }); html += `</table>`; document.getElementById('adminToolsContainer').innerHTML = html; }
+    window.editTool = (id) => { const tool = getTools().find(t => t.id === id); if(tool){ document.getElementById('toolFormModal').style.display='block'; document.getElementById('toolName').value=tool.name; document.getElementById('toolDesc').value=tool.description||''; document.getElementById('toolPrice').value=tool.price; document.getElementById('toolCategory').value=tool.category||''; document.getElementById('toolPromoName').value=tool.promoName||''; document.getElementById('toolPromoPrice').value=tool.promoPrice||''; document.getElementById('editingToolId').value=tool.id; } };
+    window.deleteTool = (id) => { saveTools(getTools().filter(t => t.id !== id)); renderTools(); renderPromoManager(); };
+    document.getElementById('addToolBtn').addEventListener('click', () => { document.getElementById('toolFormModal').style.display='block'; document.getElementById('toolName').value=''; document.getElementById('toolDesc').value=''; document.getElementById('toolPrice').value=''; document.getElementById('toolCategory').value=''; document.getElementById('toolPromoName').value=''; document.getElementById('toolPromoPrice').value=''; document.getElementById('editingToolId').value=''; });
+    document.getElementById('saveToolBtn').addEventListener('click', () => { const id = document.getElementById('editingToolId').value; const toolData = { name: document.getElementById('toolName').value, description: document.getElementById('toolDesc').value, price: parseFloat(document.getElementById('toolPrice').value), category: document.getElementById('toolCategory').value, promoName: document.getElementById('toolPromoName').value, promoPrice: parseFloat(document.getElementById('toolPromoPrice').value) || null }; let tools = getTools(); if(id){ const idx = tools.findIndex(t => t.id === id); if(idx!==-1) tools[idx] = { ...tools[idx], ...toolData }; } else { toolData.id = Date.now().toString(); tools.push(toolData); } saveTools(tools); document.getElementById('toolFormModal').style.display='none'; renderTools(); renderPromoManager(); });
+    document.getElementById('cancelToolBtn').addEventListener('click', () => document.getElementById('toolFormModal').style.display='none');
+
+    // PROMO MANAGER
+    function renderPromoManager() { const tools = getTools(); let html = `<table class="admin-table"><tr><th>Weapon</th><th>Original</th><th>Promo Name</th><th>Sale Price</th><th>Apply</th></tr>`; tools.forEach(t => { html += `<tr><td>${t.name}</td><td>$${t.price}</td><td><input type="text" id="promoName_${t.id}" value="${t.promoName||''}" placeholder="ILEYA SALES"></td><td><input type="number" id="promoPrice_${t.id}" value="${t.promoPrice||''}" placeholder="discount"></td><td><button class="btn" onclick="updatePromo('${t.id}')">🔥 APPLY</button></td></tr>`; }); html += `</table>`; document.getElementById('promoManagerContainer').innerHTML = html; }
+    window.updatePromo = (id) => { const name = document.getElementById(`promoName_${id}`).value; const price = parseFloat(document.getElementById(`promoPrice_${id}`).value); let tools = getTools(); const idx = tools.findIndex(t => t.id === id); if(idx!==-1){ tools[idx].promoName = name || null; tools[idx].promoPrice = isNaN(price) ? null : price; saveTools(tools); renderPromoManager(); renderTools(); } };
+
+    // WEBSITES
+    function renderWebsites() { const sites = getWebsites(); let html = `<table class="admin-table"><tr><th>Domain</th><th>Title</th><th>Price</th><th>Actions</th></tr>`; sites.forEach(s => { html += `<tr><td>${s.domain}</td><td>${s.title}</td><td>$${s.price}</td><td><button class="btn" onclick="editWebsite('${s.id}')">✏️</button> <button class="btn" onclick="deleteWebsite('${s.id}')">🗑️</button></td></tr>`; }); html += `</table>`; document.getElementById('websiteTableContainer').innerHTML = html; }
+    window.editWebsite = (id) => { const site = getWebsites().find(s => s.id === id); if(site){ document.getElementById('websiteFormModal').style.display='block'; document.getElementById('websiteDomain').value=site.domain; document.getElementById('websiteTitle').value=site.title; document.getElementById('websitePrice').value=site.price; document.getElementById('websiteCategory').value=site.category||''; document.getElementById('websiteImage').value=site.image||''; document.getElementById('websiteDetails').value=site.details||''; document.getElementById('editingWebsiteId').value=site.id; } };
+    window.deleteWebsite = (id) => { saveWebsites(getWebsites().filter(s => s.id !== id)); renderWebsites(); };
+    document.getElementById('addWebsiteBtn').addEventListener('click', () => { document.getElementById('websiteFormModal').style.display='block'; document.getElementById('websiteDomain').value=''; document.getElementById('websiteTitle').value=''; document.getElementById('websitePrice').value=''; document.getElementById('websiteCategory').value=''; document.getElementById('websiteImage').value=''; document.getElementById('websiteDetails').value=''; document.getElementById('editingWebsiteId').value=''; });
+    document.getElementById('saveWebsiteBtn').addEventListener('click', () => { const id = document.getElementById('editingWebsiteId').value; const websiteData = { domain: document.getElementById('websiteDomain').value, title: document.getElementById('websiteTitle').value, price: parseFloat(document.getElementById('websitePrice').value), category: document.getElementById('websiteCategory').value, image: document.getElementById('websiteImage').value, details: document.getElementById('websiteDetails').value }; let sites = getWebsites(); if(id){ const idx = sites.findIndex(s => s.id === id); if(idx!==-1) sites[idx] = { ...sites[idx], ...websiteData }; } else { websiteData.id = Date.now().toString(); sites.push(websiteData); } saveWebsites(sites); document.getElementById('websiteFormModal').style.display='none'; renderWebsites(); });
+    document.getElementById('cancelWebsiteBtn').addEventListener('click', () => document.getElementById('websiteFormModal').style.display='none');
+
+    // eSIM
+    function renderEsim() { const plans = getEsim(); let html = `<table class="admin-table"><tr><th>Name</th><th>Duration</th><th>Price</th><th>Data</th><th>Voice</th><th>Actions</th></tr>`; plans.forEach(p => { html += `<tr><td>${p.name}</td><td>${p.duration}</td><td>$${p.price}</td><td>${p.data}</td><td>${p.voice}</td><td><button class="btn" onclick="editEsim('${p.id}')">✏️</button> <button class="btn" onclick="deleteEsim('${p.id}')">🗑️</button></td></tr>`; }); html += `</table>`; document.getElementById('esimTableContainer').innerHTML = html; }
+    window.editEsim = (id) => { const plan = getEsim().find(p => p.id === id); if(plan){ document.getElementById('esimFormModal').style.display='block'; document.getElementById('esimName').value=plan.name; document.getElementById('esimDuration').value=plan.duration; document.getElementById('esimPrice').value=plan.price; document.getElementById('esimData').value=plan.data; document.getElementById('esimVoice').value=plan.voice; document.getElementById('esimDescription').value=plan.description||''; document.getElementById('editingEsimId').value=plan.id; } };
+    window.deleteEsim = (id) => { saveEsim(getEsim().filter(p => p.id !== id)); renderEsim(); };
+    document.getElementById('addEsimBtn').addEventListener('click', () => { document.getElementById('esimFormModal').style.display='block'; document.getElementById('esimName').value=''; document.getElementById('esimDuration').value='1 month'; document.getElementById('esimPrice').value=''; document.getElementById('esimData').value=''; document.getElementById('esimVoice').value=''; document.getElementById('esimDescription').value=''; document.getElementById('editingEsimId').value=''; });
+    document.getElementById('saveEsimBtn').addEventListener('click', () => { const id = document.getElementById('editingEsimId').value; const planData = { name: document.getElementById('esimName').value, duration: document.getElementById('esimDuration').value, price: parseFloat(document.getElementById('esimPrice').value), data: document.getElementById('esimData').value, voice: document.getElementById('esimVoice').value, description: document.getElementById('esimDescription').value }; let plans = getEsim(); if(id){ const idx = plans.findIndex(p => p.id === id); if(idx!==-1) plans[idx] = { ...plans[idx], ...planData }; } else { planData.id = Date.now().toString(); plans.push(planData); } saveEsim(plans); document.getElementById('esimFormModal').style.display='none'; renderEsim(); });
+    document.getElementById('cancelEsimBtn').addEventListener('click', () => document.getElementById('esimFormModal').style.display='none');
 
     // VISITORS
-    function renderVisitors() {
-        const visitors = getVisitors();
-        let html = `<table class="admin-table"><tr><th>IP ADDRESS</th><th>TIMESTAMP</th><th>PAGE</th></tr>`;
-        visitors.forEach(v=>{ html+=`<tr><td>${v.ip}</td><td>${new Date(v.time).toLocaleString()}</td><td>${v.page}</td></tr>`; });
-        html+=`</table>`;
-        document.getElementById('visitorsTableContainer').innerHTML = html;
-    }
+    function renderVisitors() { const visitors = getVisitors(); let html = `<table class="admin-table"><tr><th>IP</th><th>Time</th><th>Page</th></tr>`; visitors.forEach(v => { html += `<tr><td>${v.ip}</td><td>${new Date(v.time).toLocaleString()}</td><td>${v.page}</td></tr>`; }); html += `</table>`; document.getElementById('visitorsTableContainer').innerHTML = html; }
 
     // BLOG
-    function renderBlogPosts() {
-        const posts = getBlog();
-        let html = `<table class="admin-table"><tr><th>TITLE</th><th>CATEGORY</th><th>DATE</th><th>ACTION</th></tr>`;
-        posts.forEach(p=>{
-            html+=`<tr><td>${p.title}</td><td>${p.category}</td><td>${new Date(p.createdAt).toLocaleDateString()}</td><td><button class="btn" onclick="editBlogPost('${p.id}')">✏️ EDIT</button> <button class="btn" onclick="deleteBlogPost('${p.id}')" style="color:red;">🗑️ PURGE</button></td></tr>`;
-        });
-        html+=`</table>`;
-        document.getElementById('blogPostsContainer').innerHTML = html;
-    }
-    window.editBlogPost = (id) => {
-        const post = getBlog().find(p=>p.id===id);
-        if(post){
-            document.getElementById('postFormModal').style.display='block';
-            document.getElementById('postFormTitle').innerText = '✍️ EDIT POST';
-            document.getElementById('postTitle').value = post.title;
-            document.getElementById('postCategory').value = post.category;
-            document.getElementById('postContent').value = post.content;
-            document.getElementById('editingPostId').value = post.id;
-        }
-    };
-    window.deleteBlogPost = (id) => { if(confirm('DELETE POST?')){ let posts = getBlog().filter(p=>p.id!==id); saveBlog(posts); renderBlogPosts(); } };
-    document.getElementById('addPostBtn')?.addEventListener('click',()=>{
-        document.getElementById('postFormModal').style.display='block';
-        document.getElementById('postFormTitle').innerText = '📜 NEW EVIL POST';
-        document.getElementById('postTitle').value = '';
-        document.getElementById('postCategory').value = 'general';
-        document.getElementById('postContent').value = '';
-        document.getElementById('editingPostId').value = '';
-    });
-    document.getElementById('savePostBtn')?.addEventListener('click',()=>{
-        const title = document.getElementById('postTitle').value.trim();
-        const content = document.getElementById('postContent').value.trim();
-        if(!title || !content) return alert('TITLE + CONTENT REQUIRED');
-        const id = document.getElementById('editingPostId').value;
-        let posts = getBlog();
-        if(id){
-            const idx = posts.findIndex(p=>p.id===id);
-            if(idx!==-1){ posts[idx] = {...posts[idx], title, content, category: document.getElementById('postCategory').value, updatedAt: new Date().toISOString()}; }
-        } else {
-            posts.push({ id: Date.now().toString(), title, content, category: document.getElementById('postCategory').value, createdAt: new Date().toISOString() });
-        }
-        saveBlog(posts);
-        document.getElementById('postFormModal').style.display='none';
-        renderBlogPosts();
-    });
-    document.getElementById('cancelPostBtn')?.addEventListener('click',()=>document.getElementById('postFormModal').style.display='none');
+    function renderBlog() { const posts = getBlog(); let html = `<table class="admin-table"><tr><th>Title</th><th>Date</th><th>Actions</th></tr>`; posts.forEach(p => { html += `<tr><td>${p.title}</td><td>${new Date(p.createdAt).toLocaleDateString()}</td><td><button class="btn" onclick="editPost('${p.id}')">✏️</button> <button class="btn" onclick="deletePost('${p.id}')">🗑️</button></td></tr>`; }); html += `</table>`; document.getElementById('blogPostsContainer').innerHTML = html; }
+    window.editPost = (id) => { const post = getBlog().find(p => p.id === id); if(post){ document.getElementById('postFormModal').style.display='block'; document.getElementById('postTitle').value=post.title; document.getElementById('postContent').value=post.content; document.getElementById('editingPostId').value=post.id; } };
+    window.deletePost = (id) => { saveBlog(getBlog().filter(p => p.id !== id)); renderBlog(); };
+    document.getElementById('addPostBtn').addEventListener('click', () => { document.getElementById('postFormModal').style.display='block'; document.getElementById('postTitle').value=''; document.getElementById('postContent').value=''; document.getElementById('editingPostId').value=''; });
+    document.getElementById('savePostBtn').addEventListener('click', () => { const id = document.getElementById('editingPostId').value; const post = { title: document.getElementById('postTitle').value, content: document.getElementById('postContent').value, createdAt: new Date().toISOString() }; let posts = getBlog(); if(id){ const idx = posts.findIndex(p => p.id === id); if(idx!==-1) posts[idx] = { ...posts[idx], ...post }; } else { post.id = Date.now().toString(); posts.push(post); } saveBlog(posts); document.getElementById('postFormModal').style.display='none'; renderBlog(); });
+    document.getElementById('cancelPostBtn').addEventListener('click', () => document.getElementById('postFormModal').style.display='none');
 
-    // MATRIX BLOOD RAIN
-    (function(){
+    // MATRIX RAIN
+    (function() {
         const canvas = document.getElementById('matrixCanvas');
-        if(!canvas) return;
         const ctx = canvas.getContext('2d');
         let w,h,drops=[];
-        const chars = "💀☠️💀🔪🩸🧠🔥⚡";
-        function resize(){ w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; drops=Array(Math.floor(w/20)).fill(0); }
-        function draw(){
+        const chars = "💀☠️🔪🩸🔥⚡";
+        function resize() { w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; drops=Array(Math.floor(w/20)).fill(0); }
+        function draw() {
             ctx.fillStyle='rgba(0,0,0,0.07)'; ctx.fillRect(0,0,w,h);
             ctx.fillStyle='#aa2a2a'; ctx.font='bold 20px monospace';
-            for(let i=0;i<drops.length;i++){
-                const text=chars[Math.floor(Math.random()*chars.length)];
-                ctx.fillText(text, i*20, drops[i]*22);
-                if(drops[i]*22>h && Math.random()>0.98) drops[i]=0;
-                drops[i]++;
-            }
+            for(let i=0;i<drops.length;i++){ ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*20, drops[i]*22); if(drops[i]*22>h && Math.random()>0.98) drops[i]=0; drops[i]++; }
             requestAnimationFrame(draw);
         }
         window.addEventListener('resize',resize); resize(); draw();
