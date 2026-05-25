@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
-        /* ---- AI BOT PANEL ---- */
+        /* ---- AI BOT PANEL (unchanged) ---- */
         .ai-bot-btn {
             position: fixed; bottom: 25px; right: 25px;
             width: 60px; height: 60px; border-radius: 50%;
@@ -157,7 +157,7 @@
         const API = '/api';
         let currentUser = null;
 
-        // Theme toggle
+        // Theme toggle (unchanged)
         (function() {
             const themeBtn = document.getElementById('themeToggle');
             if (themeBtn) {
@@ -174,7 +174,7 @@
             }
         })();
 
-        // AI Bot toggle
+        // AI Bot toggle (unchanged)
         (function() {
             const aiBtn = document.getElementById('aiBotToggle');
             const aiPanel = document.getElementById('aiChatPanel');
@@ -183,28 +183,20 @@
             const aiSend = document.getElementById('aiSendBtn');
             const aiMessages = document.getElementById('aiChatMessages');
 
-            aiBtn.addEventListener('click', () => {
-                aiPanel.classList.toggle('open');
-            });
-            aiClose.addEventListener('click', () => {
-                aiPanel.classList.remove('open');
-            });
+            aiBtn.addEventListener('click', () => aiPanel.classList.toggle('open'));
+            aiClose.addEventListener('click', () => aiPanel.classList.remove('open'));
 
             async function sendAIMessage() {
                 const msg = aiInput.value.trim();
                 if (!msg) return;
-                // Show user message
                 aiMessages.innerHTML += `<div class="msg user">🧑 ${msg}</div>`;
                 aiInput.value = '';
                 aiMessages.scrollTop = aiMessages.scrollHeight;
-
-                // Show typing indicator
                 const typing = document.createElement('div');
                 typing.className = 'msg ai';
                 typing.textContent = '⏳ Thinking...';
                 aiMessages.appendChild(typing);
                 aiMessages.scrollTop = aiMessages.scrollHeight;
-
                 try {
                     const token = localStorage.getItem('ghost_token');
                     const res = await fetch(`${API}/ai/chat`, {
@@ -221,13 +213,11 @@
                 }
                 aiMessages.scrollTop = aiMessages.scrollHeight;
             }
-
             aiSend.addEventListener('click', sendAIMessage);
-            aiInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') sendAIMessage();
-            });
+            aiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendAIMessage(); });
         })();
 
+        // Main initialization
         (async () => {
             const token = localStorage.getItem('ghost_token');
             if (!token) { window.location.href = 'index.html'; return; }
@@ -236,13 +226,14 @@
                 if (!res.ok) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; return; }
                 const data = await res.json();
                 currentUser = data.user;
-                buildNav();
+                buildNav(); // ✅ builds unified header
                 document.getElementById('accessCodeDisplay').textContent = currentUser.accessCode || 'Pending';
                 document.getElementById('threatLevelDisplay').textContent = currentUser.approved ? 'DELTA' : 'PENDING';
                 setInterval(() => { document.getElementById('uplinkSpeed').textContent = (2 + Math.random() * 3).toFixed(1) + ' Gbps'; }, 2000);
                 document.querySelectorAll('.quick-btn').forEach(btn => btn.addEventListener('click', () => window.location.href = btn.dataset.href));
                 document.getElementById('logoutBtn').addEventListener('click', () => {
-                    localStorage.removeItem('ghost_token'); window.location.href = 'index.html';
+                    localStorage.removeItem('ghost_token');
+                    window.location.href = 'index.html';
                 });
                 initMiniTerminal();
                 initGlobe();
@@ -250,6 +241,7 @@
             } catch(e) { window.location.href = 'index.html'; }
         })();
 
+        // ✅ Unified navigation (includes Marketplace and Admin)
         function buildNav() {
             const nav = document.getElementById('mainNav');
             const pages = [
@@ -260,7 +252,7 @@
                 { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
                 { name: 'blog', label: '💀 Blog', href: 'blog.html' }
             ];
-            if (currentUser.role === 'admin') pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
+            if (currentUser && currentUser.role === 'admin') pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
             nav.innerHTML = '';
             pages.forEach(p => {
                 const btn = document.createElement('button');
@@ -271,6 +263,7 @@
             });
         }
 
+        // Rest of the dashboard functionality (unchanged)
         function initMiniTerminal() {
             const term = document.getElementById('miniTerminal');
             const logs = ['> Port 443 open (HTTPS)','> SSH fingerprint verified.','> Threat signature updated.','> Satellite link nominal.','> 0x0045a1: buffer overflow blocked.','> AI model retrained (99.7%).'];
