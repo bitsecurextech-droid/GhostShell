@@ -3,272 +3,772 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL // ADMIN COMMAND</title>
-    <meta name="description" content="GHOST SHELL Admin Panel – manage users, access codes, marketplace tools, and monitor platform activity.">
+    <title>GHOST SHELL // ADMIN COMMAND (STANDALONE)</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
-        .admin-section { display:none; } .admin-section.active { display:block; }
-        .admin-nav { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
-        .admin-nav-btn { background:rgba(20,0,0,0.6); border:1px solid #330000; color:#999; cursor:pointer; font-family:var(--font-mono); font-size:0.75rem; padding:8px 14px; border-radius:4px; transition:all 0.3s; }
-        .admin-nav-btn:hover, .admin-nav-btn.active { border-color:var(--red); color:#fff; box-shadow:var(--red-glow); background:rgba(255,0,0,0.1); }
-        .add-admin-form { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:15px; }
-        .add-admin-form input, .add-admin-form select { width:auto; flex:1; min-width:150px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --bg: #0a0c0f;
+            --card: #111316;
+            --red: #ff1a1a;
+            --green: #00ff41;
+            --font-mono: 'Courier New', 'Consolas', monospace;
+        }
+        body {
+            background: var(--bg);
+            font-family: var(--font-mono);
+            color: #ccc;
+            overflow-x: hidden;
+        }
+        body.light {
+            --bg: #e8eef2;
+            --card: #ffffff;
+            color: #111;
+        }
+        canvas#matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        .header, .admin-nav, .card, button, input, select, textarea {
+            transition: 0.2s;
+        }
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            background: #000000aa;
+            backdrop-filter: blur(8px);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--red);
+            margin-bottom: 25px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-img {
+            width: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--red);
+        }
+        .site-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--red);
+            text-shadow: 0 0 8px rgba(255,26,26,0.5);
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .nav-link, .btn {
+            background: transparent;
+            border: 1px solid var(--red);
+            color: var(--red);
+            padding: 6px 14px;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .nav-link:hover, .btn:hover {
+            background: var(--red);
+            color: black;
+        }
+        .admin-nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .admin-nav-btn {
+            background: rgba(20,0,0,0.6);
+            border: 1px solid #330000;
+            color: #999;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 8px 14px;
+            border-radius: 4px;
+        }
+        .admin-nav-btn.active, .admin-nav-btn:hover {
+            border-color: var(--red);
+            color: #fff;
+            background: rgba(255,0,0,0.2);
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid #2a2e36;
+            padding: 18px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        input, select, textarea {
+            background: #1e2128;
+            border: 1px solid #3a3f4a;
+            color: #0f0;
+            padding: 8px;
+            font-family: monospace;
+            width: 100%;
+            margin: 6px 0;
+        }
+        body.light input, body.light select, body.light textarea {
+            background: #fff;
+            color: #000;
+            border-color: #aaa;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        .admin-table th, .admin-table td {
+            border: 1px solid #2a2e36;
+            padding: 8px;
+            text-align: left;
+        }
+        .add-admin-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .add-admin-form input, .add-admin-form select {
+            width: auto;
+            flex: 1;
+            min-width: 150px;
+        }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
+        .auth-card {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        #adminLoginModal {
+            position: fixed;
+            top:0; left:0;
+            width:100%; height:100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        #adminDashboard {
+            position: relative;
+            z-index: 10;
+            padding: 0 20px 40px;
+        }
     </style>
 </head>
 <body>
-    <canvas id="matrixCanvas"></canvas>
+<canvas id="matrixCanvas"></canvas>
 
-    <div id="adminLoginModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; z-index:2000;">
-        <div class="card auth-card" style="text-align:center;">
-            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:55px; margin-bottom:10px;" alt="GHOST SHELL logo">
-            <h1>ADMIN COMMAND</h1>
-            <input type="email" id="adminEmail" placeholder="Admin Email" required aria-label="Admin email">
-            <input type="password" id="adminPassword" placeholder="Admin Password" required aria-label="Admin password">
-            <button class="btn" id="adminLoginBtn" style="width:100%;">AUTHENTICATE</button>
-            <div id="adminLoginError" style="color:var(--red); margin-top:10px;"></div>
+<!-- LOGIN MODAL -->
+<div id="adminLoginModal">
+    <div class="card auth-card">
+        <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:55px; margin-bottom:10px;" alt="logo">
+        <h1 style="color:var(--red);">ADMIN COMMAND</h1>
+        <input type="email" id="adminEmail" placeholder="Admin Email" value="admin@ghostshell.com">
+        <input type="password" id="adminPassword" placeholder="Admin Password" value="admin123">
+        <button class="btn" id="adminLoginBtn" style="width:100%;">AUTHENTICATE</button>
+        <div id="adminLoginError" style="color:var(--red); margin-top:10px;"></div>
+    </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="adminDashboard" style="display:none;">
+    <header class="header">
+        <div class="logo-area">
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="logo">
+            <span class="site-name">GHOST SHELL</span>
         </div>
-    </div>
+        <nav class="nav-links" id="mainNav">
+            <button class="nav-link active" onclick="window.location.href='admin.html'">⚙️ Admin</button>
+            <button class="nav-link" onclick="window.location.href='dashboard.html'">⌖ Ops Center</button>
+            <button class="nav-link" onclick="window.location.href='tools.html'">⚔️ Tools</button>
+        </nav>
+        <button class="btn" id="themeToggle">🌓</button>
+        <button class="btn" id="logoutAdminBtn" style="margin-left:10px;">EXIT</button>
+    </header>
 
-    <div id="adminDashboard" style="display:none; position:relative; z-index:10;">
-        <header class="header">
-            <div class="logo-area">
-                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="GHOST SHELL logo">
-                <span class="site-name">GHOST SHELL</span>
-            </div>
-            <nav class="nav-links" id="mainNav" aria-label="Admin navigation">
-                <button class="nav-link active" onclick="window.location.href='admin.html'">⚙️ Admin</button>
-                <button class="nav-link" onclick="window.location.href='dashboard.html'">⌖ Ops Center</button>
-            </nav>
-            <button class="btn" id="themeToggle" style="border-color:#ffaa00; color:#ffaa00; margin-left:10px;">🌓</button>
-            <button class="btn" id="logoutAdminBtn" style="margin-left:auto; border-color:#ffab00; color:#ffab00;" aria-label="Logout">EXIT</button>
-        </header>
+    <main>
+        <h1 style="color:var(--red); font-family:var(--font-mono);">⚙️ ADMIN COMMAND CENTER</h1>
+        <div class="admin-nav">
+            <button class="admin-nav-btn active" data-section="users">👥 Users</button>
+            <button class="admin-nav-btn" data-section="codes">🔑 Access Codes</button>
+            <button class="admin-nav-btn" data-section="payments">💸 Payments</button>
+            <button class="admin-nav-btn" data-section="tools">🔧 Manage Tools</button>
+            <button class="admin-nav-btn" data-section="visitors">🌍 Visitors</button>
+            <button class="admin-nav-btn" data-section="blog">📝 Blog</button>
+        </div>
 
-        <main class="page active">
-            <h1 style="color:var(--red); font-family:var(--font-mono);">⚙️ ADMIN COMMAND CENTER</h1>
-            <nav class="admin-nav" aria-label="Admin sections">
-                <button class="admin-nav-btn active" data-section="users">👥 Users</button>
-                <button class="admin-nav-btn" data-section="codes">🔑 Access Codes</button>
-                <button class="admin-nav-btn" data-section="payments">💸 Payments</button>
-                <button class="admin-nav-btn" data-section="tools">🔧 Manage Tools</button>
-                <button class="admin-nav-btn" data-section="visitors">🌍 Visitors</button>
-                <button class="admin-nav-btn" data-section="blog">📝 Blog</button>
-            </nav>
-
-            <!-- USERS -->
-            <section id="section-users" class="admin-section active">
-                <div class="card">
-                    <h2>➕ ADD / PROMOTE ADMIN</h2>
-                    <div class="add-admin-form">
-                        <input type="email" id="newAdminEmail" placeholder="User Email" aria-label="User email to promote">
-                        <input type="password" id="newAdminPassword" placeholder="Password (leave blank if existing user)" aria-label="New admin password">
-                        <select id="newAdminRole" aria-label="Admin role">
-                            <option value="full_admin">Full Admin</option>
-                            <option value="tools_admin">Tools Admin</option>
-                            <option value="user_admin">User Admin</option>
-                        </select>
-                        <button class="btn" onclick="addOrUpdateAdmin()">Save Admin</button>
-                    </div>
-                </div>
-                <div class="card">
-                    <h2>👥 User Management</h2>
-                    <div id="userTableContainer" style="max-height:400px;overflow-y:auto;"></div>
-                    <button class="btn" id="exportCsvBtn" style="margin-top:10px;">📥 Export Emails CSV</button>
-                </div>
-            </section>
-
-            <!-- CODES -->
-            <section id="section-codes" class="admin-section">
-                <div class="card"><h2>🔑 Access Codes</h2><button class="btn" id="generateCodesBtn">Generate 50 Codes</button><div id="codesTableContainer" style="margin-top:15px; max-height:400px;overflow-y:auto;"></div></div>
-            </section>
-
-            <!-- PAYMENTS -->
-            <section id="section-payments" class="admin-section">
-                <div class="card"><h2>💸 Pending Payments</h2><div id="paymentsContainer"></div></div>
-            </section>
-
-            <!-- TOOLS -->
-            <section id="section-tools" class="admin-section">
-                <div class="card">
-                    <h2>🔧 Manage Marketplace Tools</h2>
-                    <button class="btn" id="addToolBtn">+ Add New Tool</button>
-                    <div id="adminToolsContainer" style="margin-top:15px;"></div>
-                </div>
-                <div id="toolFormModal" style="display:none; margin-top:15px;" class="card">
-                    <h3 id="toolFormTitle">Add New Tool</h3>
-                    <input type="text" id="toolName" placeholder="Tool Name" aria-label="Tool name">
-                    <textarea id="toolDesc" placeholder="Description" rows="3" aria-label="Tool description"></textarea>
-                    <input type="number" id="toolPrice" placeholder="Price (USD)" aria-label="Price in USD">
-                    <input type="text" id="toolCategory" placeholder="Category (e.g., Network, PDF, Exploit)" aria-label="Category">
-                    <textarea id="toolImageUrls" placeholder="Image URLs (one per line)" rows="3" aria-label="Image URLs"></textarea>
-                    <input type="text" id="toolVideoUrl" placeholder="Video URL (YouTube or direct link)" aria-label="Video URL">
-                    <input type="text" id="toolDownloadUrl" placeholder="Download URL (Google Drive, direct link, or leave blank)" aria-label="Download URL">
-                    <input type="text" id="toolPaymentLink" placeholder="Selar payment link (for PDF tools)" aria-label="Selar payment link">
-                    <button class="btn" id="saveToolBtn">Save Tool</button>
-                    <button class="btn" onclick="closeToolForm()">Cancel</button>
-                    <input type="hidden" id="editingToolId" value="">
-                </div>
-            </section>
-
-            <!-- VISITORS -->
-            <section id="section-visitors" class="admin-section">
-                <div class="card"><h2>🌍 Visitor Logs</h2><div id="visitorsTableContainer" style="max-height:400px;overflow-y:auto;"></div></div>
-            </section>
-
-            <!-- BLOG -->
-            <section id="section-blog" class="admin-section">
-                <div class="card">
-                    <h2>📝 Manage Blog Posts</h2>
-                    <button class="btn" id="addPostBtn">+ New Post</button>
-                    <div id="blogPostsContainer" style="margin-top:15px;"></div>
-                </div>
-                <div id="postFormModal" style="display:none; margin-top:15px;" class="card">
-                    <h3 id="postFormTitle">New Post</h3>
-                    <input type="text" id="postTitle" placeholder="Post Title">
-                    <select id="postCategory">
-                        <option value="general">General</option>
-                        <option value="changelog">Changelog</option>
-                        <option value="tutorial">Tutorial</option>
-                        <option value="news">News</option>
+        <!-- USERS SECTION -->
+        <section id="section-users" class="admin-section active">
+            <div class="card">
+                <h2>➕ ADD / PROMOTE ADMIN</h2>
+                <div class="add-admin-form">
+                    <input type="email" id="newAdminEmail" placeholder="User Email">
+                    <input type="password" id="newAdminPassword" placeholder="Password (for new user)">
+                    <select id="newAdminRole">
+                        <option value="full_admin">Full Admin</option>
+                        <option value="tools_admin">Tools Admin</option>
+                        <option value="user_admin">User Admin</option>
                     </select>
-                    <textarea id="postContent" placeholder="Write your HTML content here..." rows="12"></textarea>
-                    <button class="btn" id="savePostBtn">Save Post</button>
-                    <button class="btn" onclick="document.getElementById('postFormModal').style.display='none'">Cancel</button>
-                    <input type="hidden" id="editingPostId" value="">
+                    <button class="btn" id="addAdminBtn">Save Admin</button>
                 </div>
-            </section>
+            </div>
+            <div class="card">
+                <h2>👥 User Management</h2>
+                <div id="userTableContainer" style="max-height:400px; overflow:auto;"></div>
+                <button class="btn" id="exportCsvBtn" style="margin-top:10px;">📥 Export Emails CSV</button>
+            </div>
+        </section>
 
-            <button class="btn" id="logoutAdminBtnBottom" style="margin-top:20px;">Logout Admin</button>
-        </main>
-    </div>
+        <!-- CODES SECTION -->
+        <section id="section-codes" class="admin-section">
+            <div class="card">
+                <h2>🔑 Access Codes</h2>
+                <button class="btn" id="generateCodesBtn">Generate 50 Codes</button>
+                <div id="codesTableContainer" style="margin-top:15px; max-height:400px; overflow:auto;"></div>
+            </div>
+        </section>
 
-    <script src="js/matrix.js"></script>
-    <script>
-        const API = '/api'; let adminToken = '';
+        <!-- PAYMENTS SECTION -->
+        <section id="section-payments" class="admin-section">
+            <div class="card">
+                <h2>💸 Pending Payments</h2>
+                <div id="paymentsContainer"></div>
+            </div>
+        </section>
 
-        // Admin Login
-        document.getElementById('adminLoginBtn').addEventListener('click', async () => {
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPassword').value;
-            const errorEl = document.getElementById('adminLoginError');
-            try {
-                const res = await fetch(`${API}/admin/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email, password }) });
-                const data = await res.json();
-                if (data.token) { adminToken = data.token; localStorage.setItem('adminToken', adminToken); showAdminDashboard(); }
-                else { errorEl.textContent = data.error || 'Invalid admin credentials'; }
-            } catch(e) { errorEl.textContent = 'Connection failed – is the server running?'; }
+        <!-- TOOLS SECTION -->
+        <section id="section-tools" class="admin-section">
+            <div class="card">
+                <h2>🔧 Manage Marketplace Tools</h2>
+                <button class="btn" id="addToolBtn">+ Add New Tool</button>
+                <div id="adminToolsContainer" style="margin-top:15px;"></div>
+            </div>
+            <div id="toolFormModal" style="display:none;" class="card">
+                <h3 id="toolFormTitle">Add New Tool</h3>
+                <input type="text" id="toolName" placeholder="Tool Name">
+                <textarea id="toolDesc" placeholder="Description" rows="3"></textarea>
+                <input type="number" id="toolPrice" placeholder="Price (USD)">
+                <input type="text" id="toolCategory" placeholder="Category (e.g., Network, PDF)">
+                <textarea id="toolImageUrls" placeholder="Image URLs (one per line)" rows="3"></textarea>
+                <input type="text" id="toolVideoUrl" placeholder="Video URL">
+                <input type="text" id="toolDownloadUrl" placeholder="Download URL">
+                <input type="text" id="toolPaymentLink" placeholder="Payment link (Selar)">
+                <button class="btn" id="saveToolBtn">Save Tool</button>
+                <button class="btn" id="cancelToolBtn">Cancel</button>
+                <input type="hidden" id="editingToolId" value="">
+            </div>
+        </section>
+
+        <!-- VISITORS SECTION -->
+        <section id="section-visitors" class="admin-section">
+            <div class="card">
+                <h2>🌍 Visitor Logs (mock)</h2>
+                <div id="visitorsTableContainer" style="max-height:400px; overflow:auto;"></div>
+            </div>
+        </section>
+
+        <!-- BLOG SECTION -->
+        <section id="section-blog" class="admin-section">
+            <div class="card">
+                <h2>📝 Manage Blog Posts</h2>
+                <button class="btn" id="addPostBtn">+ New Post</button>
+                <div id="blogPostsContainer" style="margin-top:15px;"></div>
+            </div>
+            <div id="postFormModal" style="display:none;" class="card">
+                <h3 id="postFormTitle">New Post</h3>
+                <input type="text" id="postTitle" placeholder="Post Title">
+                <select id="postCategory">
+                    <option value="general">General</option>
+                    <option value="changelog">Changelog</option>
+                    <option value="tutorial">Tutorial</option>
+                    <option value="news">News</option>
+                </select>
+                <textarea id="postContent" placeholder="Write HTML content here..." rows="12"></textarea>
+                <button class="btn" id="savePostBtn">Save Post</button>
+                <button class="btn" id="cancelPostBtn">Cancel</button>
+                <input type="hidden" id="editingPostId" value="">
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    // ---------- STANDALONE DATA LAYER (localStorage) ----------
+    function initData() {
+        if (!localStorage.getItem('ghost_users')) {
+            const defaultUsers = [
+                { id: '1', email: 'admin@ghostshell.com', password: 'admin123', role: 'full_admin', createdAt: new Date().toISOString() },
+                { id: '2', email: 'user@example.com', password: 'pass123', role: 'user', createdAt: new Date().toISOString() }
+            ];
+            localStorage.setItem('ghost_users', JSON.stringify(defaultUsers));
+        }
+        if (!localStorage.getItem('ghost_codes')) {
+            localStorage.setItem('ghost_codes', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('ghost_payments')) {
+            const mockPayments = [
+                { id: 'pay1', userId: '2', amount: 49.99, product: 'Exploit Pack', status: 'pending', date: new Date().toISOString() },
+                { id: 'pay2', userId: '1', amount: 19.99, product: 'VPN License', status: 'pending', date: new Date().toISOString() }
+            ];
+            localStorage.setItem('ghost_payments', JSON.stringify(mockPayments));
+        }
+        if (!localStorage.getItem('ghost_tools')) {
+            const defaultTools = [
+                { id: 't1', name: 'Port Scanner', description: 'Advanced network scanner', price: 49, category: 'Network', imageUrls: [], videoUrl: '', downloadUrl: '#', paymentLink: '' }
+            ];
+            localStorage.setItem('ghost_tools', JSON.stringify(defaultTools));
+        }
+        if (!localStorage.getItem('ghost_visitors')) {
+            const visitors = [
+                { ip: '192.168.1.1', time: new Date().toISOString(), page: '/dashboard.html' },
+                { ip: '203.0.113.5', time: new Date(Date.now()-86400000).toISOString(), page: '/tools.html' }
+            ];
+            localStorage.setItem('ghost_visitors', JSON.stringify(visitors));
+        }
+        if (!localStorage.getItem('ghost_blog')) {
+            const posts = [
+                { id: 'post1', title: 'Welcome to Ghost Shell', category: 'general', content: '<p>Our platform is live. Stay tuned for updates.</p>', createdAt: new Date().toISOString() }
+            ];
+            localStorage.setItem('ghost_blog', JSON.stringify(posts));
+        }
+    }
+    initData();
+
+    // Helper functions
+    function getUsers() { return JSON.parse(localStorage.getItem('ghost_users')); }
+    function saveUsers(users) { localStorage.setItem('ghost_users', JSON.stringify(users)); }
+    function getCodes() { return JSON.parse(localStorage.getItem('ghost_codes')); }
+    function saveCodes(codes) { localStorage.setItem('ghost_codes', JSON.stringify(codes)); }
+    function getPayments() { return JSON.parse(localStorage.getItem('ghost_payments')); }
+    function savePayments(payments) { localStorage.setItem('ghost_payments', JSON.stringify(payments)); }
+    function getTools() { return JSON.parse(localStorage.getItem('ghost_tools')); }
+    function saveTools(tools) { localStorage.setItem('ghost_tools', JSON.stringify(tools)); }
+    function getVisitors() { return JSON.parse(localStorage.getItem('ghost_visitors')); }
+    function getBlog() { return JSON.parse(localStorage.getItem('ghost_blog')); }
+    function saveBlog(posts) { localStorage.setItem('ghost_blog', JSON.stringify(posts)); }
+
+    // ---------- LOGIN ----------
+    const loginBtn = document.getElementById('adminLoginBtn');
+    const loginModal = document.getElementById('adminLoginModal');
+    const dashboard = document.getElementById('adminDashboard');
+    const loginError = document.getElementById('adminLoginError');
+
+    loginBtn.addEventListener('click', () => {
+        const email = document.getElementById('adminEmail').value.trim();
+        const password = document.getElementById('adminPassword').value;
+        const users = getUsers();
+        const admin = users.find(u => u.email === email && u.password === password && (u.role === 'full_admin' || u.role === 'tools_admin' || u.role === 'user_admin'));
+        if (admin) {
+            localStorage.setItem('adminSession', JSON.stringify({ email: admin.email, role: admin.role }));
+            loginModal.style.display = 'none';
+            dashboard.style.display = 'block';
+            loadAllSections();
+        } else {
+            loginError.textContent = 'Invalid admin credentials';
+        }
+    });
+
+    function isAdmin() { return !!localStorage.getItem('adminSession'); }
+    function logout() {
+        localStorage.removeItem('adminSession');
+        window.location.reload();
+    }
+    document.getElementById('logoutAdminBtn')?.addEventListener('click', logout);
+
+    // Theme toggle
+    const themeBtn = document.getElementById('themeToggle');
+    if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light');
+        themeBtn.textContent = '☀️';
+    }
+    themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('light');
+        const isLight = document.body.classList.contains('light');
+        themeBtn.textContent = isLight ? '☀️' : '🌓';
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    });
+
+    // ---------- SECTION SWITCHING ----------
+    function switchSection(sectionId) {
+        document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
+        document.getElementById(`section-${sectionId}`).classList.add('active');
+        if (sectionId === 'users') renderUsers();
+        else if (sectionId === 'codes') renderCodes();
+        else if (sectionId === 'payments') renderPayments();
+        else if (sectionId === 'tools') renderAdminTools();
+        else if (sectionId === 'visitors') renderVisitors();
+        else if (sectionId === 'blog') renderBlogPosts();
+    }
+
+    document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            switchSection(btn.dataset.section);
         });
+    });
 
-        function showAdminDashboard() {
-            document.getElementById('adminLoginModal').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'block';
-            loadSection('users');
-            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const section = btn.dataset.section; loadSection(section);
-                    document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                });
-            });
-            document.getElementById('generateCodesBtn').addEventListener('click', generateCodes);
-            document.getElementById('addToolBtn').addEventListener('click', () => openToolForm(null));
-            document.getElementById('addPostBtn').addEventListener('click', () => openPostForm(null));
-            document.getElementById('savePostBtn').addEventListener('click', savePost);
-            document.getElementById('exportCsvBtn').addEventListener('click', () => window.open(`${API}/admin/users-csv`, '_blank'));
-            document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
-            document.getElementById('logoutAdminBtnBottom').addEventListener('click', logoutAdmin);
+    function loadAllSections() {
+        renderUsers();
+        renderCodes();
+        renderPayments();
+        renderAdminTools();
+        renderVisitors();
+        renderBlogPosts();
+    }
 
-            // Theme toggle
-            const themeBtn = document.getElementById('themeToggle');
-            if (localStorage.getItem('theme') === 'light') {
-                document.body.classList.add('light');
-                themeBtn.textContent = '☀️';
-            }
-            themeBtn.addEventListener('click', () => {
-                document.body.classList.toggle('light');
-                const isLight = document.body.classList.contains('light');
-                themeBtn.textContent = isLight ? '☀️' : '🌓';
-                localStorage.setItem('theme', isLight ? 'light' : 'dark');
-            });
+    // ---------- USERS MANAGEMENT ----------
+    function renderUsers() {
+        const users = getUsers();
+        let html = `<table class="admin-table"><tr><th>Email</th><th>Role</th><th>Created</th><th>Actions</th></tr>`;
+        users.forEach(u => {
+            html += `<tr>
+                        <td>${u.email}</td>
+                        <td>${u.role}</td>
+                        <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+                        <td>
+                            ${u.role !== 'full_admin' ? `<button class="btn" onclick="promoteToAdmin('${u.id}')">👑 Promote</button>` : ''}
+                            <button class="btn" onclick="deleteUser('${u.id}')" style="border-color:var(--red);">🗑️</button>
+                        </td>
+                     </tr>`;
+        });
+        html += `</table>`;
+        document.getElementById('userTableContainer').innerHTML = html;
+    }
+
+    window.promoteToAdmin = (userId) => {
+        let users = getUsers();
+        const idx = users.findIndex(u => u.id === userId);
+        if (idx !== -1) {
+            users[idx].role = 'full_admin';
+            saveUsers(users);
+            renderUsers();
         }
-
-        function logoutAdmin() { localStorage.removeItem('adminToken'); window.location.href = 'admin.html'; }
-
-        function loadSection(section) {
-            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(`section-${section}`).classList.add('active');
-            if (section === 'users') loadUsers();
-            else if (section === 'codes') loadCodes();
-            else if (section === 'payments') loadPayments();
-            else if (section === 'tools') loadAdminTools();
-            else if (section === 'visitors') loadVisitors();
-            else if (section === 'blog') loadBlogPosts();
+    };
+    window.deleteUser = (userId) => {
+        let users = getUsers();
+        const adminSession = JSON.parse(localStorage.getItem('adminSession'));
+        const target = users.find(u => u.id === userId);
+        if (target && target.email === adminSession?.email) {
+            alert("Cannot delete yourself.");
+            return;
         }
+        users = users.filter(u => u.id !== userId);
+        saveUsers(users);
+        renderUsers();
+    };
 
-        // ---------- BLOG MANAGEMENT ----------
-        function openPostForm(post = null) {
+    document.getElementById('addAdminBtn')?.addEventListener('click', () => {
+        const email = document.getElementById('newAdminEmail').value.trim();
+        const password = document.getElementById('newAdminPassword').value.trim();
+        const role = document.getElementById('newAdminRole').value;
+        if (!email) return alert("Email required");
+        let users = getUsers();
+        if (users.find(u => u.email === email)) {
+            // promote existing
+            const idx = users.findIndex(u => u.email === email);
+            users[idx].role = role;
+            if (password) users[idx].password = password;
+            saveUsers(users);
+            alert(`User ${email} promoted to ${role}`);
+        } else {
+            if (!password) return alert("Password required for new user");
+            const newUser = {
+                id: Date.now().toString(),
+                email,
+                password,
+                role,
+                createdAt: new Date().toISOString()
+            };
+            users.push(newUser);
+            saveUsers(users);
+            alert(`Admin ${email} added`);
+        }
+        renderUsers();
+        document.getElementById('newAdminEmail').value = '';
+        document.getElementById('newAdminPassword').value = '';
+    });
+
+    document.getElementById('exportCsvBtn')?.addEventListener('click', () => {
+        const users = getUsers();
+        const emails = users.map(u => u.email).join('\n');
+        const blob = new Blob([emails], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'users_emails.csv';
+        a.click();
+    });
+
+    // ---------- ACCESS CODES ----------
+    function renderCodes() {
+        const codes = getCodes();
+        let html = `<table class="admin-table"><tr><th>Code</th><th>Created</th></tr>`;
+        codes.forEach(c => {
+            html += `<tr><td>${c.code}</td><td>${new Date(c.createdAt).toLocaleString()}</td></tr>`;
+        });
+        html += `</table>`;
+        document.getElementById('codesTableContainer').innerHTML = html;
+    }
+    document.getElementById('generateCodesBtn')?.addEventListener('click', () => {
+        const newCodes = [];
+        for (let i = 0; i < 50; i++) {
+            const code = 'GHST-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+            newCodes.push({ code, createdAt: new Date().toISOString() });
+        }
+        const existing = getCodes();
+        saveCodes([...existing, ...newCodes]);
+        renderCodes();
+    });
+
+    // ---------- PAYMENTS ----------
+    function renderPayments() {
+        const payments = getPayments();
+        let html = `<table class="admin-table"><tr><th>User ID</th><th>Product</th><th>Amount</th><th>Status</th><th>Actions</th></tr>`;
+        payments.forEach(p => {
+            html += `<tr>
+                        <td>${p.userId}</td>
+                        <td>${p.product}</td>
+                        <td>$${p.amount}</td>
+                        <td>${p.status}</td>
+                        <td>
+                            ${p.status === 'pending' ? `<button class="btn" onclick="approvePayment('${p.id}')">✅ Approve</button>
+                            <button class="btn" onclick="declinePayment('${p.id}')" style="border-color:var(--red);">❌ Decline</button>` : 'Processed'}
+                        </td>
+                     </tr>`;
+        });
+        html += `</table>`;
+        document.getElementById('paymentsContainer').innerHTML = html;
+    }
+    window.approvePayment = (id) => {
+        let payments = getPayments();
+        const idx = payments.findIndex(p => p.id === id);
+        if (idx !== -1) payments[idx].status = 'approved';
+        savePayments(payments);
+        renderPayments();
+    };
+    window.declinePayment = (id) => {
+        let payments = getPayments();
+        payments = payments.filter(p => p.id !== id);
+        savePayments(payments);
+        renderPayments();
+    };
+
+    // ---------- TOOLS MANAGEMENT ----------
+    function renderAdminTools() {
+        const tools = getTools();
+        let html = `<table class="admin-table"><tr><th>Name</th><th>Price</th><th>Category</th><th>Actions</th></tr>`;
+        tools.forEach(t => {
+            html += `<tr>
+                        <td>${t.name}</td>
+                        <td>$${t.price}</td>
+                        <td>${t.category}</td>
+                        <td>
+                            <button class="btn" onclick="editTool('${t.id}')">✏️ Edit</button>
+                            <button class="btn" onclick="deleteTool('${t.id}')" style="border-color:var(--red);">🗑️</button>
+                        </td>
+                     </tr>`;
+        });
+        html += `</table>`;
+        document.getElementById('adminToolsContainer').innerHTML = html;
+    }
+    window.editTool = (id) => {
+        const tool = getTools().find(t => t.id === id);
+        if (tool) {
+            document.getElementById('toolFormTitle').innerText = 'Edit Tool';
+            document.getElementById('toolName').value = tool.name;
+            document.getElementById('toolDesc').value = tool.description;
+            document.getElementById('toolPrice').value = tool.price;
+            document.getElementById('toolCategory').value = tool.category;
+            document.getElementById('toolImageUrls').value = Array.isArray(tool.imageUrls) ? tool.imageUrls.join('\n') : '';
+            document.getElementById('toolVideoUrl').value = tool.videoUrl || '';
+            document.getElementById('toolDownloadUrl').value = tool.downloadUrl || '';
+            document.getElementById('toolPaymentLink').value = tool.paymentLink || '';
+            document.getElementById('editingToolId').value = tool.id;
+            document.getElementById('toolFormModal').style.display = 'block';
+        }
+    };
+    window.deleteTool = (id) => {
+        if (confirm('Delete this tool?')) {
+            let tools = getTools();
+            tools = tools.filter(t => t.id !== id);
+            saveTools(tools);
+            renderAdminTools();
+        }
+    };
+    document.getElementById('addToolBtn')?.addEventListener('click', () => {
+        document.getElementById('toolFormTitle').innerText = 'Add New Tool';
+        document.getElementById('toolName').value = '';
+        document.getElementById('toolDesc').value = '';
+        document.getElementById('toolPrice').value = '';
+        document.getElementById('toolCategory').value = '';
+        document.getElementById('toolImageUrls').value = '';
+        document.getElementById('toolVideoUrl').value = '';
+        document.getElementById('toolDownloadUrl').value = '';
+        document.getElementById('toolPaymentLink').value = '';
+        document.getElementById('editingToolId').value = '';
+        document.getElementById('toolFormModal').style.display = 'block';
+    });
+    document.getElementById('saveToolBtn')?.addEventListener('click', () => {
+        const id = document.getElementById('editingToolId').value;
+        const toolData = {
+            name: document.getElementById('toolName').value,
+            description: document.getElementById('toolDesc').value,
+            price: parseFloat(document.getElementById('toolPrice').value),
+            category: document.getElementById('toolCategory').value,
+            imageUrls: document.getElementById('toolImageUrls').value.split('\n').filter(l => l.trim()),
+            videoUrl: document.getElementById('toolVideoUrl').value,
+            downloadUrl: document.getElementById('toolDownloadUrl').value,
+            paymentLink: document.getElementById('toolPaymentLink').value
+        };
+        let tools = getTools();
+        if (id) {
+            const idx = tools.findIndex(t => t.id === id);
+            if (idx !== -1) tools[idx] = { ...tools[idx], ...toolData };
+        } else {
+            toolData.id = Date.now().toString();
+            tools.push(toolData);
+        }
+        saveTools(tools);
+        document.getElementById('toolFormModal').style.display = 'none';
+        renderAdminTools();
+    });
+    document.getElementById('cancelToolBtn')?.addEventListener('click', () => {
+        document.getElementById('toolFormModal').style.display = 'none';
+    });
+
+    // ---------- VISITORS ----------
+    function renderVisitors() {
+        const visitors = getVisitors();
+        let html = `<table class="admin-table"><tr><th>IP Address</th><th>Time</th><th>Page</th></tr>`;
+        visitors.forEach(v => {
+            html += `<tr><td>${v.ip}</td><td>${new Date(v.time).toLocaleString()}</td><td>${v.page}</td></tr>`;
+        });
+        html += `</table>`;
+        document.getElementById('visitorsTableContainer').innerHTML = html;
+    }
+
+    // ---------- BLOG MANAGEMENT ----------
+    function renderBlogPosts() {
+        const posts = getBlog();
+        let html = `<table class="admin-table"><tr><th>Title</th><th>Category</th><th>Date</th><th>Actions</th></tr>`;
+        posts.forEach(p => {
+            html += `<tr>
+                        <td>${p.title}</td>
+                        <td>${p.category}</td>
+                        <td>${new Date(p.createdAt).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn" onclick="editPost('${p.id}')">✏️</button>
+                            <button class="btn" onclick="deletePost('${p.id}')" style="border-color:var(--red);">🗑️</button>
+                        </td>
+                     </tr>`;
+        });
+        html += `</table>`;
+        document.getElementById('blogPostsContainer').innerHTML = html;
+    }
+    window.editPost = (id) => {
+        const post = getBlog().find(p => p.id === id);
+        if (post) {
+            document.getElementById('postFormTitle').innerText = 'Edit Post';
+            document.getElementById('postTitle').value = post.title;
+            document.getElementById('postCategory').value = post.category;
+            document.getElementById('postContent').value = post.content;
+            document.getElementById('editingPostId').value = post.id;
             document.getElementById('postFormModal').style.display = 'block';
-            if (post) {
-                document.getElementById('postFormTitle').textContent = 'Edit Post';
-                document.getElementById('postTitle').value = post.title || '';
-                document.getElementById('postCategory').value = post.category || 'general';
-                document.getElementById('postContent').value = post.content || '';
-                document.getElementById('editingPostId').value = post.id;
-            } else {
-                document.getElementById('postFormTitle').textContent = 'New Post';
-                document.getElementById('postTitle').value = '';
-                document.getElementById('postCategory').value = 'general';
-                document.getElementById('postContent').value = '';
-                document.getElementById('editingPostId').value = '';
-            }
         }
-
-        async function savePost() {
-            const title = document.getElementById('postTitle').value.trim();
-            const content = document.getElementById('postContent').value.trim();
-            const category = document.getElementById('postCategory').value;
-            if (!title || !content) return alert('Title and content required.');
-            const postData = { title, content, category };
-            const editingId = document.getElementById('editingPostId').value;
-            const url = editingId ? `${API}/admin/blog/${editingId}` : `${API}/admin/blog`;
-            const method = editingId ? 'PUT' : 'POST';
-            const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` }, body: JSON.stringify(postData) });
-            if (res.ok) {
-                document.getElementById('postFormModal').style.display = 'none';
-                loadBlogPosts();
-            } else {
-                alert('Save failed.');
-            }
+    };
+    window.deletePost = (id) => {
+        if (confirm('Delete this post?')) {
+            let posts = getBlog();
+            posts = posts.filter(p => p.id !== id);
+            saveBlog(posts);
+            renderBlogPosts();
         }
-
-        async function loadBlogPosts() {
-            const res = await fetch(`${API}/blog`);
-            const posts = await res.json();
-            let html = '<table class="admin-table"><tr><th>Title</th><th>Category</th><th>Date</th><th>Actions</th></tr>';
-            posts.forEach(p => {
-                html += `<tr><td>${p.title}</td><td>${p.category}</td><td>${new Date(p.createdAt).toLocaleDateString()}</td>
-                <td><button class="btn" onclick="editPost('${p.id}')">✏️</button> <button class="btn" onclick="deletePost('${p.id}')" style="border-color:var(--red);color:var(--red);">🗑️</button></td></tr>`;
+    };
+    document.getElementById('addPostBtn')?.addEventListener('click', () => {
+        document.getElementById('postFormTitle').innerText = 'New Post';
+        document.getElementById('postTitle').value = '';
+        document.getElementById('postCategory').value = 'general';
+        document.getElementById('postContent').value = '';
+        document.getElementById('editingPostId').value = '';
+        document.getElementById('postFormModal').style.display = 'block';
+    });
+    document.getElementById('savePostBtn')?.addEventListener('click', () => {
+        const title = document.getElementById('postTitle').value.trim();
+        const content = document.getElementById('postContent').value.trim();
+        const category = document.getElementById('postCategory').value;
+        if (!title || !content) return alert('Title and content required');
+        const id = document.getElementById('editingPostId').value;
+        let posts = getBlog();
+        if (id) {
+            const idx = posts.findIndex(p => p.id === id);
+            if (idx !== -1) {
+                posts[idx] = { ...posts[idx], title, content, category, updatedAt: new Date().toISOString() };
+            }
+        } else {
+            posts.push({
+                id: Date.now().toString(),
+                title,
+                content,
+                category,
+                createdAt: new Date().toISOString()
             });
-            html += '</table>';
-            document.getElementById('blogPostsContainer').innerHTML = html;
         }
+        saveBlog(posts);
+        document.getElementById('postFormModal').style.display = 'none';
+        renderBlogPosts();
+    });
+    document.getElementById('cancelPostBtn')?.addEventListener('click', () => {
+        document.getElementById('postFormModal').style.display = 'none';
+    });
 
-        async function editPost(id) {
-            const res = await fetch(`${API}/blog/${id}`);
-            const post = await res.json();
-            if (post) openPostForm(post);
+    // Matrix rain effect (simple inline)
+    (function() {
+        const canvas = document.getElementById('matrixCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let w, h, drops = [];
+        const chars = "01アイウエオカキクケコ";
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            drops = Array(Math.floor(w / 15)).fill(0);
         }
-
-        async function deletePost(id) {
-            if (!confirm('Delete this post?')) return;
-            await fetch(`${API}/admin/blog/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
-            loadBlogPosts();
+        function draw() {
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = '#0f0';
+            ctx.font = '12px monospace';
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * 15, drops[i] * 15);
+                if (drops[i] * 15 > h && Math.random() > 0.98) drops[i] = 0;
+                drops[i]++;
+            }
+            requestAnimationFrame(draw);
         }
-
-        // (Rest of admin functions: loadUsers, banUser, etc. – keep them exactly as before)
-        // They are unchanged, just ensure they are included in this file.
-        // For brevity, I've omitted them here, but you must keep them from your existing admin.html.
-    </script>
+        window.addEventListener('resize', resize);
+        resize();
+        draw();
+    })();
+</script>
 </body>
 </html>
