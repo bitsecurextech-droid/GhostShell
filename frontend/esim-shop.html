@@ -2,55 +2,131 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST SHELL • eSIM Market</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GHOST SHELL • eSIM Store – Global Data Plans</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
-        body { background: radial-gradient(circle at 20% 30%, #0a0000, #000000); font-family: 'Courier New', monospace; color: #ccc; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #8a0303; padding-bottom: 15px; margin-bottom: 30px; }
+        body { background: radial-gradient(circle at 20% 30%, #0a0000, #000000); font-family: 'Courier New', monospace; color: #ccc; margin:0; padding:0; }
+        .admin-wrapper { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 10; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 2px solid #8a0303; padding: 15px 20px; margin-bottom: 30px; }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
         .logo-img { height: 45px; filter: drop-shadow(0 0 5px red); }
         .site-name { font-size: 1.6rem; color: #c0392b; text-shadow: 0 0 8px #ff0000; }
-        .card { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
-        .plan-card { display: inline-block; width: 280px; margin: 15px; background: #0a0000; border: 1px solid #ff4444; padding: 15px; text-align: center; }
-        .plan-card h3 { color: #ff6666; }
-        .price { font-size: 1.5rem; color: #00ff41; }
-        .btn { background: #1a0000; border: 1px solid #8a0303; color: #ff6666; padding: 6px 14px; cursor: pointer; }
-        .btn:hover { background: #5e0000; color: white; }
+        .btn { background: #1a0000; border: 1px solid #8a0303; color: #ff6666; padding: 6px 14px; cursor: pointer; font-family: monospace; font-weight: bold; margin: 4px; }
+        .btn:hover { background: #5e0000; color: white; box-shadow: 0 0 10px red; }
+        .footer { text-align: center; padding: 20px; border-top: 1px solid #8a0303; margin-top: 40px; font-size: 0.7rem; }
+        .footer a { color: #ff6666; margin: 0 8px; text-decoration: none; }
+        .footer a:hover { color: #ff0000; }
+        .plan-card { display: inline-block; width: 280px; margin: 15px; background: #0a0000; border: 1px solid #ff4444; padding: 20px; text-align: center; border-radius: 12px; transition: 0.3s; }
+        .plan-card:hover { transform: translateY(-5px); border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); }
+        .plan-card h3 { color: #ff6666; margin-bottom: 10px; }
+        .price { font-size: 1.8rem; color: #00ff41; margin: 10px 0; }
+        .duration { background: #8a0303; display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; }
+        .carrier { color: #ffaa00; margin-top: 8px; }
+        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
     </style>
 </head>
 <body>
 <canvas id="matrixCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.3; pointer-events:none;"></canvas>
-<div class="container" style="position:relative; z-index:10;">
-    <div class="header">
-        <div><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name"> GHOST SHELL • eSIM STORE</span></div>
-        <button class="btn" onclick="window.location.href='index.html'">Back to Ops</button>
-    </div>
-    <div class="card">
-        <h2>📱 eSIM Data & Voice Plans (Worldwide)</h2>
-        <div id="plansList"></div>
-    </div>
+<div class="admin-wrapper">
+    <header class="header" id="mainHeader"></header>
+
+    <main>
+        <h1 style="color:var(--red); text-align:center;">📱 eSIM DATA & VOICE PLANS</h1>
+        <p style="text-align:center; margin-bottom:30px;">Global coverage – 1 month to 1 year, prepaid eSIM for Verizon, AT&T, Mint, and more.</p>
+        <div id="plansContainer" class="grid">Loading eSIM plans...</div>
+    </main>
+
+    <footer class="footer" id="mainFooter"></footer>
 </div>
+
 <script>
-    function loadPlans() {
-        const plans = JSON.parse(localStorage.getItem('ghost_esim') || '[]');
-        const container = document.getElementById('plansList');
-        if (plans.length === 0) { container.innerHTML = '<p>No eSIM plans available yet.</p>'; return; }
-        let html = '';
-        plans.forEach(p => {
-            html += `<div class="plan-card">
-                        <h3>${p.name}</h3>
-                        <p><strong>Duration:</strong> ${p.duration}</p>
-                        <p><strong>Data:</strong> ${p.data}</p>
-                        <p><strong>Voice:</strong> ${p.voice}</p>
-                        <div class="price">$${p.price}</div>
-                        <button class="btn" onclick="alert('Contact admin to purchase: ${p.name}')">Buy eSIM</button>
-                    </div>`;
+    const API = '/api';
+    let currentUser = null;
+
+    async function apiCall(endpoint, options = {}) {
+        const token = localStorage.getItem('ghost_token');
+        const res = await fetch(`${API}${endpoint}`, {
+            ...options,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...options.headers }
         });
-        container.innerHTML = html;
+        if (res.status === 401) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; }
+        return res.json();
     }
-    loadPlans();
-    // matrix rain
+
+    async function loadPlans() {
+        try {
+            const plans = await apiCall('/esim');
+            const container = document.getElementById('plansContainer');
+            if (!plans.length) { container.innerHTML = '<p>No eSIM plans available yet.</p>'; return; }
+            let html = '';
+            plans.forEach(p => {
+                html += `
+                    <div class="plan-card">
+                        <h3>${escapeHtml(p.name)}</h3>
+                        <div class="duration">${escapeHtml(p.duration)}</div>
+                        <div class="carrier">📡 ${escapeHtml(p.carrier || 'Global')}</div>
+                        <div class="price">$${p.price}</div>
+                        <p><strong>Data:</strong> ${escapeHtml(p.data)}</p>
+                        <p><strong>Voice:</strong> ${escapeHtml(p.voice)}</p>
+                        <button class="btn" onclick="alert('Contact admin to purchase: ${escapeHtml(p.name)}')">Buy eSIM</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        } catch(e) { document.getElementById('plansContainer').innerHTML = '<p>Failed to load plans.</p>'; }
+    }
+
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
+
+    // Build header and footer
+    function buildHeaderFooter() {
+        const pages = [
+            { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
+            { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
+            { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
+            { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
+            { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+            { name: 'esim', label: '📱 eSIM', href: 'esim-shop.html' },
+            { name: 'virtual', label: '📞 Virtual Numbers', href: 'virtual-numbers.html' },
+            { name: 'logistics', label: '📦 Logistics', href: 'logistics-tracking.html' },
+            { name: 'blog', label: '💀 Blog', href: 'blog.html' }
+        ];
+        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'full_admin')) {
+            pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
+        }
+        const header = document.getElementById('mainHeader');
+        header.innerHTML = `
+            <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
+            <nav class="nav-links">${pages.map(p => `<button class="nav-link ${p.name === 'esim' ? 'active' : ''}" onclick="window.location.href='${p.href}'">${p.label}</button>`).join('')}</nav>
+            <button class="btn" id="themeToggle">🌓</button>
+            <button class="btn" id="logoutBtn">EXIT</button>
+        `;
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            document.getElementById('themeToggle').textContent = document.body.classList.contains('light') ? '☀️' : '🌓';
+            localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; });
+        const footer = document.getElementById('mainFooter');
+        footer.innerHTML = `<a href="disclaimer.html">⚠️ DISCLAIMER</a> | <a href="privacy.html">🔒 PRIVACY POLICY</a> | <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> | <a href="faq.html">❓ FAQ</a> | <a href="sitemap.xml">🗺️ SITEMAP</a><br><span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>`;
+    }
+
+    (async () => {
+        const token = localStorage.getItem('ghost_token');
+        if (!token) { window.location.href = 'index.html'; return; }
+        try {
+            const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            currentUser = data.user;
+            buildHeaderFooter();
+            await loadPlans();
+        } catch(e) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; }
+    })();
+
+    // Matrix rain
     (function() {
         const canvas = document.getElementById('matrixCanvas');
         const ctx = canvas.getContext('2d');
