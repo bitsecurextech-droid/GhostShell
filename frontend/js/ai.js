@@ -1,4 +1,9 @@
 (async () => {
+    const ok = await initCommon();
+    if (!ok) return;
+
+    // ---- YOUR EXISTING CODE GOES BELOW ----
+    (async () => {
     const loggedIn = await initAuth('ai');
     if (!loggedIn) return;
 
@@ -101,5 +106,6 @@
             input.value = btn.textContent;
             sendBtn.click();
         });
+        })();
     });
 })();
