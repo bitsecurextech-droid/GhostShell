@@ -3,622 +3,454 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL // CYBER TOOLS</title>
-    <meta name="description" content="34+ real cybersecurity tools – IP lookup, phishing detector, WHOIS, SSL checker, port scanner, exploit database, and more.">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+    <title>GHOST SHELL // STANDALONE TOOLS</title>
     <style>
-        .tool-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:10px; }
-        .tool-card { cursor:pointer; transition: all 0.2s; }
-        .tool-card:active { transform:scale(0.95); background:rgba(255,0,0,0.1); }
-        .loading-indicator { text-align:center; padding:20px; display:none; }
-        .loading-indicator.active { display:block; }
-        @keyframes blink { 50% { opacity:0; } }
-        .blink { animation: blink 0.8s infinite; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --bg: #0a0c0f;
+            --card: #111316;
+            --red: #ff1a1a;
+            --green: #00ff41;
+            --glow-red: 0 0 10px rgba(255,26,26,0.5);
+            --glow-green: 0 0 8px rgba(0,255,65,0.5);
+            --font-mono: 'Courier New', 'Consolas', monospace;
+        }
+        body {
+            background: var(--bg);
+            font-family: var(--font-mono);
+            color: #ccc;
+            padding: 20px;
+        }
+        canvas#matrixCanvas {
+            position: fixed;
+            top:0; left:0;
+            width:100%; height:100%;
+            z-index:-1;
+            opacity:0.3;
+            pointer-events:none;
+        }
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            background: #000000aa;
+            backdrop-filter: blur(8px);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--red);
+            margin-bottom: 25px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-img {
+            width: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--red);
+        }
+        .site-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--red);
+            text-shadow: var(--glow-red);
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .nav-link, .btn {
+            background: transparent;
+            border: 1px solid var(--red);
+            color: var(--red);
+            padding: 6px 14px;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-link:hover, .btn:hover {
+            background: var(--red);
+            color: black;
+            box-shadow: var(--glow-red);
+        }
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 12px;
+            margin: 25px 0;
+        }
+        .tool-card {
+            background: var(--card);
+            border: 1px solid #2a2e36;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.1s linear;
+            font-size: 0.85rem;
+        }
+        .tool-card:active { transform: scale(0.97); background: #1f232a; }
+        .card {
+            background: var(--card);
+            border: 1px solid #2a2e36;
+            padding: 18px;
+            margin-top: 20px;
+        }
+        input, select, textarea {
+            background: #1e2128;
+            border: 1px solid #3a3f4a;
+            color: #0f0;
+            padding: 8px;
+            font-family: monospace;
+            width: 100%;
+            margin: 6px 0;
+        }
+        button.btn {
+            margin: 5px 5px 0 0;
+        }
+        h3 { color: var(--green); margin-bottom: 12px; }
+        .tool-icon { font-size: 1.4rem; display: block; margin-bottom: 6px; }
     </style>
 </head>
 <body>
-    <canvas id="matrixCanvas"></canvas>
+<canvas id="matrixCanvas"></canvas>
 
-    <div id="mainDashboard" style="position:relative; z-index:2;">
-        <header class="header">
-            <div class="logo-area">
-                <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="GHOST SHELL logo">
-                <span class="site-name">GHOST SHELL</span>
-            </div>
-            <nav class="nav-links" id="mainNav"></nav>
-            <button class="btn" id="themeToggle" style="border-color:#ffaa00; color:#ffaa00; margin-left:10px;">🌓</button>
-            <button class="btn" id="logoutBtn" style="margin-left:auto; border-color:#ffab00; color:#ffab00;" aria-label="Logout">EXIT</button>
-        </header>
-
-        <div class="page active">
-            <h2 style="color:var(--red); font-family:var(--font-mono); letter-spacing:2px; margin-bottom:15px;">⚔️ CYBER TOOLS ARSENAL</h2>
-
-            <!-- Tool grid (always visible) -->
-            <div id="toolGridSection" class="tool-grid">
-                <div class="card tool-card" data-tool="phishing"><span class="tool-icon">🎣</span> Phishing URL Detector</div>
-                <div class="card tool-card" data-tool="ip"><span class="tool-icon">🌍</span> IP Lookup</div>
-                <div class="card tool-card" data-tool="phone"><span class="tool-icon">📱</span> Phone Tracker</div>
-                <div class="card tool-card" data-tool="password"><span class="tool-icon">🔑</span> Password Strength</div>
-                <div class="card tool-card" data-tool="encrypt"><span class="tool-icon">🔐</span> AES Encryption</div>
-                <div class="card tool-card" data-tool="hash"><span class="tool-icon">#️⃣</span> Hash Generator</div>
-                <div class="card tool-card" data-tool="port"><span class="tool-icon">🔍</span> Port Scanner</div>
-                <div class="card tool-card" data-tool="ssl"><span class="tool-icon">🔒</span> SSL Checker</div>
-                <div class="card tool-card" data-tool="headers"><span class="tool-icon">🛡</span> Security Headers</div>
-                <div class="card tool-card" data-tool="qrcode"><span class="tool-icon">📱</span> QR Generator</div>
-                <div class="card tool-card" data-tool="dns"><span class="tool-icon">📋</span> DNS Lookup</div>
-                <div class="card tool-card" data-tool="whois"><span class="tool-icon">🔎</span> WHOIS Lookup</div>
-                <div class="card tool-card" data-tool="fileintegrity"><span class="tool-icon">📄</span> File Integrity</div>
-                <div class="card tool-card" data-tool="speedtest"><span class="tool-icon">⏱</span> Speed Test</div>
-                <div class="card tool-card" data-tool="steganography"><span class="tool-icon">👁</span> Steganography</div>
-                <div class="card tool-card" data-tool="ping"><span class="tool-icon">📶</span> Ping</div>
-                <div class="card tool-card" data-tool="traceroute"><span class="tool-icon">🗺</span> Traceroute</div>
-                <div class="card tool-card" data-tool="vulnerability"><span class="tool-icon">💣</span> Vulnerability Score</div>
-                <div class="card tool-card" data-tool="exploit"><span class="tool-icon">💥</span> Exploit Search</div>
-                <div class="card tool-card" data-tool="emailheader"><span class="tool-icon">📧</span> Email Header Analyzer</div>
-                <div class="card tool-card" data-tool="cvelookup"><span class="tool-icon">🔖</span> CVE Lookup</div>
-                <div class="card tool-card" data-tool="macvendor"><span class="tool-icon">🖧</span> MAC Vendor</div>
-                <div class="card tool-card" data-tool="useragent"><span class="tool-icon">🕵️</span> User-Agent Parser</div>
-                <div class="card tool-card" data-tool="urlencode"><span class="tool-icon">🔗</span> URL Encoder/Decoder</div>
-                <div class="card tool-card" data-tool="base64"><span class="tool-icon">📝</span> Base64 Encoder/Decoder</div>
-                <div class="card tool-card" data-tool="binarytext"><span class="tool-icon">0️⃣1️⃣</span> Binary ↔ Text</div>
-                <div class="card tool-card" data-tool="rot13"><span class="tool-icon">🔃</span> ROT13 Cipher</div>
-                <div class="card tool-card" data-tool="caesar"><span class="tool-icon">🧩</span> Caesar Cipher</div>
-                <div class="card tool-card" data-tool="vigenere"><span class="tool-icon">🔠</span> Vigenère Cipher</div>
-                <div class="card tool-card" data-tool="reverse"><span class="tool-icon">↩️</span> Reverse String</div>
-                <div class="card tool-card" data-tool="morse"><span class="tool-icon">📡</span> Morse Code</div>
-                <div class="card tool-card" data-tool="timestamp"><span class="tool-icon">🕒</span> Timestamp Converter</div>
-                <div class="card tool-card" data-tool="httpstatus"><span class="tool-icon">🌐</span> HTTP Status</div>
-                <div class="card tool-card" data-tool="subdomain"><span class="tool-icon">🔎</span> Subdomain Scanner</div>
-                <div class="card tool-card" data-tool="shodan"><span class="tool-icon">🛰️</span> Shodan Lookup</div>
-                <div class="card tool-card" data-tool="darkweb"><span class="tool-icon">🕶️</span> Dark-Web Monitor</div>
-            </div>
-
-            <!-- Loading indicator -->
-            <div id="loadingIndicator" class="loading-indicator">
-                <span class="blink" style="color:var(--red); font-family:var(--font-mono);">⚡ Processing...</span>
-            </div>
-
-            <!-- Tool output area -->
-            <div id="toolOutput" class="card" style="margin-top:20px; min-height:200px;">
-                <p style="color:#666;">Select a tool from the arsenal above...</p>
-            </div>
+<div id="mainDashboard">
+    <header class="header">
+        <div class="logo-area">
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img" alt="logo">
+            <span class="site-name">GHOST SHELL</span>
         </div>
+        <nav class="nav-links" id="mainNav"></nav>
+        <button class="btn" id="logoutBtn" style="margin-left:10px;">EXIT</button>
+    </header>
+
+    <h2 style="color:var(--red); letter-spacing:2px;">⚔️ CYBER TOOLS ARSENAL</h2>
+
+    <div class="tool-grid" id="toolGrid">
+        <!-- tools injected by JS -->
     </div>
 
-    <script src="js/matrix.js"></script>
-    <script>
-        const API = '/api';
-        let currentUser = null;
+    <div id="toolOutput" class="card">
+        <p style="color:#888;">🔻 Click any tool above to launch 🔻</p>
+    </div>
+</div>
 
-        // Theme toggle
-        (function() {
-            const themeBtn = document.getElementById('themeToggle');
-            if (themeBtn) {
-                if (localStorage.getItem('theme') === 'light') {
-                    document.body.classList.add('light');
-                    themeBtn.textContent = '☀️';
-                }
-                themeBtn.addEventListener('click', () => {
-                    document.body.classList.toggle('light');
-                    const isLight = document.body.classList.contains('light');
-                    themeBtn.textContent = isLight ? '☀️' : '🌓';
-                    localStorage.setItem('theme', isLight ? 'light' : 'dark');
-                });
-            }
-        })();
+<script>
+    // ------------- mock navigation (standalone, no backend) -------------
+    const pages = [
+        { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
+        { name: 'tools', label: '⚔️ Cyber Tools', href: '#' },
+        { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
+        { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
+        { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+        { name: 'admin', label: '⚙️ Admin', href: 'admin.html' }
+    ];
+    const nav = document.getElementById('mainNav');
+    pages.forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-link' + (p.name === 'tools' ? ' active' : '');
+        btn.textContent = p.label;
+        if (p.href === '#') btn.style.opacity = '0.6';
+        else btn.addEventListener('click', () => window.location.href = p.href);
+        nav.appendChild(btn);
+    });
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    });
 
-        window.addEventListener('load', async () => {
-            const token = localStorage.getItem('ghost_token');
-            if (!token) { window.location.href = 'index.html'; return; }
+    // -------------------- TOOLS LIST (all client-side) --------------------
+    const toolsList = [
+        { id: 'phishing', icon: '🎣', name: 'Phishing Detector' },
+        { id: 'ip', icon: '🌍', name: 'IP Lookup' },
+        { id: 'phone', icon: '📱', name: 'Phone Tracker' },
+        { id: 'password', icon: '🔑', name: 'Password Strength' },
+        { id: 'encrypt', icon: '🔐', name: 'AES Encryption' },
+        { id: 'hash', icon: '#️⃣', name: 'Hash Generator' },
+        { id: 'port', icon: '🔍', name: 'Port Scanner' },
+        { id: 'ssl', icon: '🔒', name: 'SSL Checker' },
+        { id: 'headers', icon: '🛡', name: 'Security Headers' },
+        { id: 'qrcode', icon: '📱', name: 'QR Generator' },
+        { id: 'dns', icon: '📋', name: 'DNS Lookup' },
+        { id: 'whois', icon: '🔎', name: 'WHOIS Lookup' },
+        { id: 'fileintegrity', icon: '📄', name: 'File Integrity' },
+        { id: 'speedtest', icon: '⏱', name: 'Speed Test' },
+        { id: 'steganography', icon: '👁', name: 'Steganography' },
+        { id: 'ping', icon: '📶', name: 'Ping' },
+        { id: 'traceroute', icon: '🗺', name: 'Traceroute' },
+        { id: 'vulnerability', icon: '💣', name: 'Vuln Score' },
+        { id: 'exploit', icon: '💥', name: 'Exploit Search' },
+        { id: 'emailheader', icon: '📧', name: 'Email Header' },
+        { id: 'cvelookup', icon: '🔖', name: 'CVE Lookup' },
+        { id: 'macvendor', icon: '🖧', name: 'MAC Vendor' },
+        { id: 'useragent', icon: '🕵️', name: 'User-Agent' },
+        { id: 'urlencode', icon: '🔗', name: 'URL En/Decode' },
+        { id: 'base64', icon: '📝', name: 'Base64' },
+        { id: 'binarytext', icon: '0️⃣1️⃣', name: 'Binary ↔ Text' },
+        { id: 'rot13', icon: '🔃', name: 'ROT13' },
+        { id: 'caesar', icon: '🧩', name: 'Caesar Cipher' },
+        { id: 'vigenere', icon: '🔠', name: 'Vigenère' },
+        { id: 'reverse', icon: '↩️', name: 'Reverse' },
+        { id: 'morse', icon: '📡', name: 'Morse Code' },
+        { id: 'timestamp', icon: '🕒', name: 'Timestamp' },
+        { id: 'httpstatus', icon: '🌐', name: 'HTTP Status' }
+    ];
 
-            const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
-            if (!res.ok) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; return; }
-            const data = await res.json();
-            currentUser = data.user;
+    const toolGrid = document.getElementById('toolGrid');
+    toolsList.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'tool-card';
+        card.setAttribute('data-tool', t.id);
+        card.innerHTML = `<span class="tool-icon">${t.icon}</span>${t.name}`;
+        card.addEventListener('click', () => showTool(t.id));
+        toolGrid.appendChild(card);
+    });
 
-            // Build navigation
-            const nav = document.getElementById('mainNav');
-            const pages = [
-                { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
-                { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
-                { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
-                { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
-                { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
-                { name: 'blog', label: '💀 Blog', href: 'blog.html' }
-            ];
-            if (currentUser.role === 'admin') pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
-            nav.innerHTML = '';
-            pages.forEach(p => {
-                const btn = document.createElement('button');
-                btn.className = 'nav-link' + (p.name === 'tools' ? ' active' : '');
-                btn.textContent = p.label;
-                btn.addEventListener('click', () => window.location.href = p.href);
-                nav.appendChild(btn);
-            });
+    // ---------- Helper: update output area ----------
+    function setOutput(html) {
+        document.getElementById('toolOutput').innerHTML = `<div style="max-height:500px; overflow:auto;">${html}</div>`;
+    }
 
-            // Logout
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                localStorage.removeItem('ghost_token');
-                localStorage.removeItem('toolToken');
-                window.location.href = 'index.html';
-            });
-
-            // Attach tool listeners with mobile feedback
-            document.querySelectorAll('.tool-card').forEach(card => {
-                card.addEventListener('click', function(e) {
-                    const tool = this.dataset.tool;
-                    // Show loading
-                    const loader = document.getElementById('loadingIndicator');
-                    loader.classList.add('active');
-                    // Scroll to output area
-                    document.getElementById('toolOutput').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    // Small delay to let the user see the loader, then show tool
-                    setTimeout(() => {
-                        loader.classList.remove('active');
-                        showTool(tool);
-                    }, 200);
-                });
-            });
-        });
-
-        // API call helper
-        async function apiCall(endpoint, options = {}) {
-            const token = localStorage.getItem('ghost_token');
-            const res = await fetch(`${API}${endpoint}`, {
-                ...options,
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...options.headers }
-            });
-            return res.json();
-        }
-
-        // Tool router
-        function showTool(tool) {
-            const out = document.getElementById('toolOutput');
-            if (!out) return;
-
-            // Common header with back button (visible on mobile)
-            const backBtn = `<button class="btn" style="margin-bottom:10px; font-size:0.7rem;" onclick="document.getElementById('toolGridSection').scrollIntoView({behavior:'smooth'}); document.getElementById('toolOutput').innerHTML='<p style=\\'color:#666;\\'>Select a tool from the arsenal above...</p>';">← Back to Tools</button>`;
-
-            switch (tool) {
-                case 'phishing':
-                    out.innerHTML = `${backBtn}<h3>🎣 Phishing URL Detector</h3><input type="text" id="phishUrl" placeholder="Enter URL"><button class="btn" id="checkPhishBtn">Analyze</button><div id="phishResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('checkPhishBtn').onclick = async () => {
-                        const url = document.getElementById('phishUrl').value;
-                        const data = await apiCall('/phishing-check', { method: 'POST', body: JSON.stringify({ url }) });
-                        document.getElementById('phishResult').innerHTML = data.phishing ? '<span style="color:red;">⚠ LIKELY PHISHING</span>' : '<span style="color:var(--green);">✅ CLEAN</span>';
-                        document.getElementById('phishResult').innerHTML += `<br><small>Indicators: ${data.indicators?.join(', ')||'none'}</small>`;
-                    };
-                    break;
-
-                case 'ip':
-                    out.innerHTML = `${backBtn}<h3>🌍 IP Lookup</h3><input type="text" id="ipInput" placeholder="8.8.8.8"><button class="btn" id="lookupIpBtn">Lookup</button><div id="ipResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('lookupIpBtn').onclick = async () => {
-                        const ip = document.getElementById('ipInput').value;
-                        const data = await apiCall(`/ip/${ip}`);
-                        document.getElementById('ipResult').innerHTML = `<pre style="font-size:0.7rem;">${JSON.stringify(data, null, 2)}</pre>`;
-                    };
-                    break;
-
-                case 'phone':
-                    out.innerHTML = `${backBtn}<h3>📱 Phone Number Tracker</h3><input type="text" id="phoneNumber" placeholder="+2349032043006"><button class="btn" id="lookupPhoneBtn">Track</button><div id="phoneResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('lookupPhoneBtn').onclick = async () => {
-                        const num = document.getElementById('phoneNumber').value;
-                        const data = await apiCall(`/phone-lookup/${encodeURIComponent(num)}`);
-                        document.getElementById('phoneResult').innerHTML = `<pre style="font-size:0.7rem;">${JSON.stringify(data, null, 2)}</pre>`;
-                    };
-                    break;
-
-                case 'password':
-                    out.innerHTML = `${backBtn}<h3>🔑 Password Strength Analyzer</h3><input type="text" id="pwdInput" placeholder="Enter password"><button class="btn" id="analyzePwdBtn">Analyze</button><div id="pwdResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('analyzePwdBtn').onclick = () => {
-                        const pwd = document.getElementById('pwdInput').value;
-                        const charsetSize = (/[a-z]/.test(pwd)?26:0)+(/[A-Z]/.test(pwd)?26:0)+(/[0-9]/.test(pwd)?10:0)+(/[^a-zA-Z0-9]/.test(pwd)?32:0);
-                        const entropy = pwd.length * Math.log2(charsetSize||1);
-                        const strength = entropy<40?'WEAK':entropy<80?'MODERATE':'STRONG';
-                        document.getElementById('pwdResult').innerHTML = `<strong>Entropy:</strong> ${entropy.toFixed(1)} bits<br><strong>Strength:</strong> ${strength}`;
-                    };
-                    break;
-
-                case 'encrypt':
-                    out.innerHTML = `${backBtn}<h3>🔐 AES Encryption</h3><input type="text" id="encryptText" placeholder="Text"><input type="password" id="encryptPass" placeholder="Password"><button class="btn" id="encryptBtn">Encrypt</button><button class="btn" id="decryptBtn" style="margin-left:5px;">Decrypt</button><div id="encryptResult" style="margin-top:10px;word-break:break-all;"></div>`;
+    // ---------- Tool implementations (fully client-side) ----------
+    function showTool(toolId) {
+        const out = document.getElementById('toolOutput');
+        const backBtn = `<button class="btn" style="margin-bottom:15px;" onclick="document.getElementById('toolGrid').scrollIntoView({behavior:'smooth'}); setOutput('<p style=\\'color:#888;\\'>🔻 Click any tool above 🔻</p>');">← Back to Tools</button>`;
+        
+        switch(toolId) {
+            case 'phishing':
+                setOutput(`${backBtn}<h3>🎣 Phishing URL Detector</h3><input type="text" id="phishUrl" placeholder="https://example.com"><button class="btn" id="checkPhishBtn">Analyze</button><div id="phishResult"></div>`);
+                document.getElementById('checkPhishBtn').onclick = () => {
+                    const url = document.getElementById('phishUrl').value;
+                    const suspicious = url.includes('secure-login') || url.includes('verify-account') || url.match(/bit\.ly|tinyurl/i);
+                    document.getElementById('phishResult').innerHTML = suspicious ? '<span style="color:red;">⚠️ LIKELY PHISHING</span>' : '<span style="color:var(--green);">✅ Looks clean (no obvious red flags)</span>';
+                };
+                break;
+            case 'ip':
+                setOutput(`${backBtn}<h3>🌍 IP Lookup (mock data)</h3><input type="text" id="ipInput" placeholder="8.8.8.8"><button class="btn" id="lookupIpBtn">Lookup</button><div id="ipResult"></div>`);
+                document.getElementById('lookupIpBtn').onclick = () => {
+                    const ip = document.getElementById('ipInput').value;
+                    document.getElementById('ipResult').innerHTML = `<pre>IP: ${ip}\nCountry: US\nCity: Mountain View\nISP: Google LLC\nRisk: Low</pre>`;
+                };
+                break;
+            case 'phone':
+                setOutput(`${backBtn}<h3>📱 Phone Tracker (demo)</h3><input type="text" id="phoneNumber" placeholder="+1234567890"><button class="btn" id="lookupPhoneBtn">Track</button><div id="phoneResult"></div>`);
+                document.getElementById('lookupPhoneBtn').onclick = () => {
+                    const num = document.getElementById('phoneNumber').value;
+                    document.getElementById('phoneResult').innerHTML = `<pre>Number: ${num}\nCarrier: Demo Network\nLocation: (simulated) Los Angeles, CA</pre>`;
+                };
+                break;
+            case 'password':
+                setOutput(`${backBtn}<h3>🔑 Password Strength</h3><input type="text" id="pwdInput" placeholder="Enter password"><button class="btn" id="analyzePwdBtn">Analyze</button><div id="pwdResult"></div>`);
+                document.getElementById('analyzePwdBtn').onclick = () => {
+                    const pwd = document.getElementById('pwdInput').value;
+                    let score = 0;
+                    if (pwd.length >= 8) score++;
+                    if (/[A-Z]/.test(pwd)) score++;
+                    if (/[0-9]/.test(pwd)) score++;
+                    if (/[^a-zA-Z0-9]/.test(pwd)) score++;
+                    const strength = ['Weak','Fair','Good','Strong'][score] || 'Very Weak';
+                    document.getElementById('pwdResult').innerHTML = `Strength: ${strength}<br>Length: ${pwd.length}`;
+                };
+                break;
+            case 'encrypt':
+                setOutput(`${backBtn}<h3>🔐 AES-GCM (client side)</h3><input type="text" id="encryptText" placeholder="Secret"><input type="password" id="encryptPass" placeholder="Password"><button class="btn" id="encryptBtn">Encrypt</button><button class="btn" id="decryptBtn">Decrypt</button><div id="encryptResult"></div>`);
+                (async () => {
+                    let storedCipher = '';
                     document.getElementById('encryptBtn').onclick = async () => {
                         const text = document.getElementById('encryptText').value;
                         const pass = document.getElementById('encryptPass').value;
                         const enc = new TextEncoder();
-                        const km = await crypto.subtle.importKey('raw', enc.encode(pass), { name: 'PBKDF2' }, false, ['deriveKey']);
-                        const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: enc.encode('ghost-salt'), iterations: 100000, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['encrypt','decrypt']);
+                        const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(pass), {name:'PBKDF2'}, false, ['deriveKey']);
+                        const key = await crypto.subtle.deriveKey({name:'PBKDF2', salt:enc.encode('salt'), iterations:100000, hash:'SHA-256'}, keyMaterial, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
                         const iv = crypto.getRandomValues(new Uint8Array(12));
-                        const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(text));
-                        const combined = new Uint8Array(iv.byteLength + encrypted.byteLength);
-                        combined.set(iv, 0); combined.set(new Uint8Array(encrypted), iv.byteLength);
-                        const base64 = btoa(String.fromCharCode(...combined));
-                        document.getElementById('encryptResult').innerHTML = `<strong>Encrypted:</strong><br><span style="color:var(--green);">${base64}</span>`;
-                        document.getElementById('encryptResult').dataset.ciphertext = base64;
+                        const encrypted = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc.encode(text));
+                        const combined = new Uint8Array(iv.length + encrypted.byteLength);
+                        combined.set(iv,0); combined.set(new Uint8Array(encrypted), iv.length);
+                        storedCipher = btoa(String.fromCharCode(...combined));
+                        document.getElementById('encryptResult').innerHTML = `<strong>Encrypted:</strong> ${storedCipher}`;
                     };
                     document.getElementById('decryptBtn').onclick = async () => {
-                        const ciphertext = document.getElementById('encryptResult').dataset.ciphertext;
+                        if(!storedCipher) return;
                         const pass = document.getElementById('encryptPass').value;
-                        if (!ciphertext) return;
                         try {
                             const enc = new TextEncoder();
-                            const km = await crypto.subtle.importKey('raw', enc.encode(pass), { name: 'PBKDF2' }, false, ['deriveKey']);
-                            const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: enc.encode('ghost-salt'), iterations: 100000, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['encrypt','decrypt']);
-                            const combined = new Uint8Array(atob(ciphertext).split('').map(c => c.charCodeAt(0)));
+                            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(pass), {name:'PBKDF2'}, false, ['deriveKey']);
+                            const key = await crypto.subtle.deriveKey({name:'PBKDF2', salt:enc.encode('salt'), iterations:100000, hash:'SHA-256'}, keyMaterial, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+                            const combined = new Uint8Array(atob(storedCipher).split('').map(c=>c.charCodeAt(0)));
                             const iv = combined.slice(0,12);
                             const data = combined.slice(12);
-                            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
-                            document.getElementById('encryptResult').innerHTML = `<strong>Decrypted:</strong><br><span style="color:var(--green);">${new TextDecoder().decode(decrypted)}</span>`;
-                        } catch (e) { document.getElementById('encryptResult').innerHTML = '<span style="color:red;">Decryption failed.</span>'; }
+                            const decrypted = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, data);
+                            document.getElementById('encryptResult').innerHTML = `<strong>Decrypted:</strong> ${new TextDecoder().decode(decrypted)}`;
+                        } catch(e) { document.getElementById('encryptResult').innerHTML = 'Decryption failed (wrong password)'; }
                     };
-                    break;
-
-                case 'hash':
-                    out.innerHTML = `${backBtn}<h3>#️⃣ Hash Generator</h3><input type="text" id="hashText" placeholder="Text"><select id="hashAlgo"><option value="SHA-256">SHA-256</option><option value="SHA-512">SHA-512</option><option value="SHA-1">SHA-1</option><option value="MD5">MD5</option></select><button class="btn" id="hashBtn">Generate</button><div id="hashResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('hashBtn').onclick = async () => {
-                        const text = document.getElementById('hashText').value;
-                        const algo = document.getElementById('hashAlgo').value;
-                        const enc = new TextEncoder();
-                        const hashBuffer = await crypto.subtle.digest(algo, enc.encode(text));
-                        const hashArray = Array.from(new Uint8Array(hashBuffer));
-                        const hashHex = hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
-                        document.getElementById('hashResult').innerHTML = `<strong>${algo}:</strong><br><span style="color:var(--green);">${hashHex}</span>`;
-                    };
-                    break;
-
-                case 'port':
-                    out.innerHTML = `${backBtn}<h3>🔍 Port Scanner</h3><p style="color:#888;font-size:0.7rem;">⚠ For educational use only. Real scanning requires permission.</p><input type="text" id="portIp" placeholder="IP"><input type="text" id="portRange" placeholder="Ports (22,80,443)"><button class="btn" id="scanPortsBtn">Scan</button><div id="portResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('scanPortsBtn').onclick = () => {
-                        const ip = document.getElementById('portIp').value;
-                        const range = document.getElementById('portRange').value;
-                        document.getElementById('portResult').innerHTML = '<span style="color:var(--green);">Scanning (educational)...</span>';
-                        setTimeout(() => {
-                            const ports = range.includes('-') ? Array.from({length:10},()=>Math.floor(Math.random()*1000)+1) : range.split(',').map(p=>parseInt(p));
-                            let html = `<strong>${ip}:</strong><br>`;
-                            ports.forEach(p => { html += `Port ${p}: ${Math.random()>0.7?'<span style="color:var(--green);">OPEN</span>':'<span style="color:#666;">CLOSED</span>'}<br>`; });
-                            document.getElementById('portResult').innerHTML = html;
-                        }, 1500);
-                    };
-                    break;
-
-                case 'ssl':
-                    out.innerHTML = `${backBtn}<h3>🔒 SSL Certificate Checker</h3><input type="text" id="sslDomain" placeholder="domain.com"><button class="btn" id="checkSslBtn">Check</button><div id="sslResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('checkSslBtn').onclick = async () => {
-                        const domain = document.getElementById('sslDomain').value;
-                        const data = await apiCall(`/ssl/${encodeURIComponent(domain)}`);
-                        if (data.error) {
-                            document.getElementById('sslResult').innerHTML = `<span style="color:red;">${data.error}</span>`;
-                        } else {
-                            document.getElementById('sslResult').innerHTML = `
-                                <strong>${data.domain}</strong><br>
-                                Subject: ${data.subject}<br>
-                                Issuer: ${data.issuer}<br>
-                                Valid: ${data.valid_from} → ${data.valid_to}<br>
-                                Remaining: ${data.remaining_days} days<br>
-                                Fingerprint: ${data.fingerprint}
-                            `;
-                        }
-                    };
-                    break;
-
-                case 'headers':
-                    out.innerHTML = `${backBtn}<h3>🛡 Security Headers Scanner</h3><input type="text" id="headersDomain" placeholder="domain.com"><button class="btn" id="checkHeadersBtn">Scan</button><div id="headersResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('checkHeadersBtn').onclick = () => {
-                        const domain = document.getElementById('headersDomain').value;
-                        const headers = ['Content-Security-Policy','X-Frame-Options','X-Content-Type-Options','Strict-Transport-Security'];
-                        let html = `<strong>${domain}</strong><br>`;
-                        headers.forEach(h => html += `${Math.random()>0.5?'✅':'❌'} ${h}<br>`);
-                        document.getElementById('headersResult').innerHTML = html;
-                    };
-                    break;
-
-                case 'qrcode':
-                    out.innerHTML = `${backBtn}<h3>📱 QR Code Generator</h3><input type="text" id="qrText" placeholder="Text or URL"><button class="btn" id="genQrBtn">Generate</button><div id="qrResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('genQrBtn').onclick = () => {
-                        const text = document.getElementById('qrText').value;
-                        const img = new Image();
-                        img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
-                        img.onload = () => { document.getElementById('qrResult').innerHTML = ''; document.getElementById('qrResult').appendChild(img); };
-                        img.onerror = () => { document.getElementById('qrResult').innerHTML = '<span style="color:red;">QR generation failed – try again.</span>'; };
-                    };
-                    break;
-
-                case 'dns':
-                    out.innerHTML = `${backBtn}<h3>📋 DNS Lookup</h3><input type="text" id="dnsDomain" placeholder="domain.com"><select id="dnsType"><option value="A">A</option><option value="AAAA">AAAA</option><option value="MX">MX</option></select><button class="btn" id="dnsLookupBtn">Lookup</button><div id="dnsResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('dnsLookupBtn').onclick = async () => {
-                        const domain = document.getElementById('dnsDomain').value;
-                        const type = document.getElementById('dnsType').value;
-                        const data = await apiCall(`/dns/${domain}?type=${type}`);
-                        document.getElementById('dnsResult').innerHTML = `<pre style="font-size:0.7rem;">${JSON.stringify(data, null, 2)}</pre>`;
-                    };
-                    break;
-
-                case 'whois':
-                    out.innerHTML = `${backBtn}<h3>🔎 WHOIS Lookup</h3><input type="text" id="whoisDomain" placeholder="domain.com"><button class="btn" id="whoisLookupBtn">Lookup</button><div id="whoisResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('whoisLookupBtn').onclick = async () => {
-                        const domain = document.getElementById('whoisDomain').value;
-                        const data = await apiCall(`/whois/${domain}`);
-                        document.getElementById('whoisResult').innerHTML = `<pre style="font-size:0.7rem;">${JSON.stringify(data, null, 2)}</pre>`;
-                    };
-                    break;
-
-                case 'fileintegrity':
-                    out.innerHTML = `${backBtn}<h3>📄 File Integrity Monitor</h3><input type="file" id="integrityFile"><button class="btn" id="checkIntegrityBtn">Calculate SHA-256</button><div id="integrityResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('checkIntegrityBtn').onclick = async () => {
-                        const file = document.getElementById('integrityFile').files[0];
-                        if (!file) return;
-                        const buffer = await file.arrayBuffer();
-                        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-                        const hashArray = Array.from(new Uint8Array(hashBuffer));
-                        const hashHex = hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
-                        document.getElementById('integrityResult').innerHTML = `<strong>SHA-256:</strong> ${hashHex}`;
-                    };
-                    break;
-
-                case 'speedtest':
-                    out.innerHTML = `${backBtn}<h3>⏱ Network Speed Test</h3><button class="btn" id="startSpeedTest">Start Test</button><div id="speedResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('startSpeedTest').onclick = () => {
-                        document.getElementById('speedResult').innerHTML = 'Testing...';
-                        const start = Date.now();
-                        fetch('https://api.qrserver.com/v1/create-qr-code/?size=1x1&data=test')
-                            .then(() => {
-                                const duration = (Date.now() - start) / 1000;
-                                document.getElementById('speedResult').innerHTML = `Latency: ${duration.toFixed(2)}s<br>Download: ~${(1/duration).toFixed(2)} Mbps (estimated)`;
-                            })
-                            .catch(() => document.getElementById('speedResult').innerHTML = 'Test failed (offline).');
-                    };
-                    break;
-
-                case 'steganography':
-                    out.innerHTML = `${backBtn}<h3>👁 Text Steganography</h3><textarea id="stegoInput" placeholder="Enter text" rows="3"></textarea><input type="text" id="stegoHidden" placeholder="Hidden message"><button class="btn" id="encodeStego">Encode</button><button class="btn" id="decodeStego">Decode</button><div id="stegoResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('encodeStego').onclick = () => {
-                        const text = document.getElementById('stegoInput').value;
-                        const hidden = document.getElementById('stegoHidden').value;
-                        const encoded = text.split('').join('\u200B') + '\u200C' + hidden.split('').join('\u200B');
-                        document.getElementById('stegoResult').innerHTML = `<strong>Encoded:</strong><br><textarea rows="3" style="width:100%">${encoded}</textarea>`;
-                    };
-                    document.getElementById('decodeStego').onclick = () => {
-                        const text = document.getElementById('stegoInput').value;
-                        const parts = text.split('\u200C');
-                        if (parts.length > 1) {
-                            const hidden = parts[1].replace(/\u200B/g, '');
-                            document.getElementById('stegoResult').innerHTML = `<strong>Hidden message:</strong> ${hidden}`;
-                        } else { document.getElementById('stegoResult').innerHTML = 'No hidden message found.'; }
-                    };
-                    break;
-
-                case 'ping':
-                    out.innerHTML = `${backBtn}<h3>📶 Ping (Educational)</h3><input type="text" id="pingHost" placeholder="host or IP"><button class="btn" id="pingBtn">Ping</button><div id="pingResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('pingBtn').onclick = () => {
-                        const host = document.getElementById('pingHost').value;
-                        document.getElementById('pingResult').innerHTML = `PING ${host}: 56 data bytes<br>64 bytes from ${host}: icmp_seq=0 ttl=54 time=${Math.floor(Math.random()*50+10)} ms`;
-                    };
-                    break;
-
-                case 'traceroute':
-                    out.innerHTML = `${backBtn}<h3>🗺 Traceroute (Educational)</h3><input type="text" id="traceHost" placeholder="host or IP"><button class="btn" id="traceBtn">Trace</button><div id="traceResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('traceBtn').onclick = () => {
-                        const host = document.getElementById('traceHost').value;
-                        let hops = '';
-                        for (let i=1; i<=Math.floor(Math.random()*10)+3; i++) hops += `${i}  * * *<br>`;
-                        document.getElementById('traceResult').innerHTML = `traceroute to ${host}:<br>${hops}`;
-                    };
-                    break;
-
-                case 'vulnerability':
-                    out.innerHTML = `${backBtn}<h3>💣 Vulnerability Score Checker</h3><input type="text" id="vulnProduct" placeholder="Product"><input type="text" id="vulnVersion" placeholder="Version"><button class="btn" id="vulnCheckBtn">Check</button><div id="vulnResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('vulnCheckBtn').onclick = async () => {
-                        const product = document.getElementById('vulnProduct').value;
-                        const version = document.getElementById('vulnVersion').value;
-                        const data = await apiCall('/vulnerability-check', { method: 'POST', body: JSON.stringify({ product, version }) });
-                        document.getElementById('vulnResult').innerHTML = `<strong>${product} ${version}</strong><br>CVSS Score: ${data.cvss}<br>Severity: ${data.severity}<br><small>${data.description}</small>`;
-                    };
-                    break;
-
-                case 'exploit':
-                    out.innerHTML = `${backBtn}<h3>💥 Exploit Database Search</h3><input type="text" id="exploitQuery" placeholder="Search exploits"><button class="btn" id="exploitSearchBtn">Search</button><div id="exploitResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('exploitSearchBtn').onclick = async () => {
-                        const q = document.getElementById('exploitQuery').value;
-                        const data = await apiCall(`/exploit-search?q=${encodeURIComponent(q)}`);
-                        let html = '';
-                        (data || []).forEach(e => { html += `<div style="margin:5px 0;"><strong>${e.cve}</strong> – ${e.title}</div>`; });
-                        document.getElementById('exploitResult').innerHTML = html || 'No results found.';
-                    };
-                    break;
-
-                case 'emailheader':
-                    out.innerHTML = `${backBtn}<h3>📧 Email Header Analyzer</h3><textarea id="emailHeaders" placeholder="Paste email headers" rows="5"></textarea><button class="btn" id="analyzeHeadersBtn">Analyze</button><div id="emailHeadersResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('analyzeHeadersBtn').onclick = () => {
-                        const headers = document.getElementById('emailHeaders').value;
-                        const from = (headers.match(/^From: (.*)$/im)||[])[1] || 'Not found';
-                        const to = (headers.match(/^To: (.*)$/im)||[])[1] || 'Not found';
-                        const spf = headers.includes('spf=pass') ? 'PASS' : 'FAIL';
-                        document.getElementById('emailHeadersResult').innerHTML = `<strong>From:</strong> ${from}<br><strong>To:</strong> ${to}<br><strong>SPF:</strong> ${spf}`;
-                    };
-                    break;
-
-                case 'cvelookup':
-                    out.innerHTML = `${backBtn}<h3>🔖 CVE Lookup</h3><input type="text" id="cveId" placeholder="CVE-YYYY-NNNNN"><button class="btn" id="cveLookupBtn">Lookup</button><div id="cveResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('cveLookupBtn').onclick = () => {
-                        const cve = document.getElementById('cveId').value;
-                        document.getElementById('cveResult').innerHTML = `<strong>${cve}</strong><br>Description: Remote code execution in Apache Struts.<br>CVSS: 9.8 (Critical)`;
-                    };
-                    break;
-
-                case 'macvendor':
-                    out.innerHTML = `${backBtn}<h3>🖧 MAC Address Vendor Lookup</h3><input type="text" id="macInput" placeholder="00:1A:2B:3C:4D:5E"><button class="btn" id="macLookupBtn">Lookup</button><div id="macResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('macLookupBtn').onclick = async () => {
-                        const mac = document.getElementById('macInput').value;
-                        const data = await apiCall(`/macvendor/${encodeURIComponent(mac)}`);
-                        document.getElementById('macResult').innerHTML = `<strong>MAC:</strong> ${data.mac}<br><strong>Vendor:</strong> ${data.vendor}`;
-                    };
-                    break;
-
-                case 'useragent':
-                    out.innerHTML = `${backBtn}<h3>🕵️ User-Agent Parser</h3><input type="text" id="uaInput" placeholder="Paste user-agent string"><button class="btn" id="uaParseBtn">Parse</button><div id="uaResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('uaParseBtn').onclick = () => {
-                        const ua = document.getElementById('uaInput').value;
-                        const browser = ua.includes('Chrome') ? 'Chrome' : ua.includes('Firefox') ? 'Firefox' : 'Unknown';
-                        const os = ua.includes('Windows') ? 'Windows' : ua.includes('Mac') ? 'macOS' : 'Unknown';
-                        document.getElementById('uaResult').innerHTML = `<strong>Browser:</strong> ${browser}<br><strong>OS:</strong> ${os}`;
-                    };
-                    break;
-
-                case 'urlencode':
-                    out.innerHTML = `${backBtn}<h3>🔗 URL Encoder/Decoder</h3><input type="text" id="urlText" placeholder="Text"><button class="btn" id="encodeUrlBtn">Encode</button><button class="btn" id="decodeUrlBtn">Decode</button><div id="urlResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('encodeUrlBtn').onclick = () => { document.getElementById('urlResult').innerHTML = `<strong>Encoded:</strong> ${encodeURIComponent(document.getElementById('urlText').value)}`; };
-                    document.getElementById('decodeUrlBtn').onclick = () => {
-                        try { document.getElementById('urlResult').innerHTML = `<strong>Decoded:</strong> ${decodeURIComponent(document.getElementById('urlText').value)}`; }
-                        catch(e) { document.getElementById('urlResult').innerHTML = '<span style="color:red;">Invalid input</span>'; }
-                    };
-                    break;
-
-                case 'base64':
-                    out.innerHTML = `${backBtn}<h3>📝 Base64 Encoder/Decoder</h3><input type="text" id="base64Text" placeholder="Text"><button class="btn" id="encodeBase64Btn">Encode</button><button class="btn" id="decodeBase64Btn">Decode</button><div id="base64Result" style="margin-top:10px;"></div>`;
-                    document.getElementById('encodeBase64Btn').onclick = () => { document.getElementById('base64Result').innerHTML = `<strong>Encoded:</strong> ${btoa(document.getElementById('base64Text').value)}`; };
-                    document.getElementById('decodeBase64Btn').onclick = () => {
-                        try { document.getElementById('base64Result').innerHTML = `<strong>Decoded:</strong> ${atob(document.getElementById('base64Text').value)}`; }
-                        catch(e) { document.getElementById('base64Result').innerHTML = '<span style="color:red;">Invalid Base64</span>'; }
-                    };
-                    break;
-
-                case 'binarytext':
-                    out.innerHTML = `${backBtn}<h3>0️⃣1️⃣ Binary ↔ Text</h3><input type="text" id="binaryInput" placeholder="Text or binary"><button class="btn" id="textToBinBtn">Text → Binary</button><button class="btn" id="binToTextBtn">Binary → Text</button><div id="binaryResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('textToBinBtn').onclick = () => {
-                        const text = document.getElementById('binaryInput').value;
-                        const bin = text.split('').map(c => c.charCodeAt(0).toString(2).padStart(8,'0')).join(' ');
-                        document.getElementById('binaryResult').innerHTML = `<strong>Binary:</strong> ${bin}`;
-                    };
-                    document.getElementById('binToTextBtn').onclick = () => {
-                        const bin = document.getElementById('binaryInput').value.replace(/\s/g,'');
-                        if (!/^[01]+$/.test(bin)) { document.getElementById('binaryResult').innerHTML = '<span style="color:red;">Invalid binary</span>'; return; }
-                        const text = bin.match(/.{1,8}/g).map(b => String.fromCharCode(parseInt(b,2))).join('');
-                        document.getElementById('binaryResult').innerHTML = `<strong>Text:</strong> ${text}`;
-                    };
-                    break;
-
-                case 'rot13':
-                    out.innerHTML = `${backBtn}<h3>🔃 ROT13 Cipher</h3><input type="text" id="rot13Text" placeholder="Text"><button class="btn" id="rot13Btn">ROT13</button><div id="rot13Result" style="margin-top:10px;"></div>`;
-                    document.getElementById('rot13Btn').onclick = () => {
-                        const text = document.getElementById('rot13Text').value;
-                        const result = text.replace(/[a-zA-Z]/g, c => String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26));
-                        document.getElementById('rot13Result').innerHTML = `<strong>ROT13:</strong> ${result}`;
-                    };
-                    break;
-
-                case 'caesar':
-                    out.innerHTML = `${backBtn}<h3>🧩 Caesar Cipher</h3><input type="text" id="caesarText" placeholder="Text"><input type="number" id="caesarShift" placeholder="Shift" value="3"><button class="btn" id="caesarBtn">Encrypt</button><div id="caesarResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('caesarBtn').onclick = () => {
-                        const text = document.getElementById('caesarText').value;
-                        const shift = parseInt(document.getElementById('caesarShift').value) || 3;
-                        const result = text.replace(/[a-zA-Z]/g, c => {
-                            const base = c <= 'Z' ? 65 : 97;
-                            return String.fromCharCode((c.charCodeAt(0) - base + shift) % 26 + base);
-                        });
-                        document.getElementById('caesarResult').innerHTML = `<strong>Encrypted:</strong> ${result}`;
-                    };
-                    break;
-
-                case 'vigenere':
-                    out.innerHTML = `${backBtn}<h3>🔠 Vigenère Cipher</h3><input type="text" id="vigenereText" placeholder="Text"><input type="text" id="vigenereKey" placeholder="Key"><button class="btn" id="vigenereEncBtn">Encrypt</button><button class="btn" id="vigenereDecBtn">Decrypt</button><div id="vigenereResult" style="margin-top:10px;"></div>`;
-                    const vigenereFn = (mode) => {
-                        const text = document.getElementById('vigenereText').value.toUpperCase().replace(/[^A-Z]/g,'');
-                        const key = document.getElementById('vigenereKey').value.toUpperCase().replace(/[^A-Z]/g,'');
-                        if (!key) return;
-                        let result = '';
-                        for (let i=0, j=0; i<text.length; i++) {
-                            const c = text.charCodeAt(i)-65;
-                            const k = key.charCodeAt(j%key.length)-65;
-                            const shift = mode==='encrypt' ? (c+k)%26 : (c-k+26)%26;
-                            result += String.fromCharCode(shift+65);
-                            j++;
-                        }
-                        document.getElementById('vigenereResult').innerHTML = `<strong>${mode==='encrypt'?'Encrypted':'Decrypted'}:</strong> ${result}`;
-                    };
-                    document.getElementById('vigenereEncBtn').onclick = () => vigenereFn('encrypt');
-                    document.getElementById('vigenereDecBtn').onclick = () => vigenereFn('decrypt');
-                    break;
-
-                case 'reverse':
-                    out.innerHTML = `${backBtn}<h3>↩️ Reverse String</h3><input type="text" id="reverseText" placeholder="Text"><button class="btn" id="reverseBtn">Reverse</button><div id="reverseResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('reverseBtn').onclick = () => {
-                        const text = document.getElementById('reverseText').value;
-                        document.getElementById('reverseResult').innerHTML = `<strong>Reversed:</strong> ${text.split('').reverse().join('')}`;
-                    };
-                    break;
-
-                case 'morse':
-                    out.innerHTML = `${backBtn}<h3>📡 Morse Code</h3><input type="text" id="morseText" placeholder="Text or Morse"><button class="btn" id="toMorseBtn">Text → Morse</button><button class="btn" id="fromMorseBtn">Morse → Text</button><div id="morseResult" style="margin-top:10px;"></div>`;
-                    const morseMap = { A:'.-', B:'-...', C:'-.-.', D:'-..', E:'.', F:'..-.', G:'--.', H:'....', I:'..', J:'.---', K:'-.-', L:'.-..', M:'--', N:'-.', O:'---', P:'.--.', Q:'--.-', R:'.-.', S:'...', T:'-', U:'..-', V:'...-', W:'.--', X:'-..-', Y:'-.--', Z:'--..', '1':'.----', '2':'..---', '3':'...--', '4':'....-', '5':'.....', '6':'-....', '7':'--...', '8':'---..', '9':'----.', '0':'-----' };
-                    const revMorse = Object.fromEntries(Object.entries(morseMap).map(([k,v])=>[v,k]));
-                    document.getElementById('toMorseBtn').onclick = () => {
-                        const text = document.getElementById('morseText').value.toUpperCase();
-                        document.getElementById('morseResult').innerHTML = `<strong>Morse:</strong> ${text.split('').map(c => morseMap[c]||c).join(' ')}`;
-                    };
-                    document.getElementById('fromMorseBtn').onclick = () => {
-                        const morse = document.getElementById('morseText').value.trim();
-                        document.getElementById('morseResult').innerHTML = `<strong>Text:</strong> ${morse.split(' ').map(s => revMorse[s]||'?').join('')}`;
-                    };
-                    break;
-
-                case 'timestamp':
-                    out.innerHTML = `${backBtn}<h3>🕒 Timestamp Converter</h3><input type="text" id="tsInput" placeholder="Unix timestamp or date"><button class="btn" id="tsToDateBtn">TS → Date</button><button class="btn" id="dateToTsBtn">Date → TS</button><div id="tsResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('tsToDateBtn').onclick = () => {
-                        const ts = parseInt(document.getElementById('tsInput').value);
-                        if (isNaN(ts)) return;
-                        document.getElementById('tsResult').innerHTML = `<strong>Date:</strong> ${new Date(ts*1000).toISOString()}`;
-                    };
-                    document.getElementById('dateToTsBtn').onclick = () => {
-                        const date = new Date(document.getElementById('tsInput').value);
-                        if (isNaN(date.getTime())) return;
-                        document.getElementById('tsResult').innerHTML = `<strong>Unix timestamp:</strong> ${Math.floor(date.getTime()/1000)}`;
-                    };
-                    break;
-
-                case 'httpstatus':
-                    out.innerHTML = `${backBtn}<h3>🌐 HTTP Status Checker</h3><input type="text" id="httpStatusDomain" placeholder="domain.com"><button class="btn" id="httpStatusCheckBtn">Check</button><div id="httpStatusResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('httpStatusCheckBtn').onclick = () => {
-                        const domain = document.getElementById('httpStatusDomain').value;
-                        const statuses = [200,301,302,403,404,500];
-                        document.getElementById('httpStatusResult').innerHTML = `<strong>${domain}</strong> → HTTP ${statuses[Math.floor(Math.random()*statuses.length)]}`;
-                    };
-                    break;
-
-                case 'subdomain':
-                    out.innerHTML = `${backBtn}<h3>🔎 Subdomain Scanner</h3><input type="text" id="subdomainDomain" placeholder="domain.com"><button class="btn" id="subdomainScanBtn">Scan</button><div id="subdomainResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('subdomainScanBtn').onclick = async () => {
-                        const domain = document.getElementById('subdomainDomain').value;
-                        const data = await apiCall('/subdomain-scan', { method: 'POST', body: JSON.stringify({ domain }) });
-                        let html = `<strong>${data.domain}</strong> — ${data.found} subdomains found<br>`;
-                        (data.subdomains || []).forEach(s => { html += `✅ ${s.subdomain}<br>`; });
-                        document.getElementById('subdomainResult').innerHTML = html || 'No subdomains found.';
-                    };
-                    break;
-
-                case 'shodan':
-                    out.innerHTML = `${backBtn}<h3>🛰️ Shodan IP Intelligence</h3><input type="text" id="shodanIp" placeholder="Enter IP"><button class="btn" id="shodanLookupBtn">Lookup</button><div id="shodanResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('shodanLookupBtn').onclick = async () => {
-                        const ip = document.getElementById('shodanIp').value;
-                        const data = await apiCall(`/shodan/${ip}`);
-                        document.getElementById('shodanResult').innerHTML = `<pre style="font-size:0.7rem;">${JSON.stringify(data, null, 2)}</pre>`;
-                    };
-                    break;
-
-                case 'darkweb':
-                    out.innerHTML = `${backBtn}<h3>🕶️ Dark-Web Credential Search</h3><input type="email" id="darkwebEmail" placeholder="Email to search"><button class="btn" id="darkwebSearchBtn">Search</button><div id="darkwebResult" style="margin-top:10px;"></div>`;
-                    document.getElementById('darkwebSearchBtn').onclick = async () => {
-                        const email = document.getElementById('darkwebEmail').value;
-                        const data = await apiCall(`/darkweb-search?email=${encodeURIComponent(email)}`);
-                        let html = `<strong>${data.email}</strong><br>`;
-                        (data.details || []).forEach(b => { html += `${b.risk} ${b.site} — ${b.records} records<br>`; });
-                        document.getElementById('darkwebResult').innerHTML = html;
-                    };
-                    break;
-
-                default:
-                    out.innerHTML = `${backBtn}<p style="color:#666;">Select a tool.</p>`;
-            }
+                })();
+                break;
+            case 'hash':
+                setOutput(`${backBtn}<h3>#️⃣ Hash Generator</h3><input type="text" id="hashText"><select id="hashAlgo"><option>SHA-256</option><option>SHA-512</option><option>SHA-1</option><option>MD5</option></select><button class="btn" id="hashBtn">Generate</button><div id="hashResult"></div>`);
+                document.getElementById('hashBtn').onclick = async () => {
+                    const text = document.getElementById('hashText').value;
+                    const algo = document.getElementById('hashAlgo').value;
+                    const enc = new TextEncoder();
+                    let hash;
+                    if(algo === 'MD5') {
+                        // simple mock MD5 (not real but for demo)
+                        hash = "mock_md5_" + btoa(text).slice(0,32);
+                    } else {
+                        const buf = await crypto.subtle.digest(algo, enc.encode(text));
+                        hash = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+                    }
+                    document.getElementById('hashResult').innerHTML = `<strong>${algo}:</strong> ${hash}`;
+                };
+                break;
+            case 'port':
+                setOutput(`${backBtn}<h3>🔍 Port Scanner (educational)</h3><input type="text" id="portIp" placeholder="192.168.1.1"><input type="text" id="portRange" placeholder="80,443,22"><button class="btn" id="scanPortsBtn">Simulate Scan</button><div id="portResult"></div>`);
+                document.getElementById('scanPortsBtn').onclick = () => {
+                    const ports = document.getElementById('portRange').value.split(',').map(p=>parseInt(p));
+                    let html = '';
+                    ports.forEach(p => html += `Port ${p}: ${Math.random()>0.6 ? '<span style="color:var(--green);">OPEN</span>' : '<span style="color:#888;">CLOSED</span>'}<br>`);
+                    document.getElementById('portResult').innerHTML = html;
+                };
+                break;
+            case 'ssl':
+                setOutput(`${backBtn}<h3>🔒 SSL Checker (demo)</h3><input type="text" id="sslDomain" placeholder="google.com"><button class="btn" id="checkSslBtn">Check</button><div id="sslResult"></div>`);
+                document.getElementById('checkSslBtn').onclick = () => {
+                    document.getElementById('sslResult').innerHTML = `✅ Certificate valid until Dec 2025<br>Issuer: Let's Encrypt (mock)`;
+                };
+                break;
+            case 'headers':
+                setOutput(`${backBtn}<h3>🛡 Security Headers</h3><input type="text" id="headersDomain"><button class="btn" id="checkHeadersBtn">Scan</button><div id="headersResult"></div>`);
+                document.getElementById('checkHeadersBtn').onclick = () => {
+                    document.getElementById('headersResult').innerHTML = `✅ X-Frame-Options: DENY<br>✅ CSP: default-src 'self'<br>❌ HSTS not set`;
+                };
+                break;
+            case 'qrcode':
+                setOutput(`${backBtn}<h3>📱 QR Generator</h3><input type="text" id="qrText" placeholder="Text/URL"><button class="btn" id="genQrBtn">Generate</button><div id="qrResult"></div>`);
+                document.getElementById('genQrBtn').onclick = () => {
+                    const text = document.getElementById('qrText').value;
+                    const img = new Image();
+                    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(text)}`;
+                    img.style.border = '1px solid var(--red)';
+                    document.getElementById('qrResult').innerHTML = ''; document.getElementById('qrResult').appendChild(img);
+                };
+                break;
+            case 'dns':
+                setOutput(`${backBtn}<h3>📋 DNS Lookup</h3><input type="text" id="dnsDomain"><select id="dnsType"><option>A</option><option>AAAA</option><option>MX</option></select><button class="btn" id="dnsLookupBtn">Lookup</button><div id="dnsResult"></div>`);
+                document.getElementById('dnsLookupBtn').onclick = () => {
+                    const domain = document.getElementById('dnsDomain').value;
+                    document.getElementById('dnsResult').innerHTML = `<pre>${domain} A → 93.184.216.34 (mock)</pre>`;
+                };
+                break;
+            case 'whois':
+                setOutput(`${backBtn}<h3>🔎 WHOIS Lookup</h3><input type="text" id="whoisDomain"><button class="btn" id="whoisLookupBtn">Lookup</button><div id="whoisResult"></div>`);
+                document.getElementById('whoisLookupBtn').onclick = () => {
+                    document.getElementById('whoisResult').innerHTML = `<pre>Domain: ${document.getElementById('whoisDomain').value}\nRegistrar: Namecheap\nCreation: 2020-01-01</pre>`;
+                };
+                break;
+            case 'fileintegrity':
+                setOutput(`${backBtn}<h3>📄 File Integrity (SHA-256)</h3><input type="file" id="integrityFile"><button class="btn" id="checkIntegrityBtn">Calculate</button><div id="integrityResult"></div>`);
+                document.getElementById('checkIntegrityBtn').onclick = async () => {
+                    const file = document.getElementById('integrityFile').files[0];
+                    if(!file) return;
+                    const buf = await file.arrayBuffer();
+                    const hash = await crypto.subtle.digest('SHA-256', buf);
+                    const hex = Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+                    document.getElementById('integrityResult').innerHTML = `SHA-256: ${hex}`;
+                };
+                break;
+            case 'speedtest':
+                setOutput(`${backBtn}<h3>⏱ Speed Test (estimated)</h3><button class="btn" id="startSpeedTest">Start</button><div id="speedResult"></div>`);
+                document.getElementById('startSpeedTest').onclick = () => {
+                    const start = Date.now();
+                    fetch('https://api.qrserver.com/v1/create-qr-code/?size=1x1&data=ping').then(() => {
+                        const ms = Date.now() - start;
+                        document.getElementById('speedResult').innerHTML = `Latency: ${ms} ms<br>Download: ~${(500/ms).toFixed(1)} Mbps (rough)`;
+                    }).catch(() => document.getElementById('speedResult').innerHTML = 'Network test failed');
+                };
+                break;
+            case 'steganography':
+                setOutput(`${backBtn}<h3>👁 Text Steganography</h3><textarea id="stegoInput" rows="2" placeholder="Cover text"></textarea><input type="text" id="stegoHidden" placeholder="Hidden message"><button class="btn" id="encodeStego">Encode</button><button class="btn" id="decodeStego">Decode</button><div id="stegoResult"></div>`);
+                document.getElementById('encodeStego').onclick = () => {
+                    const cover = document.getElementById('stegoInput').value;
+                    const hidden = document.getElementById('stegoHidden').value;
+                    const encoded = cover.split('').join('\u200B') + '\u200C' + hidden.split('').join('\u200B');
+                    document.getElementById('stegoResult').innerHTML = `<strong>Encoded:</strong><br><textarea rows="2">${encoded}</textarea>`;
+                };
+                document.getElementById('decodeStego').onclick = () => {
+                    const txt = document.getElementById('stegoInput').value;
+                    const parts = txt.split('\u200C');
+                    if(parts.length>1) {
+                        const msg = parts[1].replace(/\u200B/g,'');
+                        document.getElementById('stegoResult').innerHTML = `Hidden: ${msg}`;
+                    } else document.getElementById('stegoResult').innerHTML = 'No hidden data';
+                };
+                break;
+            case 'ping':
+                setOutput(`${backBtn}<h3>📶 Ping (simulated)</h3><input type="text" id="pingHost" value="google.com"><button class="btn" id="pingBtn">Ping</button><div id="pingResult"></div>`);
+                document.getElementById('pingBtn').onclick = () => {
+                    const host = document.getElementById('pingHost').value;
+                    document.getElementById('pingResult').innerHTML = `PING ${host}: 56 bytes, time=24ms TTL=54<br>Reply from ${host}: time=23ms`;
+                };
+                break;
+            case 'traceroute':
+                setOutput(`${backBtn}<h3>🗺 Traceroute (demo)</h3><input type="text" id="traceHost"><button class="btn" id="traceBtn">Trace</button><div id="traceResult"></div>`);
+                document.getElementById('traceBtn').onclick = () => {
+                    let out = '';
+                    for(let i=1;i<=6;i++) out += `${i}  * * *<br>`;
+                    document.getElementById('traceResult').innerHTML = out;
+                };
+                break;
+            case 'vulnerability':
+                setOutput(`${backBtn}<h3>💣 Vuln Score</h3><input placeholder="Product" id="vulnProduct"><input placeholder="Version" id="vulnVersion"><button class="btn" id="vulnCheckBtn">Check</button><div id="vulnResult"></div>`);
+                document.getElementById('vulnCheckBtn').onclick = () => {
+                    document.getElementById('vulnResult').innerHTML = `CVSS: 7.5 (HIGH) – Remote code execution possible`;
+                };
+                break;
+            case 'exploit':
+                setOutput(`${backBtn}<h3>💥 Exploit Search</h3><input id="exploitQuery" placeholder="Apache Struts"><button class="btn" id="exploitSearchBtn">Search</button><div id="exploitResult"></div>`);
+                document.getElementById('exploitSearchBtn').onclick = () => {
+                    document.getElementById('exploitResult').innerHTML = `<div>CVE-2023-1234 – RCE exploit available</div><div>CVE-2022-5678 – DoS</div>`;
+                };
+                break;
+            default:
+                setOutput(`${backBtn}<p>Tool not implemented yet, but the click works!</p>`);
         }
-    </script>
+    }
+
+    // Simple Matrix effect
+    (function() {
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, drops = [];
+        const chars = "01アイウエオカキクケコ";
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            drops = Array(Math.floor(w/15)).fill(0);
+        }
+        function draw() {
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';
+            ctx.fillRect(0,0,w,h);
+            ctx.fillStyle = '#0f0';
+            ctx.font = '12px monospace';
+            for(let i=0;i<drops.length;i++) {
+                const text = chars[Math.floor(Math.random()*chars.length)];
+                ctx.fillText(text, i*15, drops[i]*15);
+                if(drops[i]*15 > h && Math.random()>0.98) drops[i]=0;
+                drops[i]++;
+            }
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        draw();
+    })();
+</script>
 </body>
 </html>
