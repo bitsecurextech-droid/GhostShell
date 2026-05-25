@@ -1,4 +1,9 @@
-let toolToken = '';
+(async () => {
+    const ok = await initCommon();
+    if (!ok) return;
+
+    // ---- YOUR EXISTING CODE GOES BELOW ----
+    let toolToken = '';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const loggedIn = await initAuth('tools');
@@ -510,3 +515,4 @@ function showTool(tool) {
             out.innerHTML = '<p style="color:#666;">Select a tool.</p>';
     }
 }
+    })();
