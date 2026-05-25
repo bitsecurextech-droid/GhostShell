@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHOST SHELL • Virtual Numbers for Sale</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { background: radial-gradient(circle at 20% 30%, #0a0000, #000000); font-family: 'Courier New', monospace; color: #ccc; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #8a0303; padding-bottom: 15px; margin-bottom: 30px; }
+        .logo-img { height: 45px; filter: drop-shadow(0 0 5px red); }
+        .site-name { font-size: 1.6rem; color: #c0392b; text-shadow: 0 0 8px #ff0000; }
+        .card { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
+        .number-card { display: inline-block; width: 280px; margin: 15px; background: #0a0000; border: 1px solid #ff4444; padding: 15px; text-align: center; box-shadow: 0 0 10px rgba(255,0,0,0.3); }
+        .number-card h3 { color: #ff6666; }
+        .price { font-size: 1.5rem; color: #00ff41; }
+        .btn { background: #1a0000; border: 1px solid #8a0303; color: #ff6666; padding: 6px 14px; cursor: pointer; }
+        .btn:hover { background: #5e0000; color: white; }
+    </style>
+</head>
+<body>
+<canvas id="matrixCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.3; pointer-events:none;"></canvas>
+<div class="container" style="position:relative; z-index:10;">
+    <div class="header">
+        <div><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name"> GHOST SHELL • VIRTUAL NUMBERS</span></div>
+        <button class="btn" onclick="window.location.href='index.html'">Back to Ops</button>
+    </div>
+    <div class="card">
+        <h2>📞 Virtual Numbers for SMS / Verification / OTP</h2>
+        <div id="numbersList"></div>
+    </div>
+</div>
+<script>
+    function loadNumbers() {
+        const numbers = JSON.parse(localStorage.getItem('ghost_virtualnums') || '[]');
+        const container = document.getElementById('numbersList');
+        if (numbers.length === 0) {
+            container.innerHTML = '<p>No virtual numbers available yet. Admin will add soon.</p>';
+            return;
+        }
+        let html = '';
+        numbers.forEach(n => {
+            html += `<div class="number-card">
+                        <h3>📱 ${n.number}</h3>
+                        <p><strong>Country:</strong> ${n.country}</p>
+                        <p><strong>Service:</strong> ${n.service}</p>
+                        <p><strong>Partner:</strong> ${n.partner}</p>
+                        <div class="price">$${n.price}</div>
+                        <button class="btn" onclick="alert('Contact admin to purchase: ' + '${n.number}')">Buy Now</button>
+                    </div>`;
+        });
+        container.innerHTML = html;
+    }
+    loadNumbers();
+    // Matrix rain effect (simple)
+    (function() {
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, drops = [];
+        const chars = "💀☠️🔪🩸🔥⚡";
+        function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; drops = Array(Math.floor(w/20)).fill(0); }
+        function draw() {
+            ctx.fillStyle = 'rgba(0,0,0,0.07)'; ctx.fillRect(0,0,w,h);
+            ctx.fillStyle = '#aa2a2a'; ctx.font = 'bold 20px monospace';
+            for(let i=0; i<drops.length; i++) { ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*20, drops[i]*22); if(drops[i]*22 > h && Math.random() > 0.98) drops[i] = 0; drops[i]++; }
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('resize', resize); resize(); draw();
+    })();
+</script>
+</body>
+</html>
