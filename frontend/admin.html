@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL • DARK ADMIN (FULL CONTROL)</title>
+    <title>GHOST SHELL • ADMIN PANEL (PRODUCTION)</title>
     <style>
         * {
             margin: 0;
@@ -155,12 +155,14 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
             background: #0a0101;
             border: 2px solid #ff0000;
             padding: 20px;
             z-index: 1000;
             box-shadow: 0 0 50px rgba(255,0,0,0.5);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         .modal-overlay {
             display: none;
@@ -169,31 +171,62 @@
             background: rgba(0,0,0,0.8);
             z-index: 999;
         }
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .login-card {
+            background: #0a0000;
+            border: 2px solid #8a0303;
+            padding: 30px;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-card input {
+            margin: 10px 0;
+        }
+        .error-msg {
+            color: #ff5555;
+            margin-top: 10px;
+        }
+        .setup-msg {
+            color: #ffaa00;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 <canvas id="matrixCanvas"></canvas>
 
-<!-- LOGIN MODAL -->
-<div id="loginModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; display:flex; justify-content:center; align-items:center; z-index:2000;">
-    <div style="background:#0a0000; border:2px solid #8a0303; padding:30px; max-width:400px; text-align:center;">
+<!-- LOGIN / SETUP SCREEN -->
+<div id="loginScreen" class="login-container">
+    <div class="login-card">
         <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:60px; filter:drop-shadow(0 0 8px red);">
         <h1 style="color:#ff4444;">⌧ ADMIN OVERRIDE ⌧</h1>
-        <input type="email" id="loginEmail" placeholder="EMAIL" style="margin:10px 0;">
+        <input type="email" id="loginEmail" placeholder="EMAIL" autocomplete="off">
         <input type="password" id="loginPassword" placeholder="PASSWORD">
-        <button class="btn" id="loginBtn" style="margin-top:15px; width:100%;">⛧ UNLOCK ⛧</button>
-        <div id="loginError" style="color:red; margin-top:10px;"></div>
-        <div style="margin-top:15px; font-size:0.7rem;">demo: admin@ghostshell.com / admin123</div>
+        <button class="btn" id="loginBtn" style="width:100%;">⛧ UNLOCK ⛧</button>
+        <div id="loginError" class="error-msg"></div>
+        <div id="setupInfo" class="setup-msg"></div>
     </div>
 </div>
 
-<!-- MAIN DASHBOARD -->
+<!-- MAIN ADMIN DASHBOARD -->
 <div id="adminDashboard" style="display:none;">
     <div class="admin-wrapper">
         <div class="header">
             <div class="logo-area">
                 <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
-                <span class="site-name">💀 GHOST SHELL • COMPLETE ADMIN 💀</span>
+                <span class="site-name">💀 GHOST SHELL • PRODUCTION ADMIN 💀</span>
             </div>
             <div class="nav-buttons">
                 <button class="btn" id="themeBtn">🌙 DARK MODE</button>
@@ -207,24 +240,27 @@
 </div>
 
 <script>
-    // ======================== DATA LAYER (localStorage) ========================
+    // ======================== DATA LAYER (localStorage - PRODUCTION READY) ========================
     function initData() {
+        // USERS: if no users exist, create a default admin (you can change email/password here)
         if (!localStorage.getItem('ghost_users')) {
-            localStorage.setItem('ghost_users', JSON.stringify([
-                { id: '1', email: 'admin@ghostshell.com', password: 'admin123', role: 'full_admin' }
-            ]));
+            // CHANGE THESE TO YOUR REAL ADMIN CREDENTIALS
+            const defaultAdmin = {
+                id: '1',
+                email: 'admin@ghostshell.com',    // <-- CHANGE TO YOUR EMAIL
+                password: 'YourStrongPassword123', // <-- CHANGE TO YOUR PASSWORD
+                role: 'full_admin'
+            };
+            localStorage.setItem('ghost_users', JSON.stringify([defaultAdmin]));
+            // Also show setup message on login screen
+            document.getElementById('setupInfo').innerHTML = '⚠️ First run: Use admin@ghostshell.com / YourStrongPassword123 (change credentials in admin panel)';
         }
+        
         if (!localStorage.getItem('ghost_codes')) localStorage.setItem('ghost_codes', '[]');
-        if (!localStorage.getItem('ghost_payments')) localStorage.setItem('ghost_payments', JSON.stringify([
-            { id: 'p1', userId: '1', product: 'RAT Pro', amount: 199.99, status: 'pending' }
-        ]));
+        if (!localStorage.getItem('ghost_payments')) localStorage.setItem('ghost_payments', JSON.stringify([]));
         if (!localStorage.getItem('ghost_tools')) localStorage.setItem('ghost_tools', JSON.stringify([]));
-        if (!localStorage.getItem('ghost_websites')) localStorage.setItem('ghost_websites', JSON.stringify([
-            { id: 'w1', domain: 'hackersparadise.com', title: 'Hacker Forum', price: 499, category: 'Forum' }
-        ]));
-        if (!localStorage.getItem('ghost_esim')) localStorage.setItem('ghost_esim', JSON.stringify([
-            { id: 'e1', name: '5GB 30 Days', duration: '1 month', price: 19.99, data: '5GB', voice: '100 mins' }
-        ]));
+        if (!localStorage.getItem('ghost_websites')) localStorage.setItem('ghost_websites', JSON.stringify([]));
+        if (!localStorage.getItem('ghost_esim')) localStorage.setItem('ghost_esim', JSON.stringify([]));
         if (!localStorage.getItem('ghost_logistics')) localStorage.setItem('ghost_logistics', JSON.stringify([]));
         if (!localStorage.getItem('ghost_virtualnums')) localStorage.setItem('ghost_virtualnums', JSON.stringify([]));
         if (!localStorage.getItem('ghost_webrequests')) localStorage.setItem('ghost_webrequests', JSON.stringify([]));
@@ -240,29 +276,36 @@
     const get = (key) => JSON.parse(localStorage.getItem(key));
     const set = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
-    // ======================== LOGIN ========================
-    const loginModal = document.getElementById('loginModal');
+    // ======================== LOGIN LOGIC ========================
+    const loginScreen = document.getElementById('loginScreen');
     const dashboard = document.getElementById('adminDashboard');
-    document.getElementById('loginBtn').addEventListener('click', () => {
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
+
+    loginBtn.addEventListener('click', () => {
         const email = document.getElementById('loginEmail').value.trim();
         const pwd = document.getElementById('loginPassword').value;
-        const user = get('ghost_users').find(u => u.email === email && u.password === pwd && (u.role === 'full_admin' || u.role === 'admin'));
-        if (user) {
+        const users = get('ghost_users');
+        const adminUser = users.find(u => u.email === email && u.password === pwd && (u.role === 'full_admin' || u.role === 'admin'));
+        if (adminUser) {
             localStorage.setItem('adminSession', 'true');
-            loginModal.style.display = 'none';
+            loginScreen.style.display = 'none';
             dashboard.style.display = 'block';
             buildAdminUI();
         } else {
-            document.getElementById('loginError').innerText = '❌ ACCESS DENIED';
+            loginError.innerText = '❌ ACCESS DENIED - Invalid credentials';
         }
     });
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+
+    document.getElementById('logoutBtn')?.addEventListener('click', () => {
         localStorage.removeItem('adminSession');
         window.location.reload();
     });
-    document.getElementById('themeBtn').addEventListener('click', () => {
+
+    document.getElementById('themeBtn')?.addEventListener('click', () => {
         document.body.classList.toggle('light');
-        document.getElementById('themeBtn').textContent = document.body.classList.contains('light') ? '🩸 BLOOD MODE' : '🌙 DARK MODE';
+        const btn = document.getElementById('themeBtn');
+        btn.textContent = document.body.classList.contains('light') ? '🩸 BLOOD MODE' : '🌙 DARK MODE';
         if (document.body.classList.contains('light')) document.body.style.background = '#2a0a0a';
         else document.body.style.background = '';
     });
@@ -273,7 +316,7 @@
             { id: 'users', label: '👥 USERS' },
             { id: 'codes', label: '🔑 CODES' },
             { id: 'payments', label: '💸 PAYMENTS' },
-            { id: 'tools', label: '🔧 TOOLS' },
+            { id: 'tools', label: '🔧 TOOLS (FULL)' },
             { id: 'promos', label: '🔥 PROMO' },
             { id: 'websites', label: '🌐 WEBSITES' },
             { id: 'esim', label: '📱 eSIM PLANS' },
@@ -298,7 +341,7 @@
                 document.getElementById(`section-${sec.id}`).classList.add('active');
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                // re-render active section (data might have changed)
+                // re-render active section
                 if (sec.id === 'users') renderUsers();
                 if (sec.id === 'codes') renderCodes();
                 if (sec.id === 'payments') renderPayments();
@@ -317,7 +360,7 @@
             tabsContainer.appendChild(btn);
         });
 
-        // Create all sections HTML (complete)
+        // Create all sections HTML with full tool fields
         const container = document.getElementById('sectionsContainer');
         container.innerHTML = `
             <!-- USERS -->
@@ -337,37 +380,60 @@
             <div id="section-codes" class="section"><div class="card"><h2>🔑 ACCESS CODES</h2><button class="btn" id="genCodesBtn">⚡ GENERATE 50 CODES</button><div id="codesTable"></div></div></div>
             <!-- PAYMENTS -->
             <div id="section-payments" class="section"><div class="card"><h2>💸 PAYMENTS</h2><button class="btn" id="addPaymentBtn">➕ ADD MOCK</button><div id="paymentsTable"></div></div></div>
-            <!-- TOOLS -->
-            <div id="section-tools" class="section"><div class="card"><h2>🔧 TOOLS</h2><button class="btn" id="addToolBtn">➕ ADD TOOL</button><div id="toolsTable"></div></div><div id="toolModal" class="modal"><h3>✍️ TOOL</h3><input type="text" id="toolName" placeholder="Name"><input type="number" id="toolPrice" placeholder="Price"><input type="text" id="toolPromoName" placeholder="Promo Name"><input type="number" id="toolPromoPrice" placeholder="Promo Price"><button class="btn" id="saveToolBtn">💀 SAVE</button><button class="btn" id="cancelToolBtn">CANCEL</button><input type="hidden" id="editingToolId"></div></div>
+            <!-- TOOLS (FULL) -->
+            <div id="section-tools" class="section">
+                <div class="card"><h2>🔧 TOOL MANAGEMENT (Categories, Price, Discount, Download Link, Description)</h2>
+                    <button class="btn" id="addToolBtn">➕ ADD NEW TOOL</button>
+                    <div id="toolsTable"></div>
+                </div>
+                <div id="toolModal" class="modal">
+                    <h3 id="toolModalTitle">✍️ ADD/EDIT TOOL</h3>
+                    <input type="text" id="toolName" placeholder="Tool Name *">
+                    <textarea id="toolDesc" placeholder="Full Description" rows="4"></textarea>
+                    <input type="text" id="toolCategory" placeholder="Category (e.g., Exploit, Scanner, RAT)">
+                    <input type="number" id="toolPrice" placeholder="Price (USD) *">
+                    <input type="number" id="toolOriginalPrice" placeholder="Original Price (for discount)">
+                    <input type="number" id="toolDiscountPercent" placeholder="Discount % (e.g., 20 for 20% off)">
+                    <input type="text" id="toolDownloadLink" placeholder="Download Link (URL)">
+                    <input type="text" id="toolImageUrl" placeholder="Image URL">
+                    <input type="text" id="toolVideoUrl" placeholder="Video URL (optional)">
+                    <input type="text" id="toolPaymentLink" placeholder="Payment Link (Selar/Stripe)">
+                    <input type="text" id="toolBonusInfo" placeholder="Bonus Info (e.g., Free updates, 1 year license)">
+                    <div class="flex-row">
+                        <button class="btn" id="saveToolBtn">💀 SAVE TOOL</button>
+                        <button class="btn" id="cancelToolBtn">CANCEL</button>
+                    </div>
+                    <input type="hidden" id="editingToolId">
+                </div>
+            </div>
             <!-- PROMO -->
-            <div id="section-promos" class="section"><div class="card"><h2>🔥 PROMOTIONS</h2><div id="promoTable"></div></div></div>
+            <div id="section-promos" class="section"><div class="card"><h2>🔥 ACTIVE PROMOTIONS (Manage discounts)</h2><div id="promoTable"></div></div></div>
             <!-- WEBSITES -->
             <div id="section-websites" class="section"><div class="card"><h2>🌐 WEBSITES FOR SALE</h2><button class="btn" id="addWebsiteBtn">➕ ADD WEBSITE</button><div id="websitesTable"></div></div><div id="websiteModal" class="modal"><h3>✍️ WEBSITE</h3><input type="text" id="websiteDomain" placeholder="Domain"><input type="text" id="websiteTitle" placeholder="Title"><input type="number" id="websitePrice" placeholder="Price"><button class="btn" id="saveWebsiteBtn">💀 SAVE</button><button class="btn" id="cancelWebsiteBtn">CANCEL</button><input type="hidden" id="editingWebsiteId"></div></div>
             <!-- eSIM -->
-            <div id="section-esim" class="section"><div class="card"><h2>📱 eSIM PLANS (1 month - 1 year)</h2><button class="btn" id="addEsimBtn">➕ ADD PLAN</button><div id="esimTable"></div></div><div id="esimModal" class="modal"><h3>✍️ eSIM PLAN</h3><input type="text" id="esimName" placeholder="Plan Name"><select id="esimDuration"><option>1 month</option><option>3 months</option><option>6 months</option><option>1 year</option></select><input type="number" id="esimPrice" placeholder="Price (USD)"><input type="text" id="esimData" placeholder="Data (e.g., 10GB)"><input type="text" id="esimVoice" placeholder="Voice (e.g., Unlimited)"><button class="btn" id="saveEsimBtn">💀 SAVE</button><button class="btn" id="cancelEsimBtn">CANCEL</button><input type="hidden" id="editingEsimId"></div></div>
+            <div id="section-esim" class="section"><div class="card"><h2>📱 eSIM PLANS</h2><button class="btn" id="addEsimBtn">➕ ADD PLAN</button><div id="esimTable"></div></div><div id="esimModal" class="modal"><h3>✍️ eSIM PLAN</h3><input type="text" id="esimName" placeholder="Plan Name"><select id="esimDuration"><option>1 month</option><option>3 months</option><option>6 months</option><option>1 year</option></select><input type="number" id="esimPrice" placeholder="Price (USD)"><input type="text" id="esimData" placeholder="Data"><input type="text" id="esimVoice" placeholder="Voice"><button class="btn" id="saveEsimBtn">💀 SAVE</button><button class="btn" id="cancelEsimBtn">CANCEL</button><input type="hidden" id="editingEsimId"></div></div>
             <!-- LOGISTICS -->
-            <div id="section-logistics" class="section"><div class="card"><h2>📦 LOGISTICS (DELIVERY ORDERS)</h2><button class="btn" id="addLogisticsBtn">➕ CREATE ORDER</button><div id="logisticsTable"></div></div><div id="logisticsModal" class="modal"><h3>✍️ DELIVERY ORDER</h3><input type="text" id="logSender" placeholder="Sender"><input type="text" id="logReceiver" placeholder="Receiver"><input type="text" id="logAddress" placeholder="Address (City, Country)"><input type="text" id="logPackage" placeholder="Package Description"><input type="number" id="logWeight" placeholder="Weight (kg)"><input type="number" id="logPrice" placeholder="Fee (USD)"><select id="logStatus"><option>pending</option><option>in_transit</option><option>delivered</option></select><button class="btn" id="saveLogisticsBtn">💀 SAVE</button><button class="btn" id="cancelLogisticsBtn">CANCEL</button><input type="hidden" id="editingLogisticsId"></div></div>
+            <div id="section-logistics" class="section"><div class="card"><h2>📦 LOGISTICS</h2><button class="btn" id="addLogisticsBtn">➕ CREATE ORDER</button><div id="logisticsTable"></div></div><div id="logisticsModal" class="modal"><h3>✍️ DELIVERY ORDER</h3><input type="text" id="logSender" placeholder="Sender"><input type="text" id="logReceiver" placeholder="Receiver"><input type="text" id="logAddress" placeholder="Address"><input type="text" id="logPackage" placeholder="Package"><input type="number" id="logWeight" placeholder="Weight (kg)"><input type="number" id="logPrice" placeholder="Fee"><select id="logStatus"><option>pending</option><option>in_transit</option><option>delivered</option></select><button class="btn" id="saveLogisticsBtn">💀 SAVE</button><button class="btn" id="cancelLogisticsBtn">CANCEL</button><input type="hidden" id="editingLogisticsId"></div></div>
             <!-- VIRTUAL NUMBERS -->
-            <div id="section-virtualnums" class="section"><div class="card"><h2>📞 VIRTUAL NUMBERS FOR SALE</h2><button class="btn" id="addVirtualBtn">➕ ADD NUMBER</button><div id="virtualTable"></div></div><div id="virtualModal" class="modal"><h3>✍️ VIRTUAL NUMBER</h3><input type="text" id="virtualNumber" placeholder="Phone Number"><input type="text" id="virtualCountry" placeholder="Country"><input type="text" id="virtualService" placeholder="Service (SMS/Voice/OTP)"><input type="number" id="virtualPrice" placeholder="Price (USD)"><input type="text" id="virtualPartner" placeholder="Partner Site"><button class="btn" id="saveVirtualBtn">💀 SAVE</button><button class="btn" id="cancelVirtualBtn">CANCEL</button><input type="hidden" id="editingVirtualId"></div></div>
+            <div id="section-virtualnums" class="section"><div class="card"><h2>📞 VIRTUAL NUMBERS</h2><button class="btn" id="addVirtualBtn">➕ ADD NUMBER</button><div id="virtualTable"></div></div><div id="virtualModal" class="modal"><h3>✍️ VIRTUAL NUMBER</h3><input type="text" id="virtualNumber" placeholder="Number"><input type="text" id="virtualCountry" placeholder="Country"><input type="text" id="virtualService" placeholder="Service"><input type="number" id="virtualPrice" placeholder="Price"><input type="text" id="virtualPartner" placeholder="Partner"><button class="btn" id="saveVirtualBtn">💀 SAVE</button><button class="btn" id="cancelVirtualBtn">CANCEL</button><input type="hidden" id="editingVirtualId"></div></div>
             <!-- WEB REQUESTS -->
-            <div id="section-webrequest" class="section"><div class="card"><h2>🌍 WEB BUILD REQUESTS</h2><button class="btn" id="addWebReqBtn">➕ NEW REQUEST</button><div id="webReqsTable"></div></div><div id="webReqModal" class="modal"><h3>✍️ WEB REQUEST</h3><input type="text" id="webClient" placeholder="Client Name"><input type="email" id="webEmail" placeholder="Email"><input type="text" id="webType" placeholder="Type (ecommerce, blog, business)"><textarea id="webReqs" rows="3" placeholder="Requirements"></textarea><input type="number" id="webBudget" placeholder="Budget (USD)"><button class="btn" id="saveWebReqBtn">💀 SAVE</button><button class="btn" id="cancelWebReqBtn">CANCEL</button><input type="hidden" id="editingWebReqId"></div></div>
-            <!-- CREDENTIAL FORM BUILDER -->
-            <div id="section-credform" class="section"><div class="card"><h2>📝 CREDENTIAL FORM BUILDER</h2><button class="btn" id="addCredFormBtn">➕ NEW FORM</button><div id="credFormsTable"></div></div><div id="credFormModal" class="modal"><h3>✍️ FORM</h3><input type="text" id="formName" placeholder="Form Name"><textarea id="formFields" rows="4" placeholder='JSON fields: [{"label":"Full Name","type":"text"},{"label":"Email","type":"email"}]'></textarea><button class="btn" id="saveCredFormBtn">💀 SAVE</button><button class="btn" id="cancelCredFormBtn">CANCEL</button><input type="hidden" id="editingCredFormId"></div></div>
-            <!-- CLOUD/DOMAIN REQUESTS -->
-            <div id="section-cloudreq" class="section"><div class="card"><h2>☁️ CLOUD & DOMAIN SETUP REQUESTS</h2><button class="btn" id="addCloudReqBtn">➕ NEW REQUEST</button><div id="cloudReqsTable"></div><p style="color:#ff8888;">⚠️ Requests are sent to Telegram Bot (simulated).</p></div><div id="cloudReqModal" class="modal"><h3>✍️ CLOUD/DOMAIN REQUEST</h3><input type="text" id="cloudCustomer" placeholder="Customer Name"><input type="email" id="cloudEmail" placeholder="Email"><select id="cloudService"><option>Domain Registration</option><option>Web Hosting</option><option>VPS / Cloud Server</option><option>SSL Certificate</option></select><input type="text" id="cloudDomain" placeholder="Domain name"><textarea id="cloudDetails" rows="3" placeholder="Additional details"></textarea><button class="btn" id="saveCloudReqBtn">💀 SEND TO TELEGRAM BOT</button><button class="btn" id="cancelCloudReqBtn">CANCEL</button><input type="hidden" id="editingCloudReqId"></div></div>
+            <div id="section-webrequest" class="section"><div class="card"><h2>🌍 WEB BUILD REQUESTS</h2><button class="btn" id="addWebReqBtn">➕ NEW REQUEST</button><div id="webReqsTable"></div></div><div id="webReqModal" class="modal"><h3>✍️ REQUEST</h3><input type="text" id="webClient" placeholder="Client"><input type="email" id="webEmail" placeholder="Email"><input type="text" id="webType" placeholder="Type"><textarea id="webReqs" rows="3" placeholder="Requirements"></textarea><input type="number" id="webBudget" placeholder="Budget"><button class="btn" id="saveWebReqBtn">💀 SAVE</button><button class="btn" id="cancelWebReqBtn">CANCEL</button><input type="hidden" id="editingWebReqId"></div></div>
+            <!-- CRED FORMS -->
+            <div id="section-credform" class="section"><div class="card"><h2>📝 CREDENTIAL FORM BUILDER</h2><button class="btn" id="addCredFormBtn">➕ NEW FORM</button><div id="credFormsTable"></div></div><div id="credFormModal" class="modal"><h3>✍️ FORM</h3><input type="text" id="formName" placeholder="Form Name"><textarea id="formFields" rows="4" placeholder='JSON fields'></textarea><button class="btn" id="saveCredFormBtn">💀 SAVE</button><button class="btn" id="cancelCredFormBtn">CANCEL</button><input type="hidden" id="editingCredFormId"></div></div>
+            <!-- CLOUD REQUESTS -->
+            <div id="section-cloudreq" class="section"><div class="card"><h2>☁️ CLOUD & DOMAIN REQUESTS</h2><button class="btn" id="addCloudReqBtn">➕ NEW REQUEST</button><div id="cloudReqsTable"></div><p style="color:#ff8888;">⚠️ Simulated Telegram Bot</p></div><div id="cloudReqModal" class="modal"><h3>✍️ REQUEST</h3><input type="text" id="cloudCustomer" placeholder="Customer"><input type="email" id="cloudEmail" placeholder="Email"><select id="cloudService"><option>Domain Registration</option><option>Web Hosting</option><option>VPS</option><option>SSL</option></select><input type="text" id="cloudDomain" placeholder="Domain"><textarea id="cloudDetails" rows="3" placeholder="Details"></textarea><button class="btn" id="saveCloudReqBtn">💀 SEND TO TELEGRAM</button><button class="btn" id="cancelCloudReqBtn">CANCEL</button><input type="hidden" id="editingCloudReqId"></div></div>
             <!-- VISITORS -->
             <div id="section-visitors" class="section"><div class="card"><h2>🌍 VISITOR LOGS</h2><div id="visitorsTable"></div></div></div>
             <!-- BLOG -->
-            <div id="section-blog" class="section"><div class="card"><h2>📜 BLOG POSTS</h2><button class="btn" id="addPostBtn">➕ NEW POST</button><div id="blogTable"></div></div><div id="blogModal" class="modal"><h3>✍️ POST</h3><input type="text" id="postTitle" placeholder="Title"><textarea id="postContent" rows="8" placeholder="Content (HTML allowed)"></textarea><button class="btn" id="savePostBtn">💀 SAVE</button><button class="btn" id="cancelPostBtn">CANCEL</button><input type="hidden" id="editingPostId"></div></div>
+            <div id="section-blog" class="section"><div class="card"><h2>📜 BLOG POSTS</h2><button class="btn" id="addPostBtn">➕ NEW POST</button><div id="blogTable"></div></div><div id="blogModal" class="modal"><h3>✍️ POST</h3><input type="text" id="postTitle" placeholder="Title"><textarea id="postContent" rows="8" placeholder="Content"></textarea><button class="btn" id="savePostBtn">💀 SAVE</button><button class="btn" id="cancelPostBtn">CANCEL</button><input type="hidden" id="editingPostId"></div></div>
         `;
 
         attachAllEventListeners();
-        // initial render of all sections
+        // initial render
         renderUsers(); renderCodes(); renderPayments(); renderTools(); renderPromoManager();
         renderWebsites(); renderEsim(); renderLogistics(); renderVirtualNumbers();
         renderWebRequests(); renderCredForms(); renderCloudRequests(); renderVisitors(); renderBlog();
 
-        // activate first tab
         const firstTab = document.querySelector('.tab-btn');
         if (firstTab) firstTab.classList.add('active');
     }
@@ -400,18 +466,39 @@
     }
     function renderTools() {
         let tools = get('ghost_tools');
-        let html = '<table class="admin-table"><tr><th>Name</th><th>Price</th><th>Promo</th><th>Actions</th></tr>';
+        let html = '<table class="admin-table"><tr><th>Name</th><th>Category</th><th>Price</th><th>Discount</th><th>Final Price</th><th>Download Link</th><th>Actions</th></tr>';
         tools.forEach(t => {
-            html += `<tr><td>${t.name}</td><td>$${t.price}</td><td>${t.promoName ? t.promoName+' $'+t.promoPrice : 'none'}</td><td><button class="btn" data-action="editTool" data-id="${t.id}">✏️</button> <button class="btn" data-action="deleteTool" data-id="${t.id}">🗑️</button></td></tr>`;
+            let finalPrice = t.price;
+            let discountText = '';
+            if (t.discountPercent && t.discountPercent > 0) {
+                finalPrice = t.price - (t.price * t.discountPercent / 100);
+                discountText = `${t.discountPercent}% off`;
+            } else if (t.originalPrice && t.originalPrice > t.price) {
+                discountText = `Save $${(t.originalPrice - t.price).toFixed(2)}`;
+            }
+            html += `<tr>
+                <td>${t.name}</td>
+                <td>${t.category || '-'}</td>
+                <td>$${t.price}</td>
+                <td>${discountText || '-'}</td>
+                <td>$${finalPrice.toFixed(2)}</td>
+                <td><a href="${t.downloadLink || '#'}" target="_blank">Link</a></td>
+                <td><button class="btn" data-action="editTool" data-id="${t.id}">✏️</button> <button class="btn" data-action="deleteTool" data-id="${t.id}">🗑️</button></td>
+            </tr>`;
         });
         html += '</table>';
         document.getElementById('toolsTable').innerHTML = html;
     }
     function renderPromoManager() {
         let tools = get('ghost_tools');
-        let html = '<table class="admin-table"><tr><th>Tool</th><th>Current Promo</th><th>New Promo Name</th><th>Sale Price</th><th>Apply</th></tr>';
+        let html = '<table class="admin-table"><tr><th>Tool</th><th>Current Discount</th><th>New Discount %</th><th>Apply</th></tr>';
         tools.forEach(t => {
-            html += `<tr><td>${t.name}</td><td>${t.promoName ? t.promoName+' $'+t.promoPrice : 'none'}</td><td><input type="text" id="promoName_${t.id}" placeholder="Name"></td><td><input type="number" id="promoPrice_${t.id}" placeholder="Price"></td><td><button class="btn" data-action="applyPromo" data-id="${t.id}">🔥 APPLY</button></td></tr>`;
+            html += `<tr>
+                <td>${t.name}</td>
+                <td>${t.discountPercent ? t.discountPercent + '%' : 'None'}</td>
+                <td><input type="number" id="discount_${t.id}" placeholder="% off" step="5"></td>
+                <td><button class="btn" data-action="applyDiscount" data-id="${t.id}">🔥 APPLY</button></td>
+            </tr>`;
         });
         html += '</table>';
         document.getElementById('promoTable').innerHTML = html;
@@ -420,7 +507,7 @@
         let items = get('ghost_websites');
         let html = '<table class="admin-table"><tr><th>Domain</th><th>Title</th><th>Price</th><th>Actions</th></tr>';
         items.forEach(i => {
-            html += `<tr><td>${i.domain}</td><td>${i.title}</td><td>$${i.price}</td><td><button class="btn" data-action="editWebsite" data-id="${i.id}">✏️</button> <button class="btn" data-action="deleteWebsite" data-id="${i.id}">🗑️</button></td></tr>`;
+            html += `<td><td>${i.domain}</td><td>${i.title}</td><td>$${i.price}</td><td><button class="btn" data-action="editWebsite" data-id="${i.id}">✏️</button> <button class="btn" data-action="deleteWebsite" data-id="${i.id}">🗑️</button></td></tr>`;
         });
         html += '</table>';
         document.getElementById('websitesTable').innerHTML = html;
@@ -474,7 +561,7 @@
         let items = get('ghost_cloudreqs');
         let html = '<table class="admin-table"><tr><th>Customer</th><th>Service</th><th>Domain</th><th>Telegram</th><th>Actions</th></tr>';
         items.forEach(r => {
-            html += `<tr><td>${r.customer}</td><td>${r.serviceType}</td><td>${r.domain}</td><td>${r.sentToTelegram ? '✅ Sent' : '❌'}</td><td><button class="btn" data-action="deleteCloudReq" data-id="${r.id}">🗑️</button></td></tr>`;
+            html += `<td><td>${r.customer}</td><td>${r.serviceType}</td><td>${r.domain}</td><td>${r.sentToTelegram ? '✅ Sent' : '❌'}</td><td><button class="btn" data-action="deleteCloudReq" data-id="${r.id}">🗑️</button></td></tr>`;
         });
         html += '</table>';
         document.getElementById('cloudReqsTable').innerHTML = html;
@@ -483,7 +570,7 @@
         let items = get('ghost_visitors');
         let html = '<table class="admin-table"><tr><th>IP</th><th>Time</th><th>Page</th></tr>';
         items.forEach(v => {
-            html += `<tr><td>${v.ip}</td><td>${new Date(v.time).toLocaleString()}</td><td>${v.page}</td></tr>`;
+            html += `<td><td>${v.ip}</td><td>${new Date(v.time).toLocaleString()}</td><td>${v.page}</td></tr>`;
         });
         html += '</table>';
         document.getElementById('visitorsTable').innerHTML = html;
@@ -492,9 +579,9 @@
         let items = get('ghost_blog');
         let html = '<table class="admin-table"><tr><th>Title</th><th>Date</th><th>Actions</th></tr>';
         items.forEach(p => {
-            html += `<tr><td>${p.title}</td><td>${new Date(p.createdAt).toLocaleDateString()}</td><td><button class="btn" data-action="editPost" data-id="${p.id}">✏️</button> <button class="btn" data-action="deletePost" data-id="${p.id}">🗑️</button></td></tr>`;
+            html += `<td><td>${p.title}</td><td>${new Date(p.createdAt).toLocaleDateString()}</td><td><button class="btn" data-action="editPost" data-id="${p.id}">✏️</button> <button class="btn" data-action="deletePost" data-id="${p.id}">🗑️</button></td></tr>`;
         });
-        html += '</table>';
+        html += '<table>';
         document.getElementById('blogTable').innerHTML = html;
     }
 
@@ -514,8 +601,8 @@
             if (action === 'deletePayment') { set('ghost_payments', get('ghost_payments').filter(p => p.id !== id)); renderPayments(); }
             // Tools
             if (action === 'deleteTool') { set('ghost_tools', get('ghost_tools').filter(t => t.id !== id)); renderTools(); renderPromoManager(); }
-            if (action === 'editTool') { let tool = get('ghost_tools').find(t => t.id === id); if(tool) { document.getElementById('toolName').value = tool.name; document.getElementById('toolPrice').value = tool.price; document.getElementById('toolPromoName').value = tool.promoName || ''; document.getElementById('toolPromoPrice').value = tool.promoPrice || ''; document.getElementById('editingToolId').value = id; document.getElementById('toolModal').style.display = 'block'; } }
-            if (action === 'applyPromo') { let name = document.getElementById(`promoName_${id}`).value; let price = parseFloat(document.getElementById(`promoPrice_${id}`).value); let tools = get('ghost_tools'); let idx = tools.findIndex(t => t.id === id); if(idx !== -1) { tools[idx].promoName = name || null; tools[idx].promoPrice = isNaN(price) ? null : price; set('ghost_tools', tools); renderTools(); renderPromoManager(); } }
+            if (action === 'editTool') { let tool = get('ghost_tools').find(t => t.id === id); if(tool) { document.getElementById('toolName').value = tool.name; document.getElementById('toolDesc').value = tool.description || ''; document.getElementById('toolCategory').value = tool.category || ''; document.getElementById('toolPrice').value = tool.price; document.getElementById('toolOriginalPrice').value = tool.originalPrice || ''; document.getElementById('toolDiscountPercent').value = tool.discountPercent || ''; document.getElementById('toolDownloadLink').value = tool.downloadLink || ''; document.getElementById('toolImageUrl').value = tool.imageUrl || ''; document.getElementById('toolVideoUrl').value = tool.videoUrl || ''; document.getElementById('toolPaymentLink').value = tool.paymentLink || ''; document.getElementById('toolBonusInfo').value = tool.bonusInfo || ''; document.getElementById('editingToolId').value = id; document.getElementById('toolModal').style.display = 'block'; } }
+            if (action === 'applyDiscount') { let discount = parseFloat(document.getElementById(`discount_${id}`).value); let tools = get('ghost_tools'); let idx = tools.findIndex(t => t.id === id); if(idx !== -1 && !isNaN(discount)) { tools[idx].discountPercent = discount; set('ghost_tools', tools); renderTools(); renderPromoManager(); } }
             // Websites
             if (action === 'deleteWebsite') { set('ghost_websites', get('ghost_websites').filter(w => w.id !== id)); renderWebsites(); }
             if (action === 'editWebsite') { let site = get('ghost_websites').find(w => w.id === id); if(site) { document.getElementById('websiteDomain').value = site.domain; document.getElementById('websiteTitle').value = site.title; document.getElementById('websitePrice').value = site.price; document.getElementById('editingWebsiteId').value = id; document.getElementById('websiteModal').style.display = 'block'; } }
@@ -541,7 +628,7 @@
             if (action === 'deletePost') { set('ghost_blog', get('ghost_blog').filter(p => p.id !== id)); renderBlog(); }
         });
 
-        // Static button handlers (add/save/cancel)
+        // Static button handlers
         document.getElementById('addUserBtn').onclick = () => {
             let email = document.getElementById('newUserEmail').value.trim();
             let pass = document.getElementById('newUserPass').value;
@@ -572,13 +659,26 @@
             set('ghost_payments', payments);
             renderPayments();
         };
-        document.getElementById('addToolBtn').onclick = () => { document.getElementById('toolModal').style.display = 'block'; document.getElementById('editingToolId').value = ''; document.getElementById('toolName').value = ''; document.getElementById('toolPrice').value = ''; document.getElementById('toolPromoName').value = ''; document.getElementById('toolPromoPrice').value = ''; };
+        document.getElementById('addToolBtn').onclick = () => { document.getElementById('toolModal').style.display = 'block'; document.getElementById('editingToolId').value = ''; document.getElementById('toolName').value = ''; document.getElementById('toolDesc').value = ''; document.getElementById('toolCategory').value = ''; document.getElementById('toolPrice').value = ''; document.getElementById('toolOriginalPrice').value = ''; document.getElementById('toolDiscountPercent').value = ''; document.getElementById('toolDownloadLink').value = ''; document.getElementById('toolImageUrl').value = ''; document.getElementById('toolVideoUrl').value = ''; document.getElementById('toolPaymentLink').value = ''; document.getElementById('toolBonusInfo').value = ''; };
         document.getElementById('saveToolBtn').onclick = () => {
             let id = document.getElementById('editingToolId').value;
-            let data = { name: document.getElementById('toolName').value, price: parseFloat(document.getElementById('toolPrice').value), promoName: document.getElementById('toolPromoName').value, promoPrice: parseFloat(document.getElementById('toolPromoPrice').value) || null };
+            let toolData = {
+                name: document.getElementById('toolName').value,
+                description: document.getElementById('toolDesc').value,
+                category: document.getElementById('toolCategory').value,
+                price: parseFloat(document.getElementById('toolPrice').value),
+                originalPrice: parseFloat(document.getElementById('toolOriginalPrice').value) || null,
+                discountPercent: parseFloat(document.getElementById('toolDiscountPercent').value) || null,
+                downloadLink: document.getElementById('toolDownloadLink').value,
+                imageUrl: document.getElementById('toolImageUrl').value,
+                videoUrl: document.getElementById('toolVideoUrl').value,
+                paymentLink: document.getElementById('toolPaymentLink').value,
+                bonusInfo: document.getElementById('toolBonusInfo').value
+            };
+            if (!toolData.name || isNaN(toolData.price)) return alert('Name and price required');
             let tools = get('ghost_tools');
-            if (id) { let idx = tools.findIndex(t => t.id === id); if(idx !== -1) tools[idx] = { ...tools[idx], ...data }; }
-            else { data.id = Date.now().toString(); tools.push(data); }
+            if (id) { let idx = tools.findIndex(t => t.id === id); if(idx !== -1) tools[idx] = { ...tools[idx], ...toolData }; }
+            else { toolData.id = Date.now().toString(); tools.push(toolData); }
             set('ghost_tools', tools);
             document.getElementById('toolModal').style.display = 'none';
             renderTools(); renderPromoManager();
