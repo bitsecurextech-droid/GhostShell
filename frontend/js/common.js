@@ -1,7 +1,8 @@
-// js/common.js – Promo removed
+// js/common.js
 const API = '/api';
 let currentUser = null;
 
+// Unified navigation builder
 function buildNav() {
     const nav = document.getElementById('mainNav');
     if (!nav) return;
@@ -29,4 +30,87 @@ function buildNav() {
     });
 }
 
-// ... rest of common.js (themeToggle, logout, checkAuth, apiCall) unchanged
+// Theme toggle
+function initThemeToggle() {
+    const themeBtn = document.getElementById('themeToggle');
+    if (!themeBtn) return;
+    if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light');
+        themeBtn.textContent = '☀️';
+    }
+    themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('light');
+        const isLight = document.body.classList.contains('light');
+        themeBtn.textContent = isLight ? '☀️' : '🌓';
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    });
+}
+
+// Logout handler
+function initLogout() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('ghost_token');
+            window.location.href = 'index.html';
+        });
+    }
+}
+
+// Authentication check – redirects to index if not logged in
+async function checkAuth() {
+    const token = localStorage.getItem('ghost_token');
+    if (!token) {
+        window.location.href = 'index.html';
+        return false;
+    }
+    try {
+        const res = await fetch(`${API}/verify`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        currentUser = data.user;
+        return true;
+    } catch (e) {
+        localStorage.removeItem('ghost_token');
+        window.location.href = 'index.html';
+        return false;
+    }
+}
+
+// Initialize common components on every page
+async function initCommon() {
+    const authenticated = await checkAuth();
+    if (!authenticated) return false;
+    buildNav();
+    initThemeToggle();
+    initLogout();
+    return true;
+}
+
+// API helper (with token)
+async function apiCall(endpoint, options = {}) {
+    const token = localStorage.getItem('ghost_token');
+    const res = await fetch(`${API}${endpoint}`, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            ...options.headers
+        }
+    });
+    if (res.status === 401) {
+        localStorage.removeItem('ghost_token');
+        window.location.href = 'index.html';
+        throw new Error('Unauthorized');
+    }
+    return res.json();
+}
+
+// Helper to strip HTML for excerpts
+function stripHtml(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+}
