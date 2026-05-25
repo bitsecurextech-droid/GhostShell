@@ -1,3 +1,9 @@
+(async () => {
+    const ok = await initCommon();
+    if (!ok) return;
+
+    // ---- YOUR EXISTING CODE GOES BELOW ----
+    
 // js/blog.js
 (async () => {
     const ok = await initCommon();
@@ -85,3 +91,4 @@ function escapeHtml(str) {
         return m;
     });
 }
+})();
