@@ -7,7 +7,6 @@ const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
 const path = require('path');
 const { Pool } = require('pg');
-const dns = require('dns').promises;
 const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, { cors: { origin: '*' } });
@@ -16,207 +15,184 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
-// -------------------- FORCE IPv4 FOR SUPABASE --------------------
-let dbUrl = process.env.DATABASE_URL;
+// -------------------- POSTGRESQL CONNECTION (simple) --------------------
+const dbUrl = process.env.DATABASE_URL;
 if (!dbUrl) {
     console.error('❌ DATABASE_URL environment variable is missing');
     process.exit(1);
 }
 
-// Extract hostname and force IPv4 resolution
-(async function fixIPv4() {
-    try {
-        const urlObj = new URL(dbUrl);
-        const hostname = urlObj.hostname;
-        // Resolve to IPv4 address
-        const addresses = await dns.lookup(hostname, { family: 4 });
-        const ipv4 = addresses.address;
-        console.log(`✅ Resolved ${hostname} to IPv4: ${ipv4}`);
-        // Replace hostname with IP address
-        dbUrl = dbUrl.replace(hostname, ipv4);
-        // Ensure SSL is enabled
-        if (!dbUrl.includes('sslmode=require')) {
-            dbUrl += (dbUrl.includes('?') ? '&' : '?') + 'sslmode=require';
-        }
-    } catch (err) {
-        console.error('❌ Failed to resolve IPv4 address:', err.message);
-        process.exit(1);
-    }
-})();
+// Ensure SSL is enabled for Supabase
+let finalUrl = dbUrl;
+if (!finalUrl.includes('sslmode=require')) {
+    const separator = finalUrl.includes('?') ? '&' : '?';
+    finalUrl += `${separator}sslmode=require`;
+}
 
-const pool = new Pool({ connectionString: dbUrl });
+const pool = new Pool({ connectionString: finalUrl });
 
 async function query(text, params) {
     const res = await pool.query(text, params);
     return res;
 }
 
-// -------------------- CREATE TABLES (with retry) --------------------
-async function initDatabase(retries = 5) {
-    for (let i = 0; i < retries; i++) {
-        try {
-            const client = await pool.connect();
-            try {
-                // Users table
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS users (
-                        id UUID PRIMARY KEY,
-                        username TEXT NOT NULL,
-                        email TEXT UNIQUE NOT NULL,
-                        password TEXT NOT NULL,
-                        access_code TEXT,
-                        fingerprint TEXT,
-                        approved BOOLEAN DEFAULT TRUE,
-                        banned BOOLEAN DEFAULT FALSE,
-                        role TEXT DEFAULT 'user',
-                        tools JSONB DEFAULT '[]',
-                        created_at TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS access_codes (
-                        code TEXT PRIMARY KEY,
-                        is_active BOOLEAN DEFAULT TRUE,
-                        used_by UUID REFERENCES users(id),
-                        used_at TIMESTAMPTZ,
-                        requested_by TEXT
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS tools (
-                        id UUID PRIMARY KEY,
-                        name TEXT NOT NULL,
-                        description TEXT,
-                        price_usd NUMERIC,
-                        category TEXT,
-                        download_url TEXT,
-                        payment_link TEXT,
-                        image_urls JSONB DEFAULT '[]',
-                        video_url TEXT,
-                        created_at TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS payments (
-                        id UUID PRIMARY KEY,
-                        user_id UUID REFERENCES users(id),
-                        tool_id UUID REFERENCES tools(id),
-                        amount_usd NUMERIC,
-                        amount_btc TEXT,
-                        screenshot_base64 TEXT,
-                        status TEXT DEFAULT 'pending',
-                        created_at TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS visitors (
-                        id SERIAL PRIMARY KEY,
-                        ip TEXT,
-                        location TEXT,
-                        vpn BOOLEAN,
-                        page TEXT,
-                        timestamp TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS websites (
-                        id UUID PRIMARY KEY,
-                        domain TEXT NOT NULL,
-                        title TEXT,
-                        price NUMERIC,
-                        category TEXT,
-                        image TEXT,
-                        details TEXT,
-                        created_at TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS esim (
-                        id UUID PRIMARY KEY,
-                        name TEXT NOT NULL,
-                        duration TEXT,
-                        price NUMERIC,
-                        data TEXT,
-                        voice TEXT,
-                        description TEXT,
-                        created_at TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS logistics (
-                        id UUID PRIMARY KEY,
-                        sender TEXT,
-                        receiver TEXT,
-                        address TEXT,
-                        package TEXT,
-                        weight NUMERIC,
-                        price NUMERIC,
-                        status TEXT DEFAULT 'pending',
-                        created_at TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS virtualnums (
-                        id UUID PRIMARY KEY,
-                        number TEXT NOT NULL,
-                        country TEXT,
-                        service TEXT,
-                        price NUMERIC,
-                        partner TEXT,
-                        created_at TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS webrequests (
-                        id UUID PRIMARY KEY,
-                        client TEXT,
-                        email TEXT,
-                        type TEXT,
-                        requirements TEXT,
-                        budget NUMERIC,
-                        created_at TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS credforms (
-                        id UUID PRIMARY KEY,
-                        name TEXT NOT NULL,
-                        fields TEXT,
-                        created_at TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS cloudreqs (
-                        id UUID PRIMARY KEY,
-                        customer TEXT,
-                        email TEXT,
-                        service_type TEXT,
-                        domain TEXT,
-                        details TEXT,
-                        sent_to_telegram BOOLEAN DEFAULT FALSE,
-                        created_at TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                await client.query(`
-                    CREATE TABLE IF NOT EXISTS blog (
-                        id UUID PRIMARY KEY,
-                        title TEXT NOT NULL,
-                        content TEXT,
-                        category TEXT DEFAULT 'general',
-                        author TEXT,
-                        created_at TIMESTAMPTZ DEFAULT NOW()
-                    );
-                `);
-                console.log('✅ All database tables ready.');
-                return true;
-            } finally {
-                client.release();
-            }
-        } catch (err) {
-            console.error(`Database init attempt ${i + 1} failed:`, err.message);
-            if (i === retries - 1) throw err;
-            await new Promise(resolve => setTimeout(resolve, 3000));
-        }
+// -------------------- CREATE TABLES (if not exist) --------------------
+async function initDatabase() {
+    const client = await pool.connect();
+    try {
+        // Users table
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id UUID PRIMARY KEY,
+                username TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                access_code TEXT,
+                fingerprint TEXT,
+                approved BOOLEAN DEFAULT TRUE,
+                banned BOOLEAN DEFAULT FALSE,
+                role TEXT DEFAULT 'user',
+                tools JSONB DEFAULT '[]',
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS access_codes (
+                code TEXT PRIMARY KEY,
+                is_active BOOLEAN DEFAULT TRUE,
+                used_by UUID REFERENCES users(id),
+                used_at TIMESTAMPTZ,
+                requested_by TEXT
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS tools (
+                id UUID PRIMARY KEY,
+                name TEXT NOT NULL,
+                description TEXT,
+                price_usd NUMERIC,
+                category TEXT,
+                download_url TEXT,
+                payment_link TEXT,
+                image_urls JSONB DEFAULT '[]',
+                video_url TEXT,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS payments (
+                id UUID PRIMARY KEY,
+                user_id UUID REFERENCES users(id),
+                tool_id UUID REFERENCES tools(id),
+                amount_usd NUMERIC,
+                amount_btc TEXT,
+                screenshot_base64 TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS visitors (
+                id SERIAL PRIMARY KEY,
+                ip TEXT,
+                location TEXT,
+                vpn BOOLEAN,
+                page TEXT,
+                timestamp TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS websites (
+                id UUID PRIMARY KEY,
+                domain TEXT NOT NULL,
+                title TEXT,
+                price NUMERIC,
+                category TEXT,
+                image TEXT,
+                details TEXT,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS esim (
+                id UUID PRIMARY KEY,
+                name TEXT NOT NULL,
+                duration TEXT,
+                price NUMERIC,
+                data TEXT,
+                voice TEXT,
+                description TEXT,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS logistics (
+                id UUID PRIMARY KEY,
+                sender TEXT,
+                receiver TEXT,
+                address TEXT,
+                package TEXT,
+                weight NUMERIC,
+                price NUMERIC,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS virtualnums (
+                id UUID PRIMARY KEY,
+                number TEXT NOT NULL,
+                country TEXT,
+                service TEXT,
+                price NUMERIC,
+                partner TEXT,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS webrequests (
+                id UUID PRIMARY KEY,
+                client TEXT,
+                email TEXT,
+                type TEXT,
+                requirements TEXT,
+                budget NUMERIC,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS credforms (
+                id UUID PRIMARY KEY,
+                name TEXT NOT NULL,
+                fields TEXT,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS cloudreqs (
+                id UUID PRIMARY KEY,
+                customer TEXT,
+                email TEXT,
+                service_type TEXT,
+                domain TEXT,
+                details TEXT,
+                sent_to_telegram BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS blog (
+                id UUID PRIMARY KEY,
+                title TEXT NOT NULL,
+                content TEXT,
+                category TEXT DEFAULT 'general',
+                author TEXT,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+        `);
+        console.log('✅ All database tables ready.');
+    } finally {
+        client.release();
     }
 }
 
@@ -325,10 +301,6 @@ app.post('/api/contact', async (req, res) => {
     await sendTelegram(telegramMsg);
     res.json({ success: true, message: 'Your message has been sent to the GHOST SHELL command.' });
 });
-
-// -------------------- EXTERNAL APIS (keep your existing ones) --------------------
-// (For brevity, I'm not repeating them – they remain unchanged.
-//  Make sure to add them back from your previous server.js.)
 
 // -------------------- MARKETPLACE PAYMENTS --------------------
 app.post('/api/payment', auth, async (req, res) => {
@@ -528,7 +500,7 @@ app.get('/api/admin/visitors', adminAuth, async (req, res) => {
     res.json(result.rows);
 });
 
-// -------------------- AI CHAT (local) --------------------
+// -------------------- AI CHAT --------------------
 app.post('/api/ai/chat', auth, async (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'Message required' });
@@ -538,14 +510,14 @@ app.post('/api/ai/chat', auth, async (req, res) => {
 
 function getLocalAIResponse(query) {
     const q = query.toLowerCase();
-    if (q.includes('phish')) return 'Phishing detection: check for mismatched URLs, urgent language, and requests for credentials. Implement DMARC, DKIM, and SPF to prevent email spoofing.';
-    if (q.includes('encrypt') || q.includes('aes')) return 'AES‑256 is the gold standard for symmetric encryption. Use authenticated encryption (AES‑GCM). For asymmetric, migrate to post‑quantum algorithms like CRYSTALS‑Kyber.';
-    if (q.includes('hack')) return 'Hacking refers to gaining unauthorized access to a computer system or network. Ethical hacking (white‑hat) is done with permission to improve security. Always obtain written consent before testing.';
-    if (q.includes('password')) return 'Strong passwords have 80+ bits of entropy. Use a password manager and enable multi‑factor authentication (MFA) wherever possible. Avoid reusing passwords across sites.';
-    if (q.includes('malware') || q.includes('virus')) return 'Malware includes viruses, worms, ransomware, and trojans. Prevent it by keeping systems patched, using antivirus, and educating users. Regular backups are essential against ransomware.';
-    if (q.includes('network')) return 'Network security involves firewalls, IDS/IPS, segmentation, and zero‑trust principles. Monitor traffic and conduct regular penetration tests. Disable unused ports and services.';
-    if (q.includes('exploit')) return 'An exploit takes advantage of a vulnerability in software or hardware. Keep systems updated, use intrusion detection systems, and apply the principle of least privilege to mitigate exploit risks.';
-    if (q.includes('web') || q.includes('xss') || q.includes('sql')) return 'Web security: prevent SQL injection with prepared statements, XSS with output encoding, CSRF with anti‑CSRF tokens, and use Content‑Security‑Policy headers. Follow the OWASP Top 10.';
+    if (q.includes('phish')) return 'Phishing detection: check for mismatched URLs, urgent language...';
+    if (q.includes('encrypt') || q.includes('aes')) return 'AES‑256 is the gold standard for symmetric encryption...';
+    if (q.includes('hack')) return 'Hacking refers to gaining unauthorized access to a computer system...';
+    if (q.includes('password')) return 'Strong passwords have 80+ bits of entropy...';
+    if (q.includes('malware') || q.includes('virus')) return 'Malware includes viruses, worms, ransomware...';
+    if (q.includes('network')) return 'Network security involves firewalls, IDS/IPS...';
+    if (q.includes('exploit')) return 'An exploit takes advantage of a vulnerability...';
+    if (q.includes('web') || q.includes('xss') || q.includes('sql')) return 'Web security: prevent SQL injection with prepared statements...';
     return 'I am GHOST AI, your cybersecurity advisor. Ask me about phishing, encryption, network security, password policies, malware, exploits, web security, VPNs, DDoS, firewalls, and more.';
 }
 
@@ -600,6 +572,6 @@ initDatabase()
         });
     })
     .catch(err => {
-        console.error('❌ Failed to initialize database:', err);
+        console.error('❌ Failed to initialize database:', err.message);
         process.exit(1);
     });
