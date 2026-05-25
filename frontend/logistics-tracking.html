@@ -2,65 +2,135 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOST SHELL • Logistics & Delivery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GHOST SHELL • Logistics – Track Your Package</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
-        body { background: radial-gradient(circle at 20% 30%, #0a0000, #000000); font-family: 'Courier New', monospace; color: #ccc; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #8a0303; padding-bottom: 15px; margin-bottom: 30px; }
+        body { background: radial-gradient(circle at 20% 30%, #0a0000, #000000); font-family: 'Courier New', monospace; color: #ccc; margin:0; padding:0; }
+        .admin-wrapper { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 10; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 2px solid #8a0303; padding: 15px 20px; margin-bottom: 30px; }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
         .logo-img { height: 45px; filter: drop-shadow(0 0 5px red); }
         .site-name { font-size: 1.6rem; color: #c0392b; text-shadow: 0 0 8px #ff0000; }
-        .card { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; padding: 20px; border-radius: 8px; }
-        .order-table { width: 100%; border-collapse: collapse; }
-        .order-table th, .order-table td { border: 1px solid #3a1a1a; padding: 8px; text-align: left; }
+        .btn { background: #1a0000; border: 1px solid #8a0303; color: #ff6666; padding: 6px 14px; cursor: pointer; font-family: monospace; font-weight: bold; margin: 4px; }
+        .btn:hover { background: #5e0000; color: white; box-shadow: 0 0 10px red; }
+        .footer { text-align: center; padding: 20px; border-top: 1px solid #8a0303; margin-top: 40px; font-size: 0.7rem; }
+        .footer a { color: #ff6666; margin: 0 8px; text-decoration: none; }
+        .order-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .order-table th, .order-table td { border: 1px solid #3a1a1a; padding: 12px; text-align: left; }
         .order-table th { background: #2a0000; color: #ff8888; }
-        .status-pending { color: #ffaa00; }
-        .status-in_transit { color: #00aaff; }
-        .status-delivered { color: #00ff41; }
-        .btn { background: #1a0000; border: 1px solid #8a0303; color: #ff6666; padding: 6px 14px; cursor: pointer; }
-        .btn:hover { background: #5e0000; color: white; }
+        .status-pending { color: #ffaa00; font-weight: bold; }
+        .status-in_transit { color: #00aaff; font-weight: bold; }
+        .status-delivered { color: #00ff41; font-weight: bold; }
+        .tracking-id { font-family: monospace; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 <canvas id="matrixCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.3; pointer-events:none;"></canvas>
-<div class="container" style="position:relative; z-index:10;">
-    <div class="header">
-        <div><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name"> GHOST SHELL • LOGISTICS</span></div>
-        <button class="btn" onclick="window.location.href='index.html'">Back to Ops</button>
-    </div>
-    <div class="card">
-        <h2>📦 Track Your Packages (Nationwide & International)</h2>
-        <div id="ordersList"></div>
-    </div>
+<div class="admin-wrapper">
+    <header class="header" id="mainHeader"></header>
+
+    <main>
+        <h1 style="color:var(--red); text-align:center;">📦 LOGISTICS – DELIVERY TRACKING</h1>
+        <p style="text-align:center; margin-bottom:30px;">Nationwide & international shipping – track your package in real time.</p>
+        <div id="ordersContainer">Loading orders...</div>
+    </main>
+
+    <footer class="footer" id="mainFooter"></footer>
 </div>
+
 <script>
-    function loadOrders() {
-        const orders = JSON.parse(localStorage.getItem('ghost_logistics') || '[]');
-        const container = document.getElementById('ordersList');
-        if (orders.length === 0) { container.innerHTML = '<p>No delivery orders yet.</p>'; return; }
-        let html = '<table class="order-table"><thead><tr><th>Tracking ID</th><th>Sender</th><th>Receiver</th><th>Address</th><th>Package</th><th>Weight</th><th>Fee</th><th>Status</th></tr></thead><tbody>';
-        orders.forEach(o => {
-            let statusClass = '';
-            if (o.status === 'pending') statusClass = 'status-pending';
-            else if (o.status === 'in_transit') statusClass = 'status-in_transit';
-            else if (o.status === 'delivered') statusClass = 'status-delivered';
-            html += `<tr>
-                        <td>${o.id.slice(-8)}</td>
-                        <td>${o.sender}</td>
-                        <td>${o.receiver}</td>
-                        <td>${o.address}</td>
-                        <td>${o.package}</td>
+    const API = '/api';
+    let currentUser = null;
+
+    async function apiCall(endpoint, options = {}) {
+        const token = localStorage.getItem('ghost_token');
+        const res = await fetch(`${API}${endpoint}`, {
+            ...options,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...options.headers }
+        });
+        if (res.status === 401) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; }
+        return res.json();
+    }
+
+    async function loadOrders() {
+        try {
+            const orders = await apiCall('/logistics');
+            const container = document.getElementById('ordersContainer');
+            if (!orders.length) { container.innerHTML = '<p>No delivery orders found.</p>'; return; }
+            let html = '<table class="order-table"><thead><tr><th>Tracking ID</th><th>Sender</th><th>Receiver</th><th>Address</th><th>Package</th><th>Weight</th><th>Fee</th><th>Status</th></tr></thead><tbody>';
+            orders.forEach(o => {
+                let statusClass = '';
+                if (o.status === 'pending') statusClass = 'status-pending';
+                else if (o.status === 'in_transit') statusClass = 'status-in_transit';
+                else if (o.status === 'delivered') statusClass = 'status-delivered';
+                html += `
+                    <tr>
+                        <td class="tracking-id">${o.id.slice(-8)}</td>
+                        <td>${escapeHtml(o.sender)}</td>
+                        <td>${escapeHtml(o.receiver)}</td>
+                        <td>${escapeHtml(o.address)}</td>
+                        <td>${escapeHtml(o.package)}</td>
                         <td>${o.weight} kg</td>
                         <td>$${o.price}</td>
                         <td class="${statusClass}">${o.status.replace('_', ' ')}</td>
-                     </tr>`;
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
+                    </tr>
+                `;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        } catch(e) { document.getElementById('ordersContainer').innerHTML = '<p>Failed to load orders.</p>'; }
     }
-    loadOrders();
-    // matrix rain
+
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
+
+    function buildHeaderFooter() {
+        const pages = [
+            { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
+            { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
+            { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
+            { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
+            { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+            { name: 'esim', label: '📱 eSIM', href: 'esim-shop.html' },
+            { name: 'virtual', label: '📞 Virtual Numbers', href: 'virtual-numbers.html' },
+            { name: 'logistics', label: '📦 Logistics', href: 'logistics-tracking.html' },
+            { name: 'blog', label: '💀 Blog', href: 'blog.html' }
+        ];
+        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'full_admin')) {
+            pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
+        }
+        const header = document.getElementById('mainHeader');
+        header.innerHTML = `
+            <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
+            <nav class="nav-links">${pages.map(p => `<button class="nav-link ${p.name === 'logistics' ? 'active' : ''}" onclick="window.location.href='${p.href}'">${p.label}</button>`).join('')}</nav>
+            <button class="btn" id="themeToggle">🌓</button>
+            <button class="btn" id="logoutBtn">EXIT</button>
+        `;
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            document.getElementById('themeToggle').textContent = document.body.classList.contains('light') ? '☀️' : '🌓';
+            localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; });
+        const footer = document.getElementById('mainFooter');
+        footer.innerHTML = `<a href="disclaimer.html">⚠️ DISCLAIMER</a> | <a href="privacy.html">🔒 PRIVACY POLICY</a> | <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> | <a href="faq.html">❓ FAQ</a> | <a href="sitemap.xml">🗺️ SITEMAP</a><br><span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>`;
+    }
+
+    (async () => {
+        const token = localStorage.getItem('ghost_token');
+        if (!token) { window.location.href = 'index.html'; return; }
+        try {
+            const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            currentUser = data.user;
+            buildHeaderFooter();
+            await loadOrders();
+        } catch(e) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; }
+    })();
+
+    // Matrix rain
     (function() {
         const canvas = document.getElementById('matrixCanvas');
         const ctx = canvas.getContext('2d');
