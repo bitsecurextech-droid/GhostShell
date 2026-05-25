@@ -29,7 +29,7 @@ if (!finalUrl.includes('sslmode=require')) {
     finalUrl += `${separator}sslmode=require`;
 }
 
-const pool = new Pool({ connectionString: finalUrl });
+const pool = new Pool({ connectionString: finalUrl, family: 4 });
 
 async function query(text, params) {
     const res = await pool.query(text, params);
