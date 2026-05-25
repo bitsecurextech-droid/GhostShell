@@ -1,4 +1,9 @@
-'/api';
+(async () => {
+    const ok = await initCommon();
+    if (!ok) return;
+
+    // ---- YOUR EXISTING CODE GOES BELOW ----
+    '/api';
 let currentTool = null;
 let btcRate = 62000;
 
@@ -118,3 +123,4 @@ document.getElementById('confirmPaymentBtn').addEventListener('click', async () 
     };
     reader.readAsDataURL(fileInput.files[0]);
 });
+    })();
