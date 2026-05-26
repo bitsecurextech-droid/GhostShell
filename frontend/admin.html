@@ -17,12 +17,14 @@
         .admin-table th, .admin-table td { border: 1px solid #3a1a1a; padding: 8px; text-align: left; }
         .admin-table th { background: #2a0000; color: #ff8888; }
         .flex-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .card { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; padding: 20px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 <canvas id="matrixCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.3; pointer-events:none;"></canvas>
 
 <div class="admin-wrapper" style="position:relative; z-index:10; max-width:1400px; margin:0 auto; padding:20px;">
+    <!-- Unified header (same as other pages) -->
     <header class="header">
         <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
         <nav class="nav-links" id="mainNav"></nav>
@@ -30,202 +32,28 @@
         <button class="btn" id="logoutBtn">EXIT</button>
     </header>
 
-    <h1 style="color:var(--red);">⚙️ ADMIN COMMAND CENTER</h1>
-    <div class="admin-nav" id="adminNav"></div>
-    <div id="sectionsContainer"></div>
+    <!-- Login Modal (initially visible) -->
+    <div id="adminLoginModal" class="modal" style="display:flex; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); align-items:center; justify-content:center; z-index:2000;">
+        <div class="card auth-card" style="text-align:center; max-width:400px;">
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" style="height:55px; margin-bottom:10px;">
+            <h1>ADMIN COMMAND</h1>
+            <input type="email" id="adminEmail" placeholder="Admin Email">
+            <input type="password" id="adminPassword" placeholder="Admin Password">
+            <button class="btn" id="adminLoginBtn" style="width:100%;">AUTHENTICATE</button>
+            <div id="adminLoginError" style="color:var(--red); margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard (hidden until login) -->
+    <div id="adminDashboard" style="display:none;">
+        <h1 style="color:var(--red);">⚙️ ADMIN COMMAND CENTER</h1>
+        <div class="admin-nav" id="adminNav"></div>
+        <div id="sectionsContainer"></div>
+    </div>
 </div>
 
+<script src="js/matrix.js"></script>
 <script src="js/common.js"></script>
-<script>
-    const API = '/api';
-    let adminToken = localStorage.getItem('adminToken') || '';
-    let currentUser = null;
-
-    async function apiCall(endpoint, options = {}) {
-        const token = adminToken || localStorage.getItem('ghost_token');
-        const res = await fetch(`${API}${endpoint}`, {
-            ...options,
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...options.headers }
-        });
-        if (res.status === 401) { localStorage.removeItem('adminToken'); window.location.href = 'admin.html'; throw new Error('Unauthorized'); }
-        return res.json();
-    }
-
-    async function checkAdminAuth() {
-        const token = localStorage.getItem('adminToken');
-        if (!token) { window.location.href = 'admin.html'; return false; }
-        try {
-            const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
-            if (!res.ok) throw new Error();
-            const data = await res.json();
-            currentUser = data.user;
-            if (currentUser.role !== 'full_admin' && currentUser.role !== 'admin') { window.location.href = 'dashboard.html'; return false; }
-            adminToken = token;
-            return true;
-        } catch(e) { localStorage.removeItem('adminToken'); window.location.href = 'admin.html'; return false; }
-    }
-
-    (async () => {
-        if (await checkAdminAuth()) {
-            buildHeaderNav();
-            buildAdminUI();
-        }
-    })();
-
-    function buildHeaderNav() {
-        const nav = document.getElementById('mainNav');
-        const pages = [
-            { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
-            { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
-            { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
-            { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
-            { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
-            { name: 'esim', label: '📱 eSIM', href: 'esim-shop.html' },
-            { name: 'virtual', label: '📞 Virtual Numbers', href: 'virtual-numbers.html' },
-            { name: 'logistics', label: '📦 Logistics', href: 'logistics-tracking.html' },
-            { name: 'blog', label: '💀 Blog', href: 'blog.html' },
-            { name: 'admin', label: '⚙️ Admin', href: 'admin.html' }
-        ];
-        nav.innerHTML = '';
-        pages.forEach(p => {
-            const btn = document.createElement('button');
-            btn.className = 'nav-link' + (p.name === 'admin' ? ' active' : '');
-            btn.textContent = p.label;
-            btn.addEventListener('click', () => window.location.href = p.href);
-            nav.appendChild(btn);
-        });
-    }
-
-    function buildAdminUI() {
-        const sections = ['users', 'codes', 'payments', 'tools', 'websites', 'esim', 'logistics', 'virtualnums', 'webrequest', 'credform', 'cloudreq', 'visitors', 'blog'];
-        const labels = { users:'👥 Users', codes:'🔑 Codes', payments:'💸 Payments', tools:'🔧 Tools', websites:'🌐 Websites', esim:'📱 eSIM', logistics:'📦 Logistics', virtualnums:'📞 Virtual Numbers', webrequest:'🌍 Web Req', credform:'📝 Cred Forms', cloudreq:'☁️ Cloud/Domain', visitors:'🌍 Visitors', blog:'📝 Blog' };
-        const adminNav = document.getElementById('adminNav');
-        adminNav.innerHTML = '';
-        sections.forEach(sec => {
-            const btn = document.createElement('button');
-            btn.className = 'admin-nav-btn';
-            btn.textContent = labels[sec];
-            btn.dataset.section = sec;
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-                document.getElementById(`section-${sec}`).classList.add('active');
-                document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                refreshSection(sec);
-            });
-            adminNav.appendChild(btn);
-        });
-
-        const container = document.getElementById('sectionsContainer');
-        container.innerHTML = `
-            <div id="section-users" class="admin-section active"><div class="card"><h2>👥 Users</h2><div id="usersTable"></div><button class="btn" id="addUserBtn">+ Add User</button></div></div>
-            <div id="section-codes" class="admin-section"><div class="card"><h2>🔑 Access Codes</h2><button class="btn" id="genCodesBtn">Generate 50 Codes</button><div id="codesTable"></div></div></div>
-            <div id="section-payments" class="admin-section"><div class="card"><h2>💸 Payments</h2><div id="paymentsTable"></div><button class="btn" id="addPaymentBtn">+ Mock Payment</button></div></div>
-            <div id="section-tools" class="admin-section"><div class="card"><h2>🔧 Tools</h2><button class="btn" id="addToolBtn">+ Add Tool</button><div id="toolsTable"></div></div><div id="toolModal" class="modal"><h3>Tool</h3><input id="toolName" placeholder="Name"><input id="toolPrice" type="number" placeholder="Price"><input id="toolDiscount" type="number" placeholder="Discount %"><input id="toolDownload" placeholder="Download URL"><button class="btn" id="saveToolBtn">Save</button><button class="btn" id="cancelToolBtn">Cancel</button><input type="hidden" id="editingToolId"></div></div>
-            <div id="section-websites" class="admin-section"><div class="card"><h2>🌐 Websites</h2><button class="btn" id="addWebsiteBtn">+ Add</button><div id="websitesTable"></div></div><div id="websiteModal" class="modal"><h3>Website</h3><input id="websiteDomain" placeholder="Domain"><input id="websiteTitle" placeholder="Title"><input id="websitePrice" type="number" placeholder="Price"><button class="btn" id="saveWebsiteBtn">Save</button><button class="btn" id="cancelWebsiteBtn">Cancel</button><input type="hidden" id="editingWebsiteId"></div></div>
-            <div id="section-esim" class="admin-section"><div class="card"><h2>📱 eSIM Plans</h2><button class="btn" id="addEsimBtn">+ Add</button><div id="esimTable"></div></div><div id="esimModal" class="modal"><h3>eSIM Plan</h3><input id="esimName" placeholder="Name"><select id="esimDuration"><option>1 month</option><option>3 months</option><option>6 months</option><option>1 year</option></select><input id="esimPrice" type="number" placeholder="Price"><input id="esimData" placeholder="Data"><input id="esimVoice" placeholder="Voice"><button class="btn" id="saveEsimBtn">Save</button><button class="btn" id="cancelEsimBtn">Cancel</button><input type="hidden" id="editingEsimId"></div></div>
-            <div id="section-logistics" class="admin-section"><div class="card"><h2>📦 Logistics</h2><button class="btn" id="addLogisticsBtn">+ Add Order</button><div id="logisticsTable"></div></div><div id="logisticsModal" class="modal"><h3>Order</h3><input id="logSender" placeholder="Sender"><input id="logReceiver" placeholder="Receiver"><input id="logAddress" placeholder="Address"><input id="logPackage" placeholder="Package"><input id="logWeight" type="number" placeholder="Weight (kg)"><input id="logPrice" type="number" placeholder="Price"><select id="logStatus"><option>pending</option><option>in_transit</option><option>delivered</option></select><button class="btn" id="saveLogisticsBtn">Save</button><button class="btn" id="cancelLogisticsBtn">Cancel</button><input type="hidden" id="editingLogisticsId"></div></div>
-            <div id="section-virtualnums" class="admin-section"><div class="card"><h2>📞 Virtual Numbers</h2><button class="btn" id="addVirtualBtn">+ Add</button><div id="virtualTable"></div></div><div id="virtualModal" class="modal"><h3>Virtual Number</h3><input id="virtualNumber" placeholder="Number"><input id="virtualCountry" placeholder="Country"><input id="virtualService" placeholder="Service"><input id="virtualPrice" type="number" placeholder="Price"><input id="virtualPartner" placeholder="Partner"><button class="btn" id="saveVirtualBtn">Save</button><button class="btn" id="cancelVirtualBtn">Cancel</button><input type="hidden" id="editingVirtualId"></div></div>
-            <div id="section-webrequest" class="admin-section"><div class="card"><h2>🌍 Web Requests</h2><button class="btn" id="addWebReqBtn">+ Add</button><div id="webReqsTable"></div></div><div id="webReqModal" class="modal"><h3>Request</h3><input id="webClient" placeholder="Client"><input id="webEmail" placeholder="Email"><input id="webType" placeholder="Type"><textarea id="webReqs" rows="3" placeholder="Requirements"></textarea><input id="webBudget" type="number" placeholder="Budget"><button class="btn" id="saveWebReqBtn">Save</button><button class="btn" id="cancelWebReqBtn">Cancel</button><input type="hidden" id="editingWebReqId"></div></div>
-            <div id="section-credform" class="admin-section"><div class="card"><h2>📝 Cred Forms</h2><button class="btn" id="addCredFormBtn">+ Add</button><div id="credFormsTable"></div></div><div id="credFormModal" class="modal"><h3>Form</h3><input id="formName" placeholder="Name"><textarea id="formFields" rows="4" placeholder='[{"label":"Name","type":"text"}]'></textarea><button class="btn" id="saveCredFormBtn">Save</button><button class="btn" id="cancelCredFormBtn">Cancel</button><input type="hidden" id="editingCredFormId"></div></div>
-            <div id="section-cloudreq" class="admin-section"><div class="card"><h2>☁️ Cloud/Domain Reqs</h2><button class="btn" id="addCloudReqBtn">+ Add</button><div id="cloudReqsTable"></div></div><div id="cloudReqModal" class="modal"><h3>Request</h3><input id="cloudCustomer" placeholder="Customer"><input id="cloudEmail" placeholder="Email"><select id="cloudService"><option>Domain</option><option>Hosting</option><option>VPS</option><option>SSL</option></select><input id="cloudDomain" placeholder="Domain"><textarea id="cloudDetails" rows="3"></textarea><button class="btn" id="saveCloudReqBtn">Save</button><button class="btn" id="cancelCloudReqBtn">Cancel</button><input type="hidden" id="editingCloudReqId"></div></div>
-            <div id="section-visitors" class="admin-section"><div class="card"><h2>🌍 Visitors</h2><div id="visitorsTable"></div></div></div>
-            <div id="section-blog" class="admin-section"><div class="card"><h2>📝 Blog Posts</h2><button class="btn" id="addPostBtn">+ Add</button><div id="blogTable"></div></div><div id="blogModal" class="modal"><h3>Post</h3><input id="postTitle" placeholder="Title"><textarea id="postContent" rows="8" placeholder="HTML content"></textarea><button class="btn" id="savePostBtn">Save</button><button class="btn" id="cancelPostBtn">Cancel</button><input type="hidden" id="editingPostId"></div></div>
-        `;
-
-        attachAllEventListeners();
-        refreshSection('users');
-        const firstTab = document.querySelector('.admin-nav-btn');
-        if (firstTab) firstTab.classList.add('active');
-    }
-
-    function refreshSection(section) {
-        if (section === 'users') loadUsers();
-        if (section === 'codes') loadCodes();
-        if (section === 'payments') loadPayments();
-        if (section === 'tools') loadTools();
-        if (section === 'websites') loadWebsites();
-        if (section === 'esim') loadEsim();
-        if (section === 'logistics') loadLogistics();
-        if (section === 'virtualnums') loadVirtual();
-        if (section === 'webrequest') loadWebReqs();
-        if (section === 'credform') loadCredForms();
-        if (section === 'cloudreq') loadCloudReqs();
-        if (section === 'visitors') loadVisitors();
-        if (section === 'blog') loadBlog();
-    }
-
-    // ---------- API CALLS FOR EACH SECTION (using backend) ----------
-    async function loadUsers() { const users = await apiCall('/admin/users'); let html = '<table class="admin-table"><thead><table><th>Email</th><th>Role</th><th>Actions</th></tr></thead><tbody>'; users.forEach(u => { html += `<tr><td>${u.email}</td><td>${u.role}</td><td><button class="btn" onclick="deleteUser('${u.id}')">Delete</button> <button class="btn" onclick="promoteUser('${u.id}')">Promote</button></td></tr>`; }); html += '</tbody></tr>'; document.getElementById('usersTable').innerHTML = html; }
-    window.deleteUser = async (id) => { if (confirm('Delete user?')) await apiCall(`/admin/delete/${id}`, { method: 'DELETE' }); loadUsers(); };
-    window.promoteUser = async (id) => { await apiCall('/admin/add-admin', { method: 'POST', body: JSON.stringify({ email: await getEmailById(id), role: 'admin' }) }); loadUsers(); };
-    document.getElementById('addUserBtn')?.addEventListener('click', async () => { let email = prompt('Email:'); if(!email) return; let password = prompt('Password:'); await apiCall('/admin/add-admin', { method: 'POST', body: JSON.stringify({ email, password }) }); loadUsers(); });
-
-    async function loadCodes() { const codes = await apiCall('/admin/codes'); let html = '<table class="admin-table"><thead><tr><th>Code</th><th>Status</th><th>Used By</th><th>Action</th></tr></thead><tbody>'; codes.forEach(c => { html += `<tr><td>${c.code}</td><td>${c.is_active ? 'ACTIVE' : 'INACTIVE'}</td><td>${c.used_by_email || '—'}</td><td><button class="btn" onclick="revokeCode('${c.code}')">Revoke</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('codesTable').innerHTML = html; }
-    async function generateCodes() { await apiCall('/admin/generate-codes', { method: 'POST', body: JSON.stringify({ count: 50 }) }); loadCodes(); }
-    window.revokeCode = async (code) => { await apiCall('/admin/revoke-code', { method: 'POST', body: JSON.stringify({ codeId: code }) }); loadCodes(); };
-    document.getElementById('genCodesBtn')?.addEventListener('click', generateCodes);
-
-    async function loadPayments() { const payments = await apiCall('/admin/payments'); let html = '<table class="admin-table"><thead><tr><th>User</th><th>Product</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody>'; payments.forEach(p => { html += `<tr><td>${p.user_email || '—'}</td><td>${p.tool_name || '—'}</td><td>$${p.amount_usd}</td><td>${p.status}</td><td><button class="btn" onclick="confirmPayment('${p.id}')">Confirm</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('paymentsTable').innerHTML = html; }
-    window.confirmPayment = async (id) => { await apiCall('/admin/confirm-payment', { method: 'POST', body: JSON.stringify({ paymentId: id }) }); loadPayments(); };
-    document.getElementById('addPaymentBtn')?.addEventListener('click', async () => { await apiCall('/admin/payments', { method: 'POST', body: JSON.stringify({ userId: 'guest', amount: 99, product: 'Test' }) }); loadPayments(); });
-
-    async function loadTools() { const tools = await apiCall('/tools'); let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody>'; tools.forEach(t => { html += `<tr><td>${t.name}</td><td>$${t.price_usd}</td><td><button class="btn" onclick="editTool('${t.id}')">Edit</button> <button class="btn" onclick="deleteTool('${t.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('toolsTable').innerHTML = html; }
-    window.editTool = async (id) => { const tools = await apiCall('/tools'); const t = tools.find(t => t.id === id); if(t){ document.getElementById('toolName').value = t.name; document.getElementById('toolPrice').value = t.price_usd; document.getElementById('toolDiscount').value = t.discount_percent||0; document.getElementById('toolDownload').value = t.download_url||''; document.getElementById('editingToolId').value = id; document.getElementById('toolModal').style.display = 'block'; } };
-    window.deleteTool = async (id) => { if (confirm('Delete tool?')) await apiCall(`/admin/tool/${id}`, { method: 'DELETE' }); loadTools(); };
-    document.getElementById('addToolBtn')?.addEventListener('click', () => { document.getElementById('toolModal').style.display = 'block'; document.getElementById('editingToolId').value = ''; document.getElementById('toolName').value = ''; document.getElementById('toolPrice').value = ''; document.getElementById('toolDiscount').value = ''; document.getElementById('toolDownload').value = ''; });
-    document.getElementById('saveToolBtn')?.addEventListener('click', async () => { const id = document.getElementById('editingToolId').value; const data = { name: document.getElementById('toolName').value, priceUSD: parseFloat(document.getElementById('toolPrice').value), discountPercent: parseInt(document.getElementById('toolDiscount').value)||0, downloadUrl: document.getElementById('toolDownload').value }; if(!data.name) return alert('Name required'); if(id) { await apiCall(`/admin/tool/${id}`, { method: 'PUT', body: JSON.stringify(data) }); } else { await apiCall('/admin/tool', { method: 'POST', body: JSON.stringify(data) }); } document.getElementById('toolModal').style.display = 'none'; loadTools(); });
-    document.getElementById('cancelToolBtn')?.addEventListener('click', () => document.getElementById('toolModal').style.display = 'none');
-
-    // Generic CRUD for localStorage sections (websites, esim, etc.) – but we will use backend API
-    // For brevity, I'll implement one example; you can extend similarly.
-    async function loadWebsites() { const items = await apiCall('/admin/websites'); let html = '<table class="admin-table"><thead><tr><th>Domain</th><th>Title</th><th>Price</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.domain}</td><td>${i.title}</td><td>$${i.price}</td><td><button class="btn" onclick="editWebsite('${i.id}')">Edit</button> <button class="btn" onclick="deleteWebsite('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('websitesTable').innerHTML = html; }
-    window.editWebsite = async (id) => { const items = await apiCall('/admin/websites'); const i = items.find(i => i.id === id); if(i){ document.getElementById('websiteDomain').value = i.domain; document.getElementById('websiteTitle').value = i.title; document.getElementById('websitePrice').value = i.price; document.getElementById('editingWebsiteId').value = id; document.getElementById('websiteModal').style.display = 'block'; } };
-    window.deleteWebsite = async (id) => { if (confirm('Delete?')) await apiCall(`/admin/websites/${id}`, { method: 'DELETE' }); loadWebsites(); };
-    document.getElementById('addWebsiteBtn')?.addEventListener('click', () => { document.getElementById('websiteModal').style.display = 'block'; document.getElementById('editingWebsiteId').value = ''; document.getElementById('websiteDomain').value = ''; document.getElementById('websiteTitle').value = ''; document.getElementById('websitePrice').value = ''; });
-    document.getElementById('saveWebsiteBtn')?.addEventListener('click', async () => { const id = document.getElementById('editingWebsiteId').value; const data = { domain: document.getElementById('websiteDomain').value, title: document.getElementById('websiteTitle').value, price: parseFloat(document.getElementById('websitePrice').value) }; if(!data.domain) return alert('Domain required'); if(id) { await apiCall(`/admin/websites/${id}`, { method: 'PUT', body: JSON.stringify(data) }); } else { await apiCall('/admin/websites', { method: 'POST', body: JSON.stringify(data) }); } document.getElementById('websiteModal').style.display = 'none'; loadWebsites(); });
-    document.getElementById('cancelWebsiteBtn')?.addEventListener('click', () => document.getElementById('websiteModal').style.display = 'none');
-
-    // Similarly for esim, logistics, virtualnums, webrequests, credforms, cloudreqs, blog
-    // (I'll skip duplication – use the same pattern: load, add, edit, delete via backend)
-
-    // For blog, visitors
-    async function loadBlog() { const posts = await apiCall('/blog'); let html = '<table class="admin-table"><thead><tr><th>Title</th><th>Date</th><th>Actions</th></tr></thead><tbody>'; posts.forEach(p => { html += `<tr><td>${p.title}</td><td>${new Date(p.created_at).toLocaleDateString()}</td><td><button class="btn" onclick="editPost('${p.id}')">Edit</button> <button class="btn" onclick="deletePost('${p.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('blogTable').innerHTML = html; }
-    window.editPost = async (id) => { const post = await (await fetch(`${API}/blog/${id}`)).json(); if(post){ document.getElementById('postTitle').value = post.title; document.getElementById('postContent').value = post.content; document.getElementById('editingPostId').value = id; document.getElementById('blogModal').style.display = 'block'; } };
-    window.deletePost = async (id) => { if (confirm('Delete post?')) await apiCall(`/admin/blog/${id}`, { method: 'DELETE' }); loadBlog(); };
-    document.getElementById('addPostBtn')?.addEventListener('click', () => { document.getElementById('blogModal').style.display = 'block'; document.getElementById('editingPostId').value = ''; document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = ''; });
-    document.getElementById('savePostBtn')?.addEventListener('click', async () => { const id = document.getElementById('editingPostId').value; const data = { title: document.getElementById('postTitle').value, content: document.getElementById('postContent').value, category: 'general' }; if(!data.title) return alert('Title required'); if(id) { await apiCall(`/admin/blog/${id}`, { method: 'PUT', body: JSON.stringify(data) }); } else { await apiCall('/admin/blog', { method: 'POST', body: JSON.stringify(data) }); } document.getElementById('blogModal').style.display = 'none'; loadBlog(); });
-    document.getElementById('cancelPostBtn')?.addEventListener('click', () => document.getElementById('blogModal').style.display = 'none');
-
-    async function loadVisitors() { const visitors = await apiCall('/admin/visitors'); let html = '<table class="admin-table"><thead><tr><th>IP</th><th>Location</th><th>VPN</th><th>Page</th><th>Time</th></tr></thead><tbody>'; visitors.forEach(v => { html += `<tr><td>${v.ip}</td><td>${v.location || '-'}</td><td>${v.vpn ? '⚠️' : 'NO'}</td><td>${v.page}</td><td>${new Date(v.timestamp).toLocaleString()}</td></tr>`; }); html += '</tbody></tr>'; document.getElementById('visitorsTable').innerHTML = html; }
-
-    // The rest of the CRUD (esim, logistics, etc.) – I'll implement one more example
-    async function loadEsim() { const items = await apiCall('/admin/esim'); let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Duration</th><th>Price</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr><td>${i.name}</td><td>${i.duration}</td><td>$${i.price}</td><td><button class="btn" onclick="editEsim('${i.id}')">Edit</button> <button class="btn" onclick="deleteEsim('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('esimTable').innerHTML = html; }
-    window.editEsim = async (id) => { const items = await apiCall('/admin/esim'); const i = items.find(i => i.id === id); if(i){ document.getElementById('esimName').value = i.name; document.getElementById('esimDuration').value = i.duration; document.getElementById('esimPrice').value = i.price; document.getElementById('esimData').value = i.data; document.getElementById('esimVoice').value = i.voice; document.getElementById('editingEsimId').value = id; document.getElementById('esimModal').style.display = 'block'; } };
-    window.deleteEsim = async (id) => { if (confirm('Delete?')) await apiCall(`/admin/esim/${id}`, { method: 'DELETE' }); loadEsim(); };
-    document.getElementById('addEsimBtn')?.addEventListener('click', () => { document.getElementById('esimModal').style.display = 'block'; document.getElementById('editingEsimId').value = ''; document.getElementById('esimName').value = ''; document.getElementById('esimDuration').value = '1 month'; document.getElementById('esimPrice').value = ''; document.getElementById('esimData').value = ''; document.getElementById('esimVoice').value = ''; });
-    document.getElementById('saveEsimBtn')?.addEventListener('click', async () => { const id = document.getElementById('editingEsimId').value; const data = { name: document.getElementById('esimName').value, duration: document.getElementById('esimDuration').value, price: parseFloat(document.getElementById('esimPrice').value), data: document.getElementById('esimData').value, voice: document.getElementById('esimVoice').value }; if(!data.name) return alert('Name required'); if(id) { await apiCall(`/admin/esim/${id}`, { method: 'PUT', body: JSON.stringify(data) }); } else { await apiCall('/admin/esim', { method: 'POST', body: JSON.stringify(data) }); } document.getElementById('esimModal').style.display = 'none'; loadEsim(); });
-    document.getElementById('cancelEsimBtn')?.addEventListener('click', () => document.getElementById('esimModal').style.display = 'none');
-
-    // You need to implement similar for logistics, virtualnums, webrequests, credforms, cloudreqs
-    // (But the pattern is identical – use the admin CRUD endpoints.)
-
-    function attachAllEventListeners() {
-        const themeBtn = document.getElementById('themeToggle');
-        if (localStorage.getItem('theme') === 'light') document.body.classList.add('light');
-        themeBtn.addEventListener('click', () => {
-            document.body.classList.toggle('light');
-            themeBtn.textContent = document.body.classList.contains('light') ? '☀️' : '🌓';
-            localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
-        });
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('adminToken');
-            window.location.href = 'index.html';
-        });
-    }
-
-    // Helper
-    async function getEmailById(id) { const users = await apiCall('/admin/users'); const u = users.find(u => u.id === id); return u ? u.email : null; }
-</script>
+<script src="js/admin.js"></script>
 </body>
 </html>
