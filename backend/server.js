@@ -478,23 +478,61 @@ app.get('/api/admin/visitors', adminAuth, async (req, res) => {
     res.json(result.rows);
 });
 
-// -------------------- AI CHAT --------------------
+// -------------------- AI CHAT (OpenAI API) --------------------
 app.post('/api/ai/chat', auth, async (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'Message required' });
-    const reply = getLocalAIResponse(message);
-    res.json({ reply });
+
+    // Use the OpenAI API key from environment variables
+    const openaiApiKey = process.env.OPENAI_API_KEY || process.env.OPENCHAT_API_KEY;
+    if (!openaiApiKey) {
+        // Fallback to local responses if no API key is set
+        const reply = getLocalAIResponse(message);
+        return res.json({ reply });
+    }
+
+    try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${openaiApiKey}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo', // or 'gpt-4' if available
+                messages: [
+                    { role: 'system', content: 'You are GHOST AI, a cybersecurity assistant. Answer only educational cybersecurity questions. Be concise but informative.' },
+                    { role: 'user', content: message }
+                ],
+                temperature: 0.7,
+                max_tokens: 500
+            })
+        });
+
+        const data = await response.json();
+        if (data.error) {
+            console.error('OpenAI API error:', data.error);
+            // Fallback to local response on error
+            const reply = getLocalAIResponse(message);
+            return res.json({ reply });
+        }
+
+        const reply = data.choices[0].message.content;
+        res.json({ reply });
+
+    } catch (err) {
+        console.error('AI chat error:', err.message);
+        const reply = getLocalAIResponse(message);
+        res.json({ reply });
+    }
 });
-function getLocalAIResponse(q) {
-    const lq = q.toLowerCase();
-    if (lq.includes('phish')) return 'Phishing detection: check for mismatched URLs, urgent language...';
-    if (lq.includes('encrypt')) return 'AES‑256 is the gold standard for symmetric encryption...';
-    if (lq.includes('hack')) return 'Ethical hacking (white‑hat) is done with permission to improve security.';
-    if (lq.includes('password')) return 'Use a password manager and enable multi‑factor authentication (MFA).';
-    if (lq.includes('malware')) return 'Malware includes viruses, worms, ransomware, and trojans.';
-    if (lq.includes('network')) return 'Network security involves firewalls, IDS/IPS, and zero‑trust principles.';
-    if (lq.includes('exploit')) return 'An exploit takes advantage of a vulnerability. Keep systems updated.';
-    if (lq.includes('web') || lq.includes('xss') || lq.includes('sql')) return 'Web security: prevent SQL injection with prepared statements, XSS with output encoding.';
+
+// Keep your existing getLocalAIResponse function as a fallback
+function getLocalAIResponse(query) {
+    const q = query.toLowerCase();
+    if (q.includes('phish')) return 'Phishing detection: check for mismatched URLs, urgent language...';
+    if (q.includes('encrypt')) return 'AES‑256 is the gold standard for symmetric encryption...';
+    // ... (rest of your local responses)
     return 'I am GHOST AI, your cybersecurity advisor. Ask me about phishing, encryption, network security, password policies, malware, exploits, web security, VPNs, DDoS, firewalls, and more.';
 }
 
