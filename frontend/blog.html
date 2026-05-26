@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
-        .blog-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px; margin-top:20px; }
+        .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-top: 20px; }
         .blog-card {
             background: rgba(5,5,5,0.85);
             border: 1px solid rgba(255,0,0,0.25);
@@ -35,17 +35,11 @@
     </style>
 </head>
 <body>
-<canvas id="matrixCanvas"></canvas>
+<canvas id="matrixCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.3; pointer-events:none;"></canvas>
+<div class="admin-wrapper">
+    <header class="header" id="mainHeader"></header>
 
-<div id="mainDashboard" style="position:relative; z-index:2;">
-    <header class="header">
-        <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
-        <nav class="nav-links" id="mainNav"></nav>
-        <button class="btn" id="themeToggle">🌓</button>
-        <button class="btn" id="logoutBtn">EXIT</button>
-    </header>
-
-    <main class="page active">
+    <main>
         <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
             <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" alt="GHOST SHELL" style="height:65px; filter:drop-shadow(0 0 12px #ff0000aa);">
             <h1 style="color:var(--red); font-family:var(--font-mono); letter-spacing:4px; text-shadow:0 0 15px rgba(255,0,0,0.6); font-size:2rem; font-weight:900;">GHOST BLOG</h1>
@@ -55,90 +49,160 @@
         <div id="singlePost" class="single-post" style="display:none;"></div>
     </main>
 
-    <footer class="footer">
-        <a href="disclaimer.html">⚠️ DISCLAIMER</a> |
-        <a href="privacy.html">🔒 PRIVACY POLICY</a> |
-        <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> |
-        <a href="faq.html">❓ FAQ</a> |
-        <span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>
-    </footer>
+    <footer class="footer" id="mainFooter"></footer>
 </div>
 
-<script src="js/matrix.js"></script>
-<script src="js/common.js"></script>
 <script>
-    (async () => {
-        const ok = await initCommon();
-        if (!ok) return;
+    const API = '/api';
+    let currentUser = null;
 
-        const API = '/api';
+    async function apiCall(endpoint, options = {}) {
+        const token = localStorage.getItem('ghost_token');
+        const res = await fetch(`${API}${endpoint}`, {
+            ...options,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...options.headers }
+        });
+        if (res.status === 401) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; }
+        return res.json();
+    }
 
-        async function loadPosts() {
-            const container = document.getElementById('blogList');
-            container.innerHTML = '<div class="skeleton" style="height:200px;"></div>';
-            try {
-                const res = await fetch(`${API}/blog`);
-                const posts = await res.json();
-                if (!posts.length) { container.innerHTML = '<p>No posts yet. Shadows are silent.</p>'; return; }
-                let html = '';
-                posts.forEach(post => {
-                    const excerpt = stripHtml(post.content).substring(0, 180) + '...';
-                    html += `
-                        <div class="blog-card" onclick="showSinglePost(${JSON.stringify(post).replace(/</g, '\\u003c')})">
-                            <h3>⚡ ${escapeHtml(post.title)}</h3>
-                            <div class="blog-meta">
-                                <span>👤 ${escapeHtml(post.author || 'Anonymous')}</span>
-                                <span>📅 ${new Date(post.createdAt).toLocaleDateString()}</span>
-                                <span class="blog-category cat-${post.category || 'general'}">${post.category || 'general'}</span>
-                            </div>
-                            <div class="blog-excerpt">${excerpt}</div>
-                            <span class="read-more">⟫ READ FULL REPORT ⟪</span>
+    async function loadPosts() {
+        const container = document.getElementById('blogList');
+        container.innerHTML = '<div class="skeleton" style="height:200px;"></div>';
+        try {
+            const posts = await apiCall('/blog');
+            if (!posts.length) { container.innerHTML = '<p>No posts yet. Shadows are silent.</p>'; return; }
+            let html = '';
+            posts.forEach(post => {
+                const excerpt = stripHtml(post.content).substring(0, 180) + '...';
+                html += `
+                    <div class="blog-card" data-post='${JSON.stringify(post).replace(/</g, '\\u003c')}'>
+                        <h3>⚡ ${escapeHtml(post.title)}</h3>
+                        <div class="blog-meta">
+                            <span>👤 ${escapeHtml(post.author || 'Anonymous')}</span>
+                            <span>📅 ${new Date(post.createdAt).toLocaleDateString()}</span>
+                            <span class="blog-category cat-${post.category || 'general'}">${post.category || 'general'}</span>
                         </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } catch(e) { container.innerHTML = '<p>Failed to load posts.</p>'; }
-        }
-
-        window.showSinglePost = (post) => {
-            document.getElementById('blogList').style.display = 'none';
-            const single = document.getElementById('singlePost');
-            single.style.display = 'block';
-            single.innerHTML = `
-                <button class="btn back-btn" onclick="backToList()">← BACK TO BLOG</button>
-                <div class="card" style="border-color:var(--red); box-shadow:var(--red-glow);">
-                    <h2 style="color:var(--red); font-family:var(--font-mono);">⚡ ${escapeHtml(post.title)}</h2>
-                    <div class="blog-meta" style="margin-top:10px;">
-                        <span>👤 ${escapeHtml(post.author || 'Anonymous')}</span>
-                        <span>📅 ${new Date(post.createdAt).toLocaleString()}</span>
-                        <span class="blog-category cat-${post.category || 'general'}">${post.category || 'general'}</span>
+                        <div class="blog-excerpt">${excerpt}</div>
+                        <span class="read-more">⟫ READ FULL REPORT ⟪</span>
                     </div>
-                    <div style="margin-top:20px; line-height:1.8;">${post.content}</div>
+                `;
+            });
+            container.innerHTML = html;
+            // Attach click handlers for each post
+            document.querySelectorAll('.blog-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const post = JSON.parse(card.dataset.post);
+                    showSinglePost(post);
+                });
+            });
+        } catch(e) {
+            container.innerHTML = '<p>Failed to load blog posts.</p>';
+        }
+    }
+
+    function showSinglePost(post) {
+        document.getElementById('blogList').style.display = 'none';
+        const single = document.getElementById('singlePost');
+        single.style.display = 'block';
+        single.innerHTML = `
+            <button class="btn back-btn" onclick="backToList()">← BACK TO BLOG</button>
+            <div class="card" style="border-color:var(--red); box-shadow:var(--red-glow);">
+                <h2 style="color:var(--red); font-family:var(--font-mono);">⚡ ${escapeHtml(post.title)}</h2>
+                <div class="blog-meta" style="margin-top:10px;">
+                    <span>👤 ${escapeHtml(post.author || 'Anonymous')}</span>
+                    <span>📅 ${new Date(post.createdAt).toLocaleString()}</span>
+                    <span class="blog-category cat-${post.category || 'general'}">${post.category || 'general'}</span>
                 </div>
-            `;
-            window.scrollTo(0,0);
-        };
+                <div style="margin-top:20px; line-height:1.8;">${post.content}</div>
+            </div>
+        `;
+        window.scrollTo(0,0);
+    }
 
-        window.backToList = () => {
-            document.getElementById('blogList').style.display = 'grid';
-            document.getElementById('singlePost').style.display = 'none';
-        };
+    window.backToList = () => {
+        document.getElementById('blogList').style.display = 'grid';
+        document.getElementById('singlePost').style.display = 'none';
+    };
 
-        function stripHtml(html) {
-            const tmp = document.createElement('div');
-            tmp.innerHTML = html;
-            return tmp.textContent || tmp.innerText || '';
+    function stripHtml(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');
+    }
+
+    function buildHeaderFooter() {
+        const pages = [
+            { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
+            { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
+            { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
+            { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
+            { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+            { name: 'esim', label: '📱 eSIM', href: 'esim-shop.html' },
+            { name: 'virtual', label: '📞 Virtual Numbers', href: 'virtual-numbers.html' },
+            { name: 'logistics', label: '📦 Logistics', href: 'logistics-tracking.html' },
+            { name: 'blog', label: '💀 Blog', href: 'blog.html' }
+        ];
+        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'full_admin')) {
+            pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
         }
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');
-        }
+        const header = document.getElementById('mainHeader');
+        header.innerHTML = `
+            <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
+            <nav class="nav-links">${pages.map(p => `<button class="nav-link ${p.name === 'blog' ? 'active' : ''}" onclick="window.location.href='${p.href}'">${p.label}</button>`).join('')}</nav>
+            <button class="btn" id="themeToggle">🌓</button>
+            <button class="btn" id="logoutBtn">EXIT</button>
+        `;
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            document.getElementById('themeToggle').textContent = document.body.classList.contains('light') ? '☀️' : '🌓';
+            localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; });
+        
+        const footer = document.getElementById('mainFooter');
+        footer.innerHTML = `
+            <a href="disclaimer.html">⚠️ DISCLAIMER</a> | 
+            <a href="privacy.html">🔒 PRIVACY POLICY</a> | 
+            <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> | 
+            <a href="faq.html">❓ FAQ</a><br>
+            <span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>
+        `;
+    }
 
-        await loadPosts();
+    (async () => {
+        const token = localStorage.getItem('ghost_token');
+        if (!token) { window.location.href = 'index.html'; return; }
+        try {
+            const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            currentUser = data.user;
+            buildHeaderFooter();
+            await loadPosts();
+        } catch(e) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; }
+    })();
+
+    // Matrix rain (identical to other pages)
+    (function() {
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, drops = [];
+        const chars = "💀☠️🔪🩸🔥⚡";
+        function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; drops = Array(Math.floor(w/20)).fill(0); }
+        function draw() {
+            ctx.fillStyle = 'rgba(0,0,0,0.07)'; ctx.fillRect(0,0,w,h);
+            ctx.fillStyle = '#aa2a2a'; ctx.font = 'bold 20px monospace';
+            for(let i=0; i<drops.length; i++) { ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*20, drops[i]*22); if(drops[i]*22 > h && Math.random() > 0.98) drops[i] = 0; drops[i]++; }
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('resize', resize); resize(); draw();
     })();
 </script>
-    <script src="js/matrix.js"></script>
-<script src="js/common.js"></script>
-<script src="js/blog.js"></script>
 </body>
 </html>
