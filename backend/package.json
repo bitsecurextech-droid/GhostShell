@@ -1,21 +1,25 @@
 {
   "name": "ghost-shell-backend",
   "version": "2.0.0",
+  "description": "GHOST SHELL backend with PostgreSQL",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "axios": "^1.7.0",
+    "axios": "^1.6.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.0",
-    "express": "^4.21.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
-    "lowdb": "^7.0.1",
-    "nodemailer": "^6.9.5",
-    "pg": "^8.21.0",
-    "socket.io": "^4.7.2",
-    "uuid": "^9.0.1"
+    "pg": "^8.11.3",
+    "socket.io": "^4.6.0",
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
