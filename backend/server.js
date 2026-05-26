@@ -26,10 +26,10 @@ async function initDatabaseConnection() {
         process.exit(1);
     }
 
-    // Remove any existing sslmode parameter (to avoid conflict)
-    dbUrl = dbUrl.replace(/\?.*/, '');
+    // Remove any existing query parameters (to avoid sslmode conflict)
+    dbUrl = dbUrl.split('?')[0];
 
-    // Resolve hostname to IPv4 (if possible)
+    // Resolve hostname to IPv4
     try {
         const urlObj = new URL(dbUrl);
         const originalHost = urlObj.hostname;
@@ -42,43 +42,7 @@ async function initDatabaseConnection() {
         console.error('⚠️ IPv4 resolution failed, using original hostname:', err.message);
     }
 
-    // 🔥 FIX: Use explicit SSL options (ignore self-signed certificate)
-    pool = new Pool({
-        connectionString: dbUrl,
-        ssl: { rejectUnauthorized: false }
-    });
-
-    // Test connection
-    try {
-        const client = await pool.connect();
-        client.release();
-        console.log('✅ PostgreSQL connection successful');
-    } catch (err) {
-        console.error('❌ Failed to connect to database:', err.message);
-        process.exit(1);
-    }
-}
-
-    // Resolve hostname to IPv4 (if possible)
-    try {
-        const urlObj = new URL(dbUrl);
-        const originalHost = urlObj.hostname;
-        console.log(`🔍 Resolving ${originalHost} to IPv4...`);
-        const addresses = await dns.lookup(originalHost, { family: 4 });
-        const ipv4 = addresses.address;
-        console.log(`✅ Resolved ${originalHost} -> ${ipv4}`);
-        dbUrl = dbUrl.replace(originalHost, ipv4);
-    } catch (err) {
-        console.error('⚠️ IPv4 resolution failed, using original hostname:', err.message);
-    }
-
-    // Ensure SSL is enabled
-    if (!dbUrl.includes('sslmode=require')) {
-        const sep = dbUrl.includes('?') ? '&' : '?';
-        dbUrl += `${sep}sslmode=require`;
-    }
-
-    // 🔥 FIX: Disable SSL certificate validation
+    // 🔥 FIX: Force SSL with certificate validation disabled
     pool = new Pool({
         connectionString: dbUrl,
         ssl: { rejectUnauthorized: false }
