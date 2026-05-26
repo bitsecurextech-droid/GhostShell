@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
-        /* additional styles (keep original) */
         .tool-shop-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:15px; }
         .shop-card { text-align:center; position:relative; }
         .shop-card .main-image { width:100%; height:180px; object-fit:cover; border-radius:6px; margin-bottom:10px; border:1px solid var(--red); }
@@ -17,7 +16,7 @@
         .shop-card .price { font-size:1.3rem; color:var(--green); margin:8px 0; }
         .my-tools-table { width:100%; margin-top:20px; }
         .btc-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); justify-content:center; align-items:center; z-index:2000; }
-        .btc-modal-content { background:#0a0a15; border:2px solid var(--red); border-radius:20px; padding:25px; max-width:500px; width:90%; text-align:center; }
+        .btc-modal-content { background:#0a0a15; border:2px solid var(--red); border-radius:20px; padding:25px; max-width:500px; width:90%; text-align:center; max-height:90vh; overflow-y:auto; }
         .btc-address { background:#000; padding:10px; border-radius:8px; word-break:break-all; margin:15px 0; font-family:var(--font-mono); font-size:0.75rem; }
         .contact-note { background:rgba(0,255,65,0.05); border:1px solid var(--green); border-radius:8px; padding:15px; margin-bottom:20px; }
         .contact-form { display:flex; flex-direction:column; gap:10px; margin-top:15px; }
@@ -29,10 +28,7 @@
 
 <div id="mainDashboard" style="position:relative; z-index:2;">
     <header class="header">
-        <div class="logo-area">
-            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
-            <span class="site-name">GHOST SHELL</span>
-        </div>
+        <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
         <nav class="nav-links" id="mainNav"></nav>
         <button class="btn" id="themeToggle">🌓</button>
         <button class="btn" id="logoutBtn">EXIT</button>
@@ -41,7 +37,6 @@
     <main class="page active">
         <h1 style="color:var(--red); font-family:var(--font-mono);">🛒 MARKETPLACE</h1>
 
-        <!-- Contact & Sell note -->
         <section class="contact-note">
             <h2 style="font-size:1rem; margin-bottom:8px;">📢 Sell Your Tools / Request Custom Tools</h2>
             <p>To list your own tools for sale, or to request a custom‑built tool, fill out the form below. Your message is sent directly to the GHOST SHELL command via Telegram.</p>
@@ -60,13 +55,11 @@
             <p style="margin-top:10px; font-size:0.8rem;">Alternatively, email us directly at <a href="mailto:ghostshell.ops@gmail.com">ghostshell.ops@gmail.com</a>.</p>
         </section>
 
-        <!-- Available tools -->
         <section class="card">
             <h2>🔧 AVAILABLE TOOLS</h2>
             <div id="shopTools" class="tool-shop-grid"><p>Loading tools...</p></div>
         </section>
 
-        <!-- My Tools -->
         <section class="card" style="margin-top:20px;">
             <h2>📦 MY PURCHASES</h2>
             <div id="myTools"><p>Loading your tools...</p></div>
@@ -83,7 +76,6 @@
     </footer>
 </div>
 
-<!-- Payment Modal -->
 <div id="btcModal" class="btc-modal">
     <div class="btc-modal-content">
         <h3 style="color:var(--red);">💳 COMPLETE YOUR PURCHASE</h3>
@@ -113,29 +105,162 @@
         const ok = await initCommon();
         if (!ok) return;
 
-        // Marketplace logic (keep original, but ensure it uses currentUser from common.js)
-        // We'll reuse the original functions – they already use `currentUser` and `API`.
-        // For brevity, I'll keep the core functions here. In practice you would copy the entire existing script.
-        // Since the original marketplace script is long, I'll provide a summary – but you must copy your existing logic.
-        // The key is to wrap everything inside the async IIFE after `initCommon()`.
+        const API = '/api';
+        let currentUser = null; // will be set by common.js, but we can fetch again
+        // (common.js already sets currentUser, but we use it directly)
 
-        // Example of loading tools (adapt from your original)
+        async function fetchBTCPrice() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+                const data = await res.json();
+                return data.bitcoin.usd;
+            } catch(e) { return 62000; }
+        }
+
+        async function fetchNGNRate() {
+            try {
+                const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                const data = await res.json();
+                return data.rates.NGN || 1400;
+            } catch(e) { return 1400; }
+        }
+
+        let btcRate = await fetchBTCPrice();
+        let ngnRate = await fetchNGNRate();
+
         async function loadShopTools() {
             const container = document.getElementById('shopTools');
-            // ... your loading logic
+            container.innerHTML = '<div class="skeleton" style="height:200px;"></div>';
+            try {
+                const res = await fetch(`${API}/tools`);
+                const tools = await res.json();
+                if (!tools.length) { container.innerHTML = '<p>No tools available yet.</p>'; return; }
+                let html = '';
+                tools.forEach(tool => {
+                    let mainImg = (tool.imageUrls && tool.imageUrls[0]) || '';
+                    html += `
+                        <div class="card shop-card">
+                            ${tool.videoUrl ? `<div class="video-thumb" onclick="window.open('${tool.videoUrl}', '_blank')">▶️</div>` : ''}
+                            ${mainImg ? `<img src="${mainImg}" class="main-image" alt="${tool.name}">` : ''}
+                            <h3>${tool.name}</h3>
+                            <p style="font-size:0.8rem;color:#888;">${tool.description || ''}</p>
+                            <div class="price">$${tool.priceUSD}</div>
+                            ${tool.paymentLink ? `<a href="${tool.paymentLink}" target="_blank" class="btn">BUY ON SELAR</a>` : `<button class="btn" onclick="openBuyModal('${tool.id}', '${tool.name.replace(/'/g, "\\'")}', ${tool.priceUSD})">BUY NOW</button>`}
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch(e) { container.innerHTML = '<p>Failed to load tools.</p>'; }
         }
+
         async function loadMyTools() {
-            // ... your my-tools logic
+            const container = document.getElementById('myTools');
+            try {
+                const token = localStorage.getItem('ghost_token');
+                const res = await fetch(`${API}/my-tools`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const tools = await res.json();
+                if (!tools.length) { container.innerHTML = '<p>No purchases yet.</p>'; return; }
+                let html = '<table class="admin-table my-tools-table"><tr><th>Tool</th><th>Purchased</th><th>Download</th></tr>';
+                tools.forEach(item => {
+                    const tool = item.toolId;
+                    if (tool) {
+                        html += `<tr>
+                                    <td>${tool.name}</td>
+                                    <td>${new Date(item.purchasedAt).toLocaleDateString()}</td>
+                                    <td><a href="${tool.downloadUrl}" class="btn" target="_blank">DOWNLOAD</a></td>
+                                </tr>`;
+                    }
+                });
+                html += '</table>';
+                container.innerHTML = html;
+            } catch(e) { container.innerHTML = '<p>Failed to load your tools.</p>'; }
         }
-        // ... all other marketplace functions (openBuyModal, etc.)
+
+        window.openBuyModal = (id, name, priceUSD) => {
+            currentTool = { id, name, priceUSD };
+            const ngnAmount = Math.round(priceUSD * ngnRate);
+            document.getElementById('modalToolName').innerText = name;
+            document.getElementById('modalUSD').innerText = priceUSD;
+            document.getElementById('modalNGN').innerHTML = ngnAmount.toLocaleString();
+            document.getElementById('btcModal').style.display = 'flex';
+            document.getElementById('virtualAccountDetails').style.display = 'none';
+            document.getElementById('paymentScreenshot').value = '';
+            document.getElementById('getVirtualAccountBtn').onclick = async () => {
+                const token = localStorage.getItem('ghost_token');
+                const res = await fetch(`${API}/create-virtual-account`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ toolId: id, amountNGN: ngnAmount })
+                });
+                const data = await res.json();
+                if (data.account_number) {
+                    document.getElementById('virtualAccountDetails').style.display = 'block';
+                    document.getElementById('virtualAccountDetails').innerHTML = `
+                        <strong>Bank:</strong> ${data.bank}<br>
+                        <strong>Account Number:</strong> ${data.account_number}<br>
+                        <strong>Account Name:</strong> ${data.account_name}<br>
+                        <strong>Amount to send:</strong> ₦${parseInt(data.amount).toLocaleString()}
+                    `;
+                } else {
+                    alert('Failed to generate virtual account. Try again.');
+                }
+            };
+        };
+
+        window.closeBTCModal = () => {
+            document.getElementById('btcModal').style.display = 'none';
+            currentTool = null;
+        };
+
+        document.getElementById('confirmPaymentBtn').addEventListener('click', async () => {
+            if (!currentTool) return;
+            const fileInput = document.getElementById('paymentScreenshot');
+            if (!fileInput.files[0]) { alert('Upload a payment screenshot.'); return; }
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64 = reader.result.split(',')[1];
+                const token = localStorage.getItem('ghost_token');
+                await fetch(`${API}/payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        toolId: currentTool.id,
+                        amountUSD: currentTool.priceUSD,
+                        amountBTC: (currentTool.priceUSD / btcRate).toFixed(6),
+                        screenshotBase64: base64
+                    })
+                });
+                alert('Payment proof submitted. Admin will review within 24h.');
+                closeBTCModal();
+                loadMyTools();
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        });
+
+        document.getElementById('sendContactBtn').addEventListener('click', async () => {
+            const name = document.getElementById('contactName').value.trim();
+            const email = document.getElementById('contactEmail').value.trim();
+            const subject = document.getElementById('contactSubject').value.trim();
+            const type = document.getElementById('contactType').value;
+            const message = document.getElementById('contactMessage').value.trim();
+            if (!email || !message) return alert('Email and message are required.');
+            const res = await fetch(`${API}/contact`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, subject, type, message })
+            });
+            const result = await res.json();
+            alert(result.message || result.error);
+            if (result.success) {
+                document.getElementById('contactName').value = '';
+                document.getElementById('contactEmail').value = '';
+                document.getElementById('contactSubject').value = '';
+                document.getElementById('contactMessage').value = '';
+            }
+        });
 
         await loadShopTools();
         await loadMyTools();
-
-        // Contact form handler
-        document.getElementById('sendContactBtn').addEventListener('click', async () => {
-            // ... your contact logic
-        });
     })();
 </script>
 </body>
