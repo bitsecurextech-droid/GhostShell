@@ -1,4 +1,4 @@
-// js/common.js – Unified header (add all service pages)
+// js/common.js – Unified header for all pages
 const API = '/api';
 let currentUser = null;
 
@@ -14,6 +14,7 @@ function buildNav() {
         { name: 'esim', label: '📱 eSIM', href: 'esim-shop.html' },
         { name: 'virtual', label: '📞 Virtual Numbers', href: 'virtual-numbers.html' },
         { name: 'logistics', label: '📦 Logistics', href: 'logistics-tracking.html' },
+        { name: 'webdesign', label: '🌐 Web Design', href: 'web-design.html' },
         { name: 'blog', label: '💀 Blog', href: 'blog.html' }
     ];
     if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'full_admin')) {
@@ -30,3 +31,4 @@ function buildNav() {
 }
 
 // Keep your existing initCommon, checkAuth, themeToggle, logout, apiCall functions unchanged
+// (I'm not repeating them for brevity – they remain as they were)
