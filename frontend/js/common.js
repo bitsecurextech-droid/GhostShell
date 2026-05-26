@@ -17,8 +17,6 @@ function buildNav() {
         { name: 'webdesign', label: '🌐 Web Design', href: 'web-design.html' },
         { name: 'blog', label: '💀 Blog', href: 'blog.html' }
     ];
-    if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'full_admin')) {
-        pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
     }
     nav.innerHTML = '';
     pages.forEach(p => {
