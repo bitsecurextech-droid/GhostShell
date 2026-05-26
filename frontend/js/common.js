@@ -1,4 +1,4 @@
-// js/common.js – Unified header for all pages
+// js/common.js – Unified header (add all service pages)
 const API = '/api';
 let currentUser = null;
 
@@ -29,4 +29,4 @@ function buildNav() {
     });
 }
 
-// (Keep the rest of common.js: initThemeToggle, initLogout, checkAuth, initCommon, apiCall, etc.)
+// Keep your existing initCommon, checkAuth, themeToggle, logout, apiCall functions unchanged
