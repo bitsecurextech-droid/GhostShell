@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL • Gift Delivery – Surprise Anyone Worldwide</title>
+    <title>GHOST SHELL • Virtual Numbers – SMM / OTP / SMS</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
@@ -17,149 +17,90 @@
         .btn:hover { background: #5e0000; color: white; box-shadow: 0 0 10px red; }
         .footer { text-align: center; padding: 20px; border-top: 1px solid #8a0303; margin-top: 40px; font-size: 0.7rem; }
         .footer a { color: #ff6666; margin: 0 8px; text-decoration: none; }
-        .product-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 25px; margin: 30px 0; }
-        .product-card { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; border-radius: 12px; width: 260px; padding: 20px; text-align: center; transition: 0.3s; }
-        .product-card:hover { transform: translateY(-5px); border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); }
-        .product-card h3 { color: #ff6666; margin-bottom: 10px; }
+        .number-card { display: inline-block; width: 280px; margin: 15px; background: #0a0000; border: 1px solid #ff4444; padding: 20px; text-align: center; border-radius: 12px; transition: 0.3s; }
+        .number-card:hover { transform: translateY(-5px); border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); }
+        .number-card h3 { color: #ff6666; font-size: 1.2rem; word-break: break-all; }
+        .service-badge { background: #2a0000; padding: 4px 10px; border-radius: 20px; display: inline-block; margin: 5px; font-size: 0.7rem; border: 1px solid #ff6666; }
         .price { font-size: 1.5rem; color: #00ff41; margin: 10px 0; }
-        .order-form { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; border-radius: 12px; padding: 25px; margin-top: 30px; }
-        .order-form input, .order-form select, .order-form textarea { width: 100%; margin: 8px 0; padding: 8px; background: #1a0a0a; border: 1px solid #8a0303; color: #ff9999; }
-        .form-row { display: flex; gap: 15px; flex-wrap: wrap; }
-        .form-row > div { flex: 1; }
+        .platform { color: #ffaa00; font-size: 0.8rem; }
+        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
     </style>
 </head>
 <body>
 <canvas id="matrixCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.3; pointer-events:none;"></canvas>
 <div class="admin-wrapper">
+    <!-- Unified header (same as all pages) -->
     <header class="header">
-        <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
+        <div class="logo-area">
+            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
+            <span class="site-name">GHOST SHELL</span>
+        </div>
         <nav class="nav-links" id="mainNav"></nav>
         <button class="btn" id="themeToggle">🌓</button>
         <button class="btn" id="logoutBtn">EXIT</button>
     </header>
 
     <main>
-        <h1 style="color:var(--red); text-align:center;">🎁 SEND A SURPRISE ANYWHERE IN THE WORLD</h1>
-        <p style="text-align:center;">Pizza, flowers, rings, frames, plushies – fast delivery, trusted service, safe payment.</p>
-
-        <div class="product-grid" id="productsGrid">
-            <!-- Products will be loaded from backend or static list -->
-        </div>
-
-        <div class="order-form">
-            <h2>📦 PLACE YOUR ORDER</h2>
-            <div class="form-row">
-                <div><input type="text" id="recipientName" placeholder="Recipient Name *"></div>
-                <div><input type="text" id="recipientAddress" placeholder="Full Address (Country, City, Street) *"></div>
-                <div><input type="text" id="recipientPhone" placeholder="Recipient Phone *"></div>
-            </div>
-            <div class="form-row">
-                <div><input type="text" id="senderName" placeholder="Your Name (optional)"></div>
-                <div><input type="email" id="senderEmail" placeholder="Your Email *"></div>
-                <div><input type="tel" id="senderPhone" placeholder="Your Phone"></div>
-            </div>
-            <select id="productSelect">
-                <option value="Pizza Combo">🍕 Pizza Combo - $29</option>
-                <option value="Flower Bouquet">💐 Flower Bouquet - $45</option>
-                <option value="Engagement Ring">💍 Engagement Ring - $199</option>
-                <option value="Photo Frame">🖼️ Personalized Frame - $35</option>
-                <option value="Plush Teddy Bear">🧸 Plush Teddy Bear - $25</option>
-                <option value="Custom Gift Basket">🎁 Custom Gift Basket - $75</option>
-            </select>
-            <textarea id="specialMessage" rows="3" placeholder="Special message for the recipient (will be printed on card)"></textarea>
-            <button class="btn" id="placeOrderBtn" style="width:100%;">🚀 PLACE ORDER (SAFE PAYMENT)</button>
-            <div id="orderFeedback" style="margin-top:10px; color:#ffaa00;"></div>
-        </div>
+        <h1 style="color:var(--red); text-align:center;">📞 VIRTUAL NUMBERS FOR SMM & OTP</h1>
+        <p style="text-align:center; margin-bottom:30px;">Receive SMS / verification codes for Telegram, WhatsApp, TikTok, Instagram, Gmail, and more.</p>
+        <div id="numbersContainer" class="grid">Loading numbers...</div>
     </main>
 
     <footer class="footer">
-        <a href="disclaimer.html">⚠️ DISCLAIMER</a> | <a href="privacy.html">🔒 PRIVACY POLICY</a> | <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> | <a href="faq.html">❓ FAQ</a><br>
+        <a href="disclaimer.html">⚠️ DISCLAIMER</a> |
+        <a href="privacy.html">🔒 PRIVACY POLICY</a> |
+        <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> |
+        <a href="faq.html">❓ FAQ</a> |
         <span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>
     </footer>
 </div>
 
+<script src="js/matrix.js"></script>
 <script src="js/common.js"></script>
 <script>
-    const API = '/api';
-    let currentUser = null;
-
-    async function initPage() {
+    (async () => {
+        // Wait for common initialisation (auth + header)
         const ok = await initCommon();
         if (!ok) return;
-        // Display products (static for now, can be dynamic)
-        const products = [
-            { name: '🍕 Pizza Combo', price: 29, desc: 'Hot pizza delivered in 45min' },
-            { name: '💐 Flower Bouquet', price: 45, desc: 'Fresh roses, same day delivery' },
-            { name: '💍 Engagement Ring', price: 199, desc: 'Elegant ring with gift box' },
-            { name: '🖼️ Personalized Frame', price: 35, desc: 'Custom engraving available' },
-            { name: '🧸 Plush Teddy Bear', price: 25, desc: 'Soft, huggable bear' },
-            { name: '🎁 Custom Gift Basket', price: 75, desc: 'Pick your own items' }
-        ];
-        const grid = document.getElementById('productsGrid');
-        grid.innerHTML = products.map(p => `
-            <div class="product-card">
-                <h3>${p.name}</h3>
-                <p>${p.desc}</p>
-                <div class="price">$${p.price}</div>
-                <button class="btn" onclick="document.getElementById('productSelect').value='${p.name}'; window.scrollTo({top: document.querySelector('.order-form').offsetTop, behavior:'smooth'});">Select</button>
-            </div>
-        `).join('');
 
-        document.getElementById('placeOrderBtn').addEventListener('click', async () => {
-            const recipientName = document.getElementById('recipientName').value.trim();
-            const recipientAddress = document.getElementById('recipientAddress').value.trim();
-            const recipientPhone = document.getElementById('recipientPhone').value.trim();
-            const senderEmail = document.getElementById('senderEmail').value.trim();
-            const product = document.getElementById('productSelect').value;
-            const message = document.getElementById('specialMessage').value.trim();
-            if (!recipientName || !recipientAddress || !recipientPhone || !senderEmail) {
-                document.getElementById('orderFeedback').innerText = '❌ Please fill all required fields.';
-                return;
-            }
-            const orderData = {
-                type: 'logistics_order',
-                recipientName, recipientAddress, recipientPhone,
-                senderName: document.getElementById('senderName').value,
-                senderEmail, senderPhone: document.getElementById('senderPhone').value,
-                product, message
-            };
+        // Load virtual numbers from backend API
+        async function loadNumbers() {
             try {
-                const res = await fetch(`${API}/contact`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: orderData.senderName,
-                        email: orderData.senderEmail,
-                        subject: 'New Gift Delivery Order',
-                        message: `Product: ${product}\nRecipient: ${recipientName}\nAddress: ${recipientAddress}\nPhone: ${recipientPhone}\nSpecial message: ${message}\nSender phone: ${orderData.senderPhone}`,
-                        type: 'Logistics'
-                    })
+                const token = localStorage.getItem('ghost_token');
+                const res = await fetch('/api/virtualnums', {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const data = await res.json();
-                if (data.success) {
-                    document.getElementById('orderFeedback').innerHTML = '✅ Order received! We will contact you within 24h for payment confirmation.';
-                    document.getElementById('orderFeedback').style.color = '#00ff41';
-                    // Clear form
-                    document.getElementById('recipientName').value = '';
-                    document.getElementById('recipientAddress').value = '';
-                    document.getElementById('recipientPhone').value = '';
-                    document.getElementById('senderName').value = '';
-                    document.getElementById('senderEmail').value = '';
-                    document.getElementById('senderPhone').value = '';
-                    document.getElementById('specialMessage').value = '';
-                } else {
-                    document.getElementById('orderFeedback').innerText = '❌ Failed to send order. Please try again.';
+                const numbers = await res.json();
+                const container = document.getElementById('numbersContainer');
+                if (!numbers.length) {
+                    container.innerHTML = '<p>No virtual numbers available.</p>';
+                    return;
                 }
+                let html = '';
+                numbers.forEach(n => {
+                    html += `
+                        <div class="number-card">
+                            <h3>📱 ${escapeHtml(n.number)}</h3>
+                            <div><span class="service-badge">${escapeHtml(n.service || 'SMS/OTP')}</span> <span class="service-badge">📳 ${escapeHtml(n.country)}</span></div>
+                            <div class="platform">🔗 Partner: ${escapeHtml(n.partner)}</div>
+                            <div class="price">$${n.price}</div>
+                            <button class="btn" onclick="alert('Contact admin to purchase: ${escapeHtml(n.number)}')">Get Number</button>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
             } catch(e) {
-                document.getElementById('orderFeedback').innerText = '❌ Connection error.';
+                document.getElementById('numbersContainer').innerHTML = '<p>Failed to load numbers.</p>';
             }
-        });
-    }
+        }
 
-    initPage();
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');
+        }
+
+        await loadNumbers();
+    })();
 </script>
-    <script src="js/matrix.js"></script>
-<script src="js/common.js"></script>
-<script src="js/logistics-tracking.js"></script>
 </body>
 </html>
