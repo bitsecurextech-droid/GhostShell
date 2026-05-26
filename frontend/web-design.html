@@ -3,843 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL // ULTIMATE PROTOCOL</title>
-    <meta name="description" content="GHOST SHELL – Tactical Cyber Operations Platform. See Everything. Fear Nothing. Coming Soon.">
-    <meta property="og:title" content="GHOST SHELL | Coming Soon">
-    <meta property="og:description" content="See Everything. Fear Nothing. The ultimate cyber operations platform is coming.">
-    <meta property="og:image" content="https://res.cloudinary.com/dtmgyzviw/image/upload/v1779656852/GHOSTSHELL_xoohg7.png">
-    <meta name="twitter:card" content="summary_large_image">
+    <title>GHOST SHELL • Professional Web Design & Development</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-        }
-
-        :root {
-            --red: #ff1a1a;
-            --green: #00ff41;
-            --glow-red: 0 0 30px rgba(255, 26, 26, 0.8);
-            --glow-green: 0 0 25px rgba(0, 255, 65, 0.7);
-        }
-
-        body {
-            background: #000;
-            font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            cursor: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* MATRIX BACKGROUND */
-        #matrixCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .main-container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 500px;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            text-align: center;
-            padding: 6vh 20px 0;
-            overflow: hidden;
-        }
-
-        /* GLITCH & SCANLINES (merged from both designs) */
-        .glitch-overlay {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 5;
-            background: transparent;
-            animation: glitchFlash 0.12s infinite;
-            opacity: 0;
-        }
-
-        @keyframes glitchFlash {
-            0%, 99% { opacity: 0; }
-            99.5% { opacity: 0.22; background: rgba(255, 0, 0, 0.12); }
-        }
-
-        .scanlines {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 6;
-            background: repeating-linear-gradient(0deg,
-                transparent, transparent 2px,
-                rgba(0, 0, 0, 0.1) 2px, rgba(0, 0, 0, 0.1) 4px);
-        }
-
-        /* BOOT SCREEN */
-        #bootScreen {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: #000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s ease;
-        }
-
-        #bootScreen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .boot-title {
-            font-size: 2.2rem;
-            color: var(--red);
-            letter-spacing: 6px;
-            font-weight: 900;
-            text-shadow: var(--glow-red);
-            animation: flickerBoot 1s infinite;
-        }
-
-        @keyframes flickerBoot {
-            0%, 100% { opacity: 1; }
-            8% { opacity: 0.2; }
-            10% { opacity: 1; }
-            30% { opacity: 0.5; }
-            33% { opacity: 1; }
-        }
-
-        .boot-log {
-            color: #4a4;
-            font-size: 0.7rem;
-            max-width: 90%;
-            text-align: left;
-            line-height: 1.7;
-            height: 140px;
-            overflow: hidden;
-            padding: 0 15px;
-            margin-top: 20px;
-        }
-
-        .boot-progress {
-            width: 280px;
-            max-width: 80vw;
-            height: 4px;
-            background: #1a1a1a;
-            border-radius: 2px;
-            margin-top: 25px;
-            overflow: hidden;
-        }
-
-        .boot-progress-bar {
-            height: 100%;
-            background: var(--red);
-            width: 0%;
-            transition: width 0.3s;
-            box-shadow: var(--glow-red);
-        }
-
-        .boot-percent {
-            color: var(--red);
-            font-size: 0.9rem;
-            margin-top: 8px;
-            letter-spacing: 3px;
-        }
-
-        .boot-warning {
-            color: var(--red);
-            font-size: 0.8rem;
-            margin-top: 15px;
-            animation: blink 0.5s infinite;
-            display: none;
-        }
-
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-
-        /* MAIN SHOW CONTAINER */
-        #mainShow {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            animation: fadeIn 0.8s ease;
-        }
-
-        #mainShow.active {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* 3D LOGO + ANIMATED RINGS */
-        .logo-circle-wrapper {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            margin: 20px auto 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-circle {
-            position: absolute;
-            inset: 0;
-            border: 2px solid var(--red);
-            border-radius: 50%;
-            animation: rotateCircle 6s linear infinite;
-            box-shadow: var(--glow-red), inset 0 0 20px rgba(255, 0, 0, 0.2);
-        }
-
-        .logo-circle::after {
-            content: '';
-            position: absolute;
-            inset: -8px;
-            border: 1px dashed var(--red);
-            border-radius: 50%;
-            opacity: 0.4;
-            animation: rotateCircle 8s linear reverse infinite;
-        }
-
-        @keyframes rotateCircle {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .logo-3d {
-            width: 190px;
-            height: 190px;
-            animation: rotate3D 5s linear infinite;
-            filter: drop-shadow(0 0 35px #ff0000aa) drop-shadow(0 0 70px #ff000044);
-            z-index: 2;
-            position: relative;
-        }
-
-        @keyframes rotate3D {
-            0% { transform: rotateY(0deg) rotateX(10deg); }
-            25% { transform: rotateY(90deg) rotateX(15deg); }
-            50% { transform: rotateY(180deg) rotateX(10deg); }
-            75% { transform: rotateY(270deg) rotateX(5deg); }
-            100% { transform: rotateY(360deg) rotateX(10deg); }
-        }
-
-        /* TYPING LINES */
-        .typing-line {
-            font-size: 1.3rem;
-            color: var(--green);
-            letter-spacing: 3px;
-            text-shadow: var(--glow-green);
-            min-height: 40px;
-            margin: 10px 0;
-            font-weight: bold;
-            text-align: center;
-            width: 100%;
-        }
-
-        .typing-line .cursor {
-            display: inline-block;
-            width: 3px;
-            height: 22px;
-            background: var(--green);
-            animation: blink 0.5s infinite;
-            vertical-align: middle;
-            margin-left: 4px;
-        }
-
-        .glitch-word {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--red);
-            letter-spacing: 5px;
-            text-shadow: var(--glow-red);
-            animation: glitchText 1.5s infinite;
-            margin: 15px 0;
-            text-transform: uppercase;
-        }
-
-        @keyframes glitchText {
-            0%, 100% { transform: translate(0); }
-            2% { transform: translate(4px, -2px); text-shadow: -4px 0 #ff0000, 4px 0 #00ff41; }
-            4% { transform: translate(-4px, 2px); text-shadow: 4px 0 #ff0000, -4px 0 #00ff41; }
-            6% { transform: translate(0); }
-        }
-
-        /* IMAGE GALLERY */
-        .image-gallery {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 20px 0;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 1s ease;
-        }
-
-        .image-gallery.show {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .image-gallery img {
-            width: 90px;
-            height: 125px;
-            object-fit: cover;
-            border: 2px solid var(--red);
-            border-radius: 8px;
-            box-shadow: var(--glow-red);
-            transition: all 0.4s;
-            animation: floatImg 3s ease-in-out infinite;
-            background: #0a0a0a;
-        }
-
-        .image-gallery img:nth-child(1) { animation-delay: 0s; }
-        .image-gallery img:nth-child(2) { animation-delay: 0.5s; }
-        .image-gallery img:nth-child(3) { animation-delay: 1s; }
-        .image-gallery img:nth-child(4) { animation-delay: 1.5s; }
-        .image-gallery img:nth-child(5) { animation-delay: 2s; }
-
-        @keyframes floatImg {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        /* ACCESS GRANTED, BRAND, MOTTO */
-        .access-granted {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--green);
-            text-align: center;
-            letter-spacing: 8px;
-            text-shadow: var(--glow-green), 0 0 60px rgba(0, 255, 65, 0.7);
-            animation: pulseGranted 0.5s ease-in-out 3;
-            text-transform: uppercase;
-            margin: 10px 0;
-        }
-
-        @keyframes pulseGranted {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .brand-name {
-            font-size: 2rem;
-            font-weight: 900;
-            color: #fff;
-            letter-spacing: 6px;
-            text-shadow: 0 0 25px rgba(255, 0, 0, 0.7);
-            text-align: center;
-            text-transform: uppercase;
-            margin: 8px 0;
-            opacity: 0;
-            transition: all 0.8s ease;
-        }
-
-        .motto-container {
-            text-align: center;
-            margin: 20px 0;
-            opacity: 0;
-            transition: all 1s ease;
-            width: 100%;
-        }
-
-        .motto-container.show {
-            opacity: 1;
-        }
-
-        .motto-line1 {
-            font-size: 2.8rem;
-            font-weight: 900;
-            color: var(--red);
-            letter-spacing: 5px;
-            text-shadow: var(--glow-red), 0 0 50px rgba(255, 0, 0, 0.6);
-            animation: glitchText 2s infinite;
-            text-transform: uppercase;
-        }
-
-        .motto-line2 {
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: #fff;
-            letter-spacing: 4px;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-            text-transform: uppercase;
-        }
-
-        .coming-soon {
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: var(--red);
-            text-align: center;
-            letter-spacing: 10px;
-            text-shadow: var(--glow-red), 0 0 80px rgba(255, 0, 0, 0.8);
-            animation: pulseComing 0.7s ease-in-out infinite;
-            text-transform: uppercase;
-            margin-top: 20px;
-            opacity: 0;
-            transition: all 1s ease;
-        }
-
-        @keyframes pulseComing {
-            0%, 100% { transform: scale(1); opacity: 0.85; }
-            50% { transform: scale(1.08); opacity: 1; }
-        }
-
-        /* FLOATING PARTICLES */
-        .particle {
-            position: fixed;
-            pointer-events: none;
-            z-index: 4;
-            color: var(--red);
-            font-size: 0.8rem;
-            animation: particleFall linear forwards;
-            opacity: 0;
-        }
-
-        @keyframes particleFall {
-            0% {
-                opacity: 0;
-                transform: translateY(-10vh) translateX(0);
-            }
-            10% { opacity: 0.9; }
-            90% { opacity: 0.7; }
-            100% {
-                opacity: 0;
-                transform: translateY(110vh) translateX(30px);
-            }
-        }
+        body { background: radial-gradient(circle at 20% 30%, #0a0000, #000000); font-family: 'Courier New', monospace; color: #ccc; margin:0; padding:0; }
+        .admin-wrapper { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 10; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 2px solid #8a0303; padding: 15px 20px; margin-bottom: 30px; }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-img { height: 45px; filter: drop-shadow(0 0 5px red); }
+        .site-name { font-size: 1.6rem; color: #c0392b; text-shadow: 0 0 8px #ff0000; }
+        .btn { background: #1a0000; border: 1px solid #8a0303; color: #ff6666; padding: 6px 14px; cursor: pointer; font-family: monospace; font-weight: bold; margin: 4px; }
+        .btn:hover { background: #5e0000; color: white; box-shadow: 0 0 10px red; }
+        .footer { text-align: center; padding: 20px; border-top: 1px solid #8a0303; margin-top: 40px; font-size: 0.7rem; }
+        .footer a { color: #ff6666; margin: 0 8px; text-decoration: none; }
+        .service-category { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; border-radius: 12px; padding: 20px; margin: 15px 0; }
+        .service-category h3 { color: #ff6666; margin-bottom: 15px; }
+        .service-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+        .service-tag { background: #1a0000; border: 1px solid #ff4444; padding: 8px 15px; border-radius: 30px; cursor: pointer; transition: 0.2s; }
+        .service-tag:hover { background: #5e0000; color: white; }
+        .contact-form { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; border-radius: 12px; padding: 25px; margin-top: 30px; }
+        .contact-form input, .contact-form select, .contact-form textarea { width: 100%; margin: 8px 0; padding: 8px; background: #1a0a0a; border: 1px solid #8a0303; color: #ff9999; }
+        .form-row { display: flex; gap: 15px; flex-wrap: wrap; }
+        .form-row > div { flex: 1; }
     </style>
 </head>
 <body>
+<canvas id="matrixCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.3; pointer-events:none;"></canvas>
+<div class="admin-wrapper">
+    <header class="header">
+        <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
+        <nav class="nav-links" id="mainNav"></nav>
+        <button class="btn" id="themeToggle">🌓</button>
+        <button class="btn" id="logoutBtn">EXIT</button>
+    </header>
 
-    <canvas id="matrixCanvas"></canvas>
-    <div class="scanlines"></div>
-    <div class="glitch-overlay" id="glitchOverlay"></div>
+    <main>
+        <h1 style="color:var(--red); text-align:center;">🌐 PROFESSIONAL WEB DESIGN & DEVELOPMENT</h1>
+        <p style="text-align:center;">We build high‑performance websites – from simple landing pages to complex platforms. Custom designs, SEO, maintenance, and domain setup.</p>
 
-    <!-- BOOT SEQUENCE SCREEN -->
-    <div id="bootScreen">
-        <div class="boot-title">⚡ GHOST SHELL</div>
-        <div style="color:#888; letter-spacing:2px; margin-bottom:8px;">TACTICAL CYBER SYSTEM v3.0</div>
-        <div class="boot-log" id="bootLog"></div>
-        <div class="boot-progress"><div class="boot-progress-bar" id="bootBar"></div></div>
-        <div class="boot-percent" id="bootPercent">0%</div>
-        <div class="boot-warning" id="bootWarning">⚠ SECURITY BREACH DETECTED</div>
-    </div>
-
-    <!-- MAIN MULTI-PHASE INTERFACE -->
-    <div class="main-container">
-        <div id="mainShow">
-            <!-- PHASE 2: PURE 3D LOGO (after boot) -->
-            <div id="phase2Logo" class="hidden">
-                <div class="logo-circle-wrapper">
-                    <div class="logo-circle"></div>
-                    <img src="https://res.cloudinary.com/dtmgyzviw/image/upload/v1779656852/GHOSTSHELL_xoohg7.png" alt="GHOST SHELL" class="logo-3d" onerror="this.src='https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png'">
-                </div>
-            </div>
-
-            <!-- PHASE 3: TYPING COMMANDS + GLITCH -->
-            <div id="phase3Text" class="hidden">
-                <div class="typing-line" id="typingLine1"></div>
-                <div class="typing-line" id="typingLine2"></div>
-                <div class="glitch-word" id="glitchWord">BREACHING MAINFRAME</div>
-            </div>
-
-            <!-- PHASE 4: GALLERY, ACCESS GRANTED, MOTTO, COMING SOON (temporary reveal) -->
-            <div id="phase4Final" class="hidden">
-                <div class="image-gallery" id="imageGallery">
-                    <img src="https://res.cloudinary.com/dtmgyzviw/image/upload/v1779656852/GHOSTSHELL_xoohg7.png" alt="Core Insignia">
-                    <img src="https://res.cloudinary.com/dtmgyzviw/image/upload/v1779657114/tribe_of_hackers_2_kzmzkr.png" alt="Tribe of Hackers 2">
-                    <img src="https://res.cloudinary.com/dtmgyzviw/image/upload/v1779657114/tribe_of_hackers_mmhvl9.png" alt="Tribe of Hackers">
-                    <img src="https://res.cloudinary.com/dtmgyzviw/image/upload/v1779657121/meshcentral_fypzda.png" alt="Mesh Central">
-                    <img src="https://res.cloudinary.com/dtmgyzviw/image/upload/v1779657613/WhatsApp_Image_2026-05-24_at_10.15.08_PM_qxzfvf.jpg" alt="Ghost Protocol">
-                </div>
-                <div class="access-granted" id="accessGranted">ACCESS GRANTED</div>
-                <div class="brand-name" id="brandName">GHOST SHELL</div>
-                <div class="motto-container" id="mottoContainer">
-                    <div class="motto-line1">SEE EVERYTHING</div>
-                    <div class="motto-line2">FEAR NOTHING</div>
-                </div>
-                <div class="coming-soon" id="comingSoonTemp">COMING SOON</div>
-            </div>
-
-            <!-- PHASE 5: ETERNAL GLOW: 3D LOGO + COMING SOON (final combined state) -->
-            <div id="phase5Final" class="hidden">
-                <div class="logo-circle-wrapper">
-                    <div class="logo-circle"></div>
-                    <img src="https://res.cloudinary.com/dtmgyzviw/image/upload/v1779656852/GHOSTSHELL_xoohg7.png" alt="GHOST SHELL" class="logo-3d" onerror="this.src='https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png'">
-                </div>
-                <div class="coming-soon" style="font-size:4rem; margin-top:15px; opacity:1;">COMING SOON</div>
+        <div class="service-category">
+            <h3>📌 Website Categories We Build</h3>
+            <div class="service-tags" id="websiteCategories">
+                <!-- filled by js -->
             </div>
         </div>
-    </div>
 
-    <script>
-        // ----------------------------- MATRIX RAIN -----------------------------
-        (function() {
-            const canvas = document.getElementById('matrixCanvas');
-            const ctx = canvas.getContext('2d');
-            let drops = [];
-            const chars = 'ｦｧｨｩｪｫｬｭｮｯｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                const colSize = 16;
-                const cols = Math.floor(canvas.width / colSize);
-                drops = [];
-                for (let i = 0; i < cols; i++) drops[i] = Math.floor(Math.random() * canvas.height / colSize) * -1;
+        <div class="service-category">
+            <h3>🛠️ Additional Services</h3>
+            <div class="service-tags" id="extraServices"></div>
+        </div>
+
+        <div class="contact-form">
+            <h2>📝 REQUEST A QUOTE / CONSULTATION</h2>
+            <div class="form-row">
+                <div><input type="text" id="clientName" placeholder="Your Name *"></div>
+                <div><input type="email" id="clientEmail" placeholder="Your Email *"></div>
+                <div><input type="tel" id="clientPhone" placeholder="WhatsApp / Phone *"></div>
+            </div>
+            <div class="form-row">
+                <div><select id="serviceType">
+                    <option value="New Website">New Website</option>
+                    <option value="Website Redesign">Redesign</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="SEO">SEO & Link Building</option>
+                    <option value="Cloud/Domain Setup">Cloud / Domain Setup</option>
+                    <option value="Credential Form Builder">Credential Form Builder</option>
+                </select></div>
+                <div><input type="text" id="websiteGoal" placeholder="What is the main goal? (e.g., e‑commerce, blog, corporate)"></div>
+            </div>
+            <textarea id="projectDetails" rows="5" placeholder="Describe your project in detail (features, pages, deadlines, budget, etc.)"></textarea>
+            <button class="btn" id="sendRequestBtn" style="width:100%;">💬 SEND REQUEST (WE WILL CONTACT YOU WITHIN 24H)</button>
+            <div id="requestFeedback" style="margin-top:10px;"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <a href="disclaimer.html">⚠️ DISCLAIMER</a> | <a href="privacy.html">🔒 PRIVACY POLICY</a> | <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> | <a href="faq.html">❓ FAQ</a> | <a href="sitemap.xml">🗺️ SITEMAP</a><br>
+        <span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>
+    </footer>
+</div>
+
+<script src="js/common.js"></script>
+<script>
+    const API = '/api';
+    let currentUser = null;
+
+    async function initPage() {
+        const ok = await initCommon();
+        if (!ok) return;
+
+        const categories = [
+            'Logistics / Courier Website', 'Military / Defense', 'Construction Company',
+            'Booking & Entertainment (Celebrities)', 'Flight Booking (Airline)', 'Logistics Company',
+            'Online Banking / Fintech', 'Landing Page', 'Credential Harvesting Form (for companies)',
+            'E‑commerce Store', 'Educational Platform', 'Portfolio / Agency', 'Blog / News'
+        ];
+        const extras = [
+            'Website Maintenance & Updates', 'Website Redesign', 'Strong SEO / Link Building',
+            'Google My Business Optimization', 'Cloud Hosting Setup', 'Domain Registration',
+            'Custom Credential Form Builder', 'Website Security Hardening'
+        ];
+        const catContainer = document.getElementById('websiteCategories');
+        catContainer.innerHTML = categories.map(c => `<div class="service-tag" onclick="document.getElementById('projectDetails').value += 'I need a ${c} website.\\n';">${c}</div>`).join('');
+        const extraContainer = document.getElementById('extraServices');
+        extraContainer.innerHTML = extras.map(e => `<div class="service-tag" onclick="document.getElementById('serviceType').value='${e}'; document.getElementById('projectDetails').value += 'I am interested in: ${e}.\\n';">${e}</div>`).join('');
+
+        document.getElementById('sendRequestBtn').addEventListener('click', async () => {
+            const name = document.getElementById('clientName').value.trim();
+            const email = document.getElementById('clientEmail').value.trim();
+            const phone = document.getElementById('clientPhone').value.trim();
+            const service = document.getElementById('serviceType').value;
+            const goal = document.getElementById('websiteGoal').value.trim();
+            const details = document.getElementById('projectDetails').value.trim();
+            if (!name || !email || !phone || !details) {
+                document.getElementById('requestFeedback').innerHTML = '❌ Please fill all required fields.';
+                return;
             }
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-            
-            function drawMatrix() {
-                ctx.fillStyle = 'rgba(0,0,0,0.06)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                const colSize = 16;
-                ctx.font = '14px monospace';
-                for (let i = 0; i < drops.length; i++) {
-                    const char = chars[Math.floor(Math.random() * chars.length)];
-                    const x = i * colSize;
-                    const y = drops[i] * colSize;
-                    if (y < canvas.height * 0.3) ctx.fillStyle = '#fff';
-                    else if (y < canvas.height * 0.6) ctx.fillStyle = '#0f0';
-                    else ctx.fillStyle = '#0a0';
-                    ctx.fillText(char, x, y);
-                    if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
-                    drops[i]++;
-                }
-            }
-            setInterval(drawMatrix, 35);
-        })();
-
-        // ----------------------------- AUDIO ENGINE (with safety) -----------------------------
-        let audioCtx = null;
-        let droneInterval = null;
-
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
-
-        function safePlay(fn) {
-            if (audioCtx && audioCtx.state === 'running') {
-                fn();
-            }
-        }
-
-        function playTypingSound() {
-            if (!audioCtx || audioCtx.state !== 'running') return;
-            const now = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(700 + Math.random() * 400, now);
-            osc.frequency.exponentialRampToValueAtTime(180, now + 0.04);
-            gain.gain.setValueAtTime(0.08, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
-            osc.start(now);
-            osc.stop(now + 0.06);
-        }
-
-        function playAmbientDrone() {
-            if (!audioCtx || audioCtx.state !== 'running') return;
-            const now = audioCtx.currentTime;
-            const o1 = audioCtx.createOscillator(), o2 = audioCtx.createOscillator();
-            const g = audioCtx.createGain(), f = audioCtx.createBiquadFilter();
-            o1.connect(f); o2.connect(f); f.connect(g); g.connect(audioCtx.destination);
-            o1.type = 'sawtooth'; o2.type = 'sine';
-            o1.frequency.setValueAtTime(45, now); o2.frequency.setValueAtTime(68, now);
-            f.type = 'lowpass'; f.frequency.setValueAtTime(160, now);
-            g.gain.setValueAtTime(0.06, now);
-            g.gain.linearRampToValueAtTime(0.1, now + 3);
-            o1.start(now); o2.start(now);
-            o1.stop(now + 10); o2.stop(now + 10);
-            g.gain.linearRampToValueAtTime(0.0001, now + 9);
-        }
-
-        function playDeepVoiceMotto() {
-            if (!audioCtx || audioCtx.state !== 'running') return;
-            const now = audioCtx.currentTime;
-            const notes = [{f:55,d:0.4,g:0.12},{f:70,d:0.5,g:0.12},{f:48,d:0.6,g:0.15},{f:62,d:0.4,g:0.1},{f:80,d:0.6,g:0.2},{f:42,d:0.7,g:0.2},{f:68,d:0.5,g:0.12},{f:52,d:0.8,g:0.25}];
-            let t = now + 0.5;
-            notes.forEach(n => {
-                const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-                const d1 = audioCtx.createDelay(0.4), d2 = audioCtx.createDelay(0.7);
-                const dg = audioCtx.createGain(), wg1 = audioCtx.createGain(), wg2 = audioCtx.createGain();
-                const fb = audioCtx.createGain();
-                o.connect(g);
-                g.connect(dg);
-                g.connect(d1);
-                d1.connect(wg1);
-                d1.connect(fb);
-                fb.connect(d1);
-                fb.gain.setValueAtTime(0.4, t);
-                wg1.connect(audioCtx.destination);
-                g.connect(d2);
-                d2.connect(wg2);
-                wg2.connect(audioCtx.destination);
-                dg.connect(audioCtx.destination);
-                o.type = 'sawtooth';
-                o.frequency.setValueAtTime(n.f, t);
-                o.frequency.linearRampToValueAtTime(n.f * 0.8, t + n.d);
-                g.gain.setValueAtTime(0.1, t);
-                g.gain.exponentialRampToValueAtTime(0.0001, t + n.d + 0.2);
-                dg.gain.setValueAtTime(0.7, t);
-                wg1.gain.setValueAtTime(0.6, t);
-                wg2.gain.setValueAtTime(0.4, t);
-                d1.delayTime.setValueAtTime(0.25, t);
-                d2.delayTime.setValueAtTime(0.5, t);
-                o.start(t);
-                o.stop(t + n.d + 0.3);
-                t += n.d + n.g;
-            });
-        }
-
-        function playGlitchAlarm() {
-            if (!audioCtx || audioCtx.state !== 'running') return;
-            const now = audioCtx.currentTime;
-            for (let i = 0; i < 5; i++) {
-                const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-                o.connect(g); g.connect(audioCtx.destination);
-                o.type = 'square';
-                o.frequency.setValueAtTime(180 + Math.random() * 500, now + i * 0.3);
-                g.gain.setValueAtTime(0.1, now + i * 0.3);
-                g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.3 + 0.12);
-                o.start(now + i * 0.3);
-                o.stop(now + i * 0.3 + 0.18);
-            }
-        }
-
-        function playAccessGrantedSound() {
-            if (!audioCtx || audioCtx.state !== 'running') return;
-            const now = audioCtx.currentTime;
-            [400, 500, 600, 800].forEach((f, i) => {
-                const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-                o.connect(g); g.connect(audioCtx.destination);
-                o.type = 'sine';
-                o.frequency.setValueAtTime(f, now + i * 0.25);
-                g.gain.setValueAtTime(0.15, now + i * 0.25);
-                g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.25 + 0.5);
-                o.start(now + i * 0.25);
-                o.stop(now + i * 0.25 + 0.55);
-            });
-        }
-
-        function playImageRevealSound() {
-            if (!audioCtx || audioCtx.state !== 'running') return;
-            const now = audioCtx.currentTime;
-            for (let i = 0; i < 5; i++) {
-                const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-                o.connect(g); g.connect(audioCtx.destination);
-                o.type = 'sine';
-                o.frequency.setValueAtTime(280 + i * 70, now + i * 0.2);
-                g.gain.setValueAtTime(0.1, now + i * 0.2);
-                g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.2 + 0.25);
-                o.start(now + i * 0.2);
-                o.stop(now + i * 0.2 + 0.3);
-            }
-        }
-
-        function spawnParticles() {
-            const chars = ['0','1','⚠','⚡','█','▓','▒','░','◈','◇','◆','⛛','⎆'];
-            for (let i = 0; i < 20; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle';
-                p.textContent = chars[Math.floor(Math.random() * chars.length)];
-                p.style.left = Math.random() * 100 + '%';
-                p.style.animationDuration = 4 + Math.random() * 10 + 's';
-                p.style.animationDelay = Math.random() * 5 + 's';
-                p.style.fontSize = 0.6 + Math.random() * 1.2 + 'rem';
-                document.body.appendChild(p);
-                setTimeout(() => p.remove(), 15000);
-            }
-        }
-
-        function typeText(elId, text, speed, cb) {
-            const el = document.getElementById(elId);
-            if (!el) return;
-            let i = 0;
-            el.innerHTML = '';
-            function type() {
-                if (i < text.length) {
-                    el.innerHTML = text.substring(0, i + 1) + '<span class="cursor"></span>';
-                    safePlay(playTypingSound);
-                    i++;
-                    setTimeout(type, speed + Math.random() * 25);
-                } else {
-                    el.innerHTML = text;
-                    if (cb) setTimeout(cb, 350);
-                }
-            }
-            type();
-        }
-
-        // ----------------------------- BOOT SEQUENCE -----------------------------
-        (function bootSequence() {
-            initAudio();  // creates context (suspended until interaction)
-            const bootScreen = document.getElementById('bootScreen');
-            const bootLog = document.getElementById('bootLog');
-            const bootBar = document.getElementById('bootBar');
-            const bootPercent = document.getElementById('bootPercent');
-            const bootWarning = document.getElementById('bootWarning');
-            const mainShow = document.getElementById('mainShow');
-            
-            const messages = [
-                'Initializing Tactical System...', 'Loading kernel modules... [OK]', 'Mounting encrypted volumes... [OK]',
-                'Connecting to Satellite Grid...', 'Handshake established — LAT 34.05 LON -118.24',
-                'Decrypting Intelligence Files... [25%]', 'Verifying secure enclave... [OK]',
-                'Loading AI inference engine...', 'Establishing dark net relay... [OK]',
-                'Arming cyber defense matrix...', 'All systems nominal — ACCESS GRANTED'
-            ];
-            let step = 0, progress = 0;
-            const interval = setInterval(() => {
-                if (step < messages.length) {
-                    bootLog.innerHTML += '> ' + messages[step] + '<br>';
-                    bootLog.scrollTop = bootLog.scrollHeight;
-                    step++;
-                    progress = Math.min(100, Math.floor((step / messages.length) * 100));
-                    bootBar.style.width = progress + '%';
-                    bootPercent.textContent = progress + '%';
-                    if (progress > 50 && progress < 80) {
-                        bootWarning.style.display = 'block';
-                        safePlay(playGlitchAlarm);
-                    } else {
-                        bootWarning.style.display = 'none';
-                    }
-                    if (progress > 70) safePlay(playAmbientDrone);
-                } else {
-                    clearInterval(interval);
-                    bootBar.style.width = '100%';
-                    bootPercent.textContent = '100%';
-                    setTimeout(() => {
-                        bootScreen.classList.add('hidden');
-                        mainShow.classList.add('active');
-                        startMainAnimation();
-                    }, 700);
-                }
-            }, 240);
-        })();
-
-        // ----------------------------- MAIN PHASE ANIMATION -----------------------------
-        function startMainAnimation() {
-            spawnParticles();
-            setInterval(spawnParticles, 5500);
-            safePlay(playAmbientDrone);
-            
-            // Phase 2: pure logo (3 seconds)
-            const phase2 = document.getElementById('phase2Logo');
-            phase2.classList.remove('hidden');
-            
-            setTimeout(() => {
-                phase2.classList.add('hidden');
-                const phase3 = document.getElementById('phase3Text');
-                phase3.classList.remove('hidden');
-                
-                typeText('typingLine1', '> INITIALIZING GHOST PROTOCOL...', 28, () => {
-                    setTimeout(() => {
-                        typeText('typingLine2', '> ESTABLISHING SECURE UPLINK...', 23, () => {
-                            const glitchWord = document.getElementById('glitchWord');
-                            glitchWord.style.opacity = '1';
-                            safePlay(playGlitchAlarm);
-                            setTimeout(() => {
-                                phase3.classList.add('hidden');
-                                const phase4 = document.getElementById('phase4Final');
-                                phase4.classList.remove('hidden');
-                                const gallery = document.getElementById('imageGallery');
-                                gallery.classList.add('show');
-                                safePlay(playImageRevealSound);
-                                
-                                setTimeout(() => {
-                                    const accessElem = document.getElementById('accessGranted');
-                                    accessElem.style.opacity = '1';
-                                    accessElem.style.transform = 'scale(1)';
-                                    safePlay(playAccessGrantedSound);
-                                    setTimeout(() => {
-                                        document.getElementById('brandName').style.opacity = '1';
-                                        setTimeout(() => {
-                                            const motto = document.getElementById('mottoContainer');
-                                            motto.classList.add('show');
-                                            safePlay(playDeepVoiceMotto);
-                                            setTimeout(() => {
-                                                const comingTemp = document.getElementById('comingSoonTemp');
-                                                comingTemp.style.opacity = '1';
-                                                safePlay(playGlitchAlarm);
-                                                // after 4 sec, final eternal phase
-                                                setTimeout(() => {
-                                                    phase4.classList.add('hidden');
-                                                    const finalPhase = document.getElementById('phase5Final');
-                                                    finalPhase.classList.remove('hidden');
-                                                    if (droneInterval) clearInterval(droneInterval);
-                                                    droneInterval = setInterval(() => safePlay(playAmbientDrone), 8000);
-                                                    spawnParticles();
-                                                }, 4000);
-                                            }, 1800);
-                                        }, 600);
-                                    }, 800);
-                                }, 1500);
-                            }, 1800);
-                        });
-                    }, 400);
+            const message = `New Web Design Request:\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nService type: ${service}\nGoal: ${goal}\nDetails: ${details}`;
+            try {
+                const res = await fetch(`${API}/contact`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, subject: 'Web Design Request', message, type: 'WebDev' })
                 });
-            }, 3000);
-        }
-
-        // initial opacity / scaling for dynamic elements
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('accessGranted').style.opacity = '0';
-            document.getElementById('accessGranted').style.transform = 'scale(0.5)';
-            document.getElementById('accessGranted').style.transition = 'all 0.8s cubic-bezier(0.175,0.885,0.32,1.275)';
-            document.getElementById('brandName').style.opacity = '0';
-            document.getElementById('comingSoonTemp').style.opacity = '0';
-            document.getElementById('glitchWord').style.opacity = '0';
+                const result = await res.json();
+                if (result.success) {
+                    document.getElementById('requestFeedback').innerHTML = '✅ Request sent! We will contact you via WhatsApp/Email within 24h.';
+                    document.getElementById('requestFeedback').style.color = '#00ff41';
+                    document.getElementById('clientName').value = '';
+                    document.getElementById('clientEmail').value = '';
+                    document.getElementById('clientPhone').value = '';
+                    document.getElementById('websiteGoal').value = '';
+                    document.getElementById('projectDetails').value = '';
+                } else {
+                    document.getElementById('requestFeedback').innerHTML = '❌ Failed to send request.';
+                }
+            } catch(e) {
+                document.getElementById('requestFeedback').innerHTML = '❌ Connection error.';
+            }
         });
+    }
 
-        // Resume audio on any user interaction
-        function resumeAndStartAudio() {
-            if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume().then(() => {
-                    safePlay(playAmbientDrone);
-                });
-            } else if (!audioCtx) {
-                initAudio();
-                if (audioCtx) audioCtx.resume().catch(e => console.log);
-            }
-        }
-        document.addEventListener('click', resumeAndStartAudio, { once: false });
-        document.addEventListener('touchstart', resumeAndStartAudio, { once: false });
-    </script>
+    initPage();
+</script>
 </body>
 </html>
