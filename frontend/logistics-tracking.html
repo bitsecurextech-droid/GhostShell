@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL • Virtual Numbers – SMM / OTP / SMS</title>
+    <title>GHOST SHELL • Gift Delivery – Surprise Anyone Worldwide</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
@@ -17,89 +17,234 @@
         .btn:hover { background: #5e0000; color: white; box-shadow: 0 0 10px red; }
         .footer { text-align: center; padding: 20px; border-top: 1px solid #8a0303; margin-top: 40px; font-size: 0.7rem; }
         .footer a { color: #ff6666; margin: 0 8px; text-decoration: none; }
-        .number-card { display: inline-block; width: 280px; margin: 15px; background: #0a0000; border: 1px solid #ff4444; padding: 20px; text-align: center; border-radius: 12px; transition: 0.3s; }
-        .number-card:hover { transform: translateY(-5px); border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); }
-        .number-card h3 { color: #ff6666; font-size: 1.2rem; word-break: break-all; }
-        .service-badge { background: #2a0000; padding: 4px 10px; border-radius: 20px; display: inline-block; margin: 5px; font-size: 0.7rem; border: 1px solid #ff6666; }
+        .product-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 25px; margin: 30px 0; }
+        .product-card { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; border-radius: 12px; width: 260px; padding: 20px; text-align: center; transition: 0.3s; }
+        .product-card:hover { transform: translateY(-5px); border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); }
+        .product-card h3 { color: #ff6666; margin-bottom: 10px; }
         .price { font-size: 1.5rem; color: #00ff41; margin: 10px 0; }
-        .platform { color: #ffaa00; font-size: 0.8rem; }
-        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .product-image { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; border: 1px solid #8a0303; }
+        .order-form { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; border-radius: 12px; padding: 25px; margin-top: 30px; }
+        .order-form input, .order-form select, .order-form textarea { width: 100%; margin: 8px 0; padding: 8px; background: #1a0a0a; border: 1px solid #8a0303; color: #ff9999; }
+        .form-row { display: flex; gap: 15px; flex-wrap: wrap; }
+        .form-row > div { flex: 1; }
     </style>
 </head>
 <body>
 <canvas id="matrixCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.3; pointer-events:none;"></canvas>
 <div class="admin-wrapper">
-    <!-- Unified header (same as all pages) -->
-    <header class="header">
-        <div class="logo-area">
-            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
-            <span class="site-name">GHOST SHELL</span>
-        </div>
-        <nav class="nav-links" id="mainNav"></nav>
-        <button class="btn" id="themeToggle">🌓</button>
-        <button class="btn" id="logoutBtn">EXIT</button>
-    </header>
+    <header class="header" id="mainHeader"></header>
 
     <main>
-        <h1 style="color:var(--red); text-align:center;">📞 VIRTUAL NUMBERS FOR SMM & OTP</h1>
-        <p style="text-align:center; margin-bottom:30px;">Receive SMS / verification codes for Telegram, WhatsApp, TikTok, Instagram, Gmail, and more.</p>
-        <div id="numbersContainer" class="grid">Loading numbers...</div>
+        <h1 style="color:var(--red); text-align:center;">🎁 SEND A SURPRISE ANYWHERE IN THE WORLD</h1>
+        <p style="text-align:center;">Choose your gift – fast delivery, trusted service, safe payment.</p>
+
+        <div class="product-grid" id="productsGrid">
+            <!-- Gifts loaded from localStorage (admin managed) -->
+        </div>
+
+        <div class="order-form">
+            <h2>📦 PLACE YOUR ORDER</h2>
+            <div class="form-row">
+                <div><input type="text" id="recipientName" placeholder="Recipient Name *"></div>
+                <div><input type="text" id="recipientAddress" placeholder="Full Address (Country, City, Street) *"></div>
+                <div><input type="text" id="recipientPhone" placeholder="Recipient Phone *"></div>
+            </div>
+            <div class="form-row">
+                <div><input type="text" id="senderName" placeholder="Your Name (optional)"></div>
+                <div><input type="email" id="senderEmail" placeholder="Your Email *"></div>
+                <div><input type="tel" id="senderPhone" placeholder="Your Phone"></div>
+            </div>
+            <select id="productSelect">
+                <option value="">-- Select a gift --</option>
+            </select>
+            <textarea id="specialMessage" rows="3" placeholder="Special message for the recipient (will be printed on card)"></textarea>
+            <button class="btn" id="placeOrderBtn" style="width:100%;">🚀 PLACE ORDER (SAFE PAYMENT)</button>
+            <div id="orderFeedback" style="margin-top:10px; color:#ffaa00;"></div>
+        </div>
     </main>
 
-    <footer class="footer">
-        <a href="disclaimer.html">⚠️ DISCLAIMER</a> |
-        <a href="privacy.html">🔒 PRIVACY POLICY</a> |
-        <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> |
-        <a href="faq.html">❓ FAQ</a> |
-        <span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>
-    </footer>
+    <footer class="footer" id="mainFooter"></footer>
 </div>
 
-<script src="js/matrix.js"></script>
-<script src="js/common.js"></script>
 <script>
-    (async () => {
-        // Wait for common initialisation (auth + header)
-        const ok = await initCommon();
-        if (!ok) return;
+    const API = '/api';
+    let currentUser = null;
 
-        // Load virtual numbers from backend API
-        async function loadNumbers() {
-            try {
-                const token = localStorage.getItem('ghost_token');
-                const res = await fetch('/api/virtualnums', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const numbers = await res.json();
-                const container = document.getElementById('numbersContainer');
-                if (!numbers.length) {
-                    container.innerHTML = '<p>No virtual numbers available.</p>';
+    async function apiCall(endpoint, options = {}) {
+        const token = localStorage.getItem('ghost_token');
+        const res = await fetch(`${API}${endpoint}`, {
+            ...options,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...options.headers }
+        });
+        if (res.status === 401) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; }
+        return res.json();
+    }
+
+    async function loadGifts() {
+        // Load gifts from localStorage (admin manages them via the admin panel's "Gifts" section)
+        let gifts = JSON.parse(localStorage.getItem('ghost_gifts') || '[]');
+        // Default gifts if empty
+        if (gifts.length === 0) {
+            gifts = [
+                { id: 'g1', name: '🍕 Pizza Combo', price: 29, description: 'Hot pizza delivered in 45min', imageUrl: 'https://via.placeholder.com/150?text=Pizza' },
+                { id: 'g2', name: '💐 Flower Bouquet', price: 45, description: 'Fresh roses, same day delivery', imageUrl: 'https://via.placeholder.com/150?text=Flowers' },
+                { id: 'g3', name: '💍 Engagement Ring', price: 199, description: 'Elegant ring with gift box', imageUrl: 'https://via.placeholder.com/150?text=Ring' },
+                { id: 'g4', name: '🖼️ Personalized Frame', price: 35, description: 'Custom engraving available', imageUrl: 'https://via.placeholder.com/150?text=Frame' },
+                { id: 'g5', name: '🧸 Plush Teddy Bear', price: 25, description: 'Soft, huggable bear', imageUrl: 'https://via.placeholder.com/150?text=Teddy' },
+                { id: 'g6', name: '🎁 Custom Gift Basket', price: 75, description: 'Pick your own items', imageUrl: 'https://via.placeholder.com/150?text=Gift' }
+            ];
+            localStorage.setItem('ghost_gifts', JSON.stringify(gifts));
+        }
+
+        const container = document.getElementById('productsGrid');
+        const productSelect = document.getElementById('productSelect');
+        container.innerHTML = '';
+        productSelect.innerHTML = '<option value="">-- Select a gift --</option>';
+        gifts.forEach(g => {
+            // Product card
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                ${g.imageUrl ? `<img src="${escapeHtml(g.imageUrl)}" class="product-image" alt="${escapeHtml(g.name)}">` : ''}
+                <h3>${escapeHtml(g.name)}</h3>
+                <p>${escapeHtml(g.description || '')}</p>
+                <div class="price">$${g.price}</div>
+                <button class="btn" data-id="${g.id}">Select</button>
+            `;
+            card.querySelector('button').addEventListener('click', () => {
+                productSelect.value = g.id;
+                document.querySelector('.order-form').scrollIntoView({ behavior: 'smooth' });
+            });
+            container.appendChild(card);
+
+            // Option in select
+            const opt = document.createElement('option');
+            opt.value = g.id;
+            opt.textContent = `${g.name} - $${g.price}`;
+            productSelect.appendChild(opt);
+        });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');
+    }
+
+    function buildHeaderFooter() {
+        const pages = [
+            { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
+            { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
+            { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
+            { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
+            { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+            { name: 'esim', label: '📱 eSIM', href: 'esim-shop.html' },
+            { name: 'virtual', label: '📞 Virtual Numbers', href: 'virtual-numbers.html' },
+            { name: 'logistics', label: '📦 Logistics', href: 'logistics-tracking.html' },
+            { name: 'blog', label: '💀 Blog', href: 'blog.html' }
+        ];
+        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'full_admin')) {
+            pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
+        }
+        const header = document.getElementById('mainHeader');
+        header.innerHTML = `
+            <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
+            <nav class="nav-links">${pages.map(p => `<button class="nav-link ${p.name === 'logistics' ? 'active' : ''}" onclick="window.location.href='${p.href}'">${p.label}</button>`).join('')}</nav>
+            <button class="btn" id="themeToggle">🌓</button>
+            <button class="btn" id="logoutBtn">EXIT</button>
+        `;
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            document.getElementById('themeToggle').textContent = document.body.classList.contains('light') ? '☀️' : '🌓';
+            localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; });
+        
+        const footer = document.getElementById('mainFooter');
+        footer.innerHTML = `
+            <a href="disclaimer.html">⚠️ DISCLAIMER</a> | 
+            <a href="privacy.html">🔒 PRIVACY POLICY</a> | 
+            <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> | 
+            <a href="faq.html">❓ FAQ</a><br>
+            <span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>
+        `;
+    }
+
+    (async () => {
+        const token = localStorage.getItem('ghost_token');
+        if (!token) { window.location.href = 'index.html'; return; }
+        try {
+            const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            currentUser = data.user;
+            buildHeaderFooter();
+            await loadGifts();
+
+            // Order submission
+            document.getElementById('placeOrderBtn').addEventListener('click', async () => {
+                const recipientName = document.getElementById('recipientName').value.trim();
+                const recipientAddress = document.getElementById('recipientAddress').value.trim();
+                const recipientPhone = document.getElementById('recipientPhone').value.trim();
+                const senderEmail = document.getElementById('senderEmail').value.trim();
+                const giftId = document.getElementById('productSelect').value;
+                const message = document.getElementById('specialMessage').value.trim();
+                if (!recipientName || !recipientAddress || !recipientPhone || !senderEmail || !giftId) {
+                    document.getElementById('orderFeedback').innerText = '❌ Please fill all required fields and select a gift.';
                     return;
                 }
-                let html = '';
-                numbers.forEach(n => {
-                    html += `
-                        <div class="number-card">
-                            <h3>📱 ${escapeHtml(n.number)}</h3>
-                            <div><span class="service-badge">${escapeHtml(n.service || 'SMS/OTP')}</span> <span class="service-badge">📳 ${escapeHtml(n.country)}</span></div>
-                            <div class="platform">🔗 Partner: ${escapeHtml(n.partner)}</div>
-                            <div class="price">$${n.price}</div>
-                            <button class="btn" onclick="alert('Contact admin to purchase: ${escapeHtml(n.number)}')">Get Number</button>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } catch(e) {
-                document.getElementById('numbersContainer').innerHTML = '<p>Failed to load numbers.</p>';
-            }
-        }
+                const gifts = JSON.parse(localStorage.getItem('ghost_gifts') || '[]');
+                const selectedGift = gifts.find(g => g.id === giftId);
+                if (!selectedGift) return;
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');
-        }
+                try {
+                    const contactRes = await fetch(`${API}/contact`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: document.getElementById('senderName').value,
+                            email: senderEmail,
+                            subject: 'New Gift Delivery Order',
+                            message: `Gift: ${selectedGift.name} ($${selectedGift.price})\nRecipient: ${recipientName}\nAddress: ${recipientAddress}\nPhone: ${recipientPhone}\nSpecial message: ${message}\nSender phone: ${document.getElementById('senderPhone').value}`,
+                            type: 'Logistics'
+                        })
+                    });
+                    const contactData = await contactRes.json();
+                    if (contactData.success) {
+                        document.getElementById('orderFeedback').innerHTML = '✅ Order received! We will contact you within 24h for payment confirmation.';
+                        document.getElementById('orderFeedback').style.color = '#00ff41';
+                        // Clear form
+                        document.getElementById('recipientName').value = '';
+                        document.getElementById('recipientAddress').value = '';
+                        document.getElementById('recipientPhone').value = '';
+                        document.getElementById('senderName').value = '';
+                        document.getElementById('senderEmail').value = '';
+                        document.getElementById('senderPhone').value = '';
+                        document.getElementById('specialMessage').value = '';
+                        document.getElementById('productSelect').value = '';
+                    } else {
+                        document.getElementById('orderFeedback').innerText = '❌ Failed to send order. Please try again.';
+                    }
+                } catch(e) {
+                    document.getElementById('orderFeedback').innerText = '❌ Connection error.';
+                }
+            });
+        } catch(e) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; }
+    })();
 
-        await loadNumbers();
+    // Matrix rain (identical to virtual-numbers)
+    (function() {
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, drops = [];
+        const chars = "💀☠️🔪🩸🔥⚡";
+        function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; drops = Array(Math.floor(w/20)).fill(0); }
+        function draw() {
+            ctx.fillStyle = 'rgba(0,0,0,0.07)'; ctx.fillRect(0,0,w,h);
+            ctx.fillStyle = '#aa2a2a'; ctx.font = 'bold 20px monospace';
+            for(let i=0; i<drops.length; i++) { ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*20, drops[i]*22); if(drops[i]*22 > h && Math.random() > 0.98) drops[i] = 0; drops[i]++; }
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('resize', resize); resize(); draw();
     })();
 </script>
 </body>
