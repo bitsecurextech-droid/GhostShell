@@ -29,5 +29,4 @@ function buildNav() {
     });
 }
 
-// The rest of your common.js (initCommon, checkAuth, themeToggle, logout, apiCall) remains unchanged.
-// Make sure you keep those functions as they are.
+// (Keep the rest of common.js: initThemeToggle, initLogout, checkAuth, initCommon, apiCall, etc.)
