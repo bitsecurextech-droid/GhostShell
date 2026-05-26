@@ -16,10 +16,9 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
-// -------------------- POSTGRESQL CONNECTION (IPv4 FIX, async but no top‑level await) --------------------
+// -------------------- POSTGRESQL CONNECTION (IPv4 + SSL FIX) --------------------
 let pool;
 
-// Wrapped in an async function – called later
 async function initDatabaseConnection() {
     let dbUrl = process.env.DATABASE_URL;
     if (!dbUrl) {
@@ -27,7 +26,7 @@ async function initDatabaseConnection() {
         process.exit(1);
     }
 
-    // Extract hostname and try to resolve IPv4
+    // Resolve hostname to IPv4 (if possible)
     try {
         const urlObj = new URL(dbUrl);
         const originalHost = urlObj.hostname;
@@ -46,7 +45,11 @@ async function initDatabaseConnection() {
         dbUrl += `${sep}sslmode=require`;
     }
 
-    pool = new Pool({ connectionString: dbUrl });
+    // 🔥 FIX: Disable SSL certificate validation
+    pool = new Pool({
+        connectionString: dbUrl,
+        ssl: { rejectUnauthorized: false }
+    });
 
     // Test connection
     try {
@@ -71,7 +74,6 @@ async function initDatabase() {
     const client = await pool.connect();
     try {
         await client.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
-        // Users table
         await client.query(`CREATE TABLE IF NOT EXISTS users (
             id UUID PRIMARY KEY,
             username TEXT NOT NULL,
@@ -85,7 +87,6 @@ async function initDatabase() {
             tools JSONB DEFAULT '[]',
             created_at TIMESTAMPTZ DEFAULT NOW()
         );`);
-        // Access codes
         await client.query(`CREATE TABLE IF NOT EXISTS access_codes (
             code TEXT PRIMARY KEY,
             is_active BOOLEAN DEFAULT TRUE,
@@ -93,7 +94,6 @@ async function initDatabase() {
             used_at TIMESTAMPTZ,
             requested_by TEXT
         );`);
-        // Tools
         await client.query(`CREATE TABLE IF NOT EXISTS tools (
             id UUID PRIMARY KEY,
             name TEXT NOT NULL,
@@ -107,7 +107,6 @@ async function initDatabase() {
             discount_percent INT DEFAULT 0,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );`);
-        // Payments
         await client.query(`CREATE TABLE IF NOT EXISTS payments (
             id UUID PRIMARY KEY,
             user_id UUID REFERENCES users(id),
@@ -118,7 +117,6 @@ async function initDatabase() {
             status TEXT DEFAULT 'pending',
             created_at TIMESTAMPTZ DEFAULT NOW()
         );`);
-        // Visitors
         await client.query(`CREATE TABLE IF NOT EXISTS visitors (
             id SERIAL PRIMARY KEY,
             ip TEXT,
@@ -127,7 +125,6 @@ async function initDatabase() {
             page TEXT,
             timestamp TIMESTAMPTZ DEFAULT NOW()
         );`);
-        // Websites
         await client.query(`CREATE TABLE IF NOT EXISTS websites (
             id UUID PRIMARY KEY,
             domain TEXT NOT NULL,
@@ -138,7 +135,6 @@ async function initDatabase() {
             details TEXT,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );`);
-        // eSIM
         await client.query(`CREATE TABLE IF NOT EXISTS esim (
             id UUID PRIMARY KEY,
             name TEXT NOT NULL,
@@ -150,7 +146,6 @@ async function initDatabase() {
             description TEXT,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );`);
-        // Logistics
         await client.query(`CREATE TABLE IF NOT EXISTS logistics (
             id UUID PRIMARY KEY,
             sender TEXT,
@@ -162,7 +157,6 @@ async function initDatabase() {
             status TEXT DEFAULT 'pending',
             created_at TIMESTAMPTZ DEFAULT NOW()
         );`);
-        // Virtual numbers
         await client.query(`CREATE TABLE IF NOT EXISTS virtualnums (
             id UUID PRIMARY KEY,
             number TEXT NOT NULL,
@@ -172,7 +166,6 @@ async function initDatabase() {
             partner TEXT,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );`);
-        // Web requests
         await client.query(`CREATE TABLE IF NOT EXISTS webrequests (
             id UUID PRIMARY KEY,
             client TEXT,
@@ -182,14 +175,12 @@ async function initDatabase() {
             budget NUMERIC,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );`);
-        // Cred forms
         await client.query(`CREATE TABLE IF NOT EXISTS credforms (
             id UUID PRIMARY KEY,
             name TEXT NOT NULL,
             fields TEXT,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );`);
-        // Cloud requests
         await client.query(`CREATE TABLE IF NOT EXISTS cloudreqs (
             id UUID PRIMARY KEY,
             customer TEXT,
@@ -200,7 +191,6 @@ async function initDatabase() {
             sent_to_telegram BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );`);
-        // Blog
         await client.query(`CREATE TABLE IF NOT EXISTS blog (
             id UUID PRIMARY KEY,
             title TEXT NOT NULL,
@@ -548,7 +538,6 @@ async function seedDatabase() {
 // -------------------- START SERVER --------------------
 const PORT = process.env.PORT || 5000;
 
-// Initialise everything, then start listening
 (async () => {
     await initDatabaseConnection();
     await initDatabase();
