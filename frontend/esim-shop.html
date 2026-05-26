@@ -20,9 +20,10 @@
         .plan-card { display: inline-block; width: 280px; margin: 15px; background: #0a0000; border: 1px solid #ff4444; padding: 20px; text-align: center; border-radius: 12px; transition: 0.3s; }
         .plan-card:hover { transform: translateY(-5px); border-color: #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); }
         .plan-card h3 { color: #ff6666; }
-        .carrier { font-size: 0.8rem; background: #2a0000; display: inline-block; padding: 2px 8px; border-radius: 20px; }
-        .price { font-size: 1.8rem; color: #00ff41; margin: 10px 0; }
-        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .price { font-size: 1.5rem; color: #00ff41; margin: 10px 0; }
+        .duration { background: #8a0303; display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; }
+        .carrier { color: #ffaa00; margin-top: 8px; }
+        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin: 30px 0; }
         .order-form { background: rgba(10,5,5,0.9); border: 1px solid #8a0303; border-radius: 12px; padding: 25px; margin-top: 30px; }
         .order-form input, .order-form select, .order-form textarea { width: 100%; margin: 8px 0; padding: 8px; background: #1a0a0a; border: 1px solid #8a0303; color: #ff9999; }
         .form-row { display: flex; gap: 15px; flex-wrap: wrap; }
@@ -32,18 +33,15 @@
 <body>
 <canvas id="matrixCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.3; pointer-events:none;"></canvas>
 <div class="admin-wrapper">
-    <header class="header">
-        <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
-        <nav class="nav-links" id="mainNav"></nav>
-        <button class="btn" id="themeToggle">🌓</button>
-        <button class="btn" id="logoutBtn">EXIT</button>
-    </header>
+    <header class="header" id="mainHeader"></header>
 
     <main>
         <h1 style="color:var(--red); text-align:center;">📱 eSIM – STAY CONNECTED ANYWHERE</h1>
         <p style="text-align:center;">AT&T, T‑Mobile, Mint, Lyca, Flex • 1 month – 1 year • Unlimited plans • No chargeback, 100% legit, easy renewal</p>
 
-        <div class="grid" id="plansGrid"></div>
+        <div class="grid" id="plansGrid">
+            <!-- eSIM plans loaded from backend -->
+        </div>
 
         <div class="order-form">
             <h2>📲 ORDER eSIM / REFILL</h2>
@@ -75,80 +73,171 @@
         </div>
     </main>
 
-    <footer class="footer">
-        <a href="disclaimer.html">⚠️ DISCLAIMER</a> | <a href="privacy.html">🔒 PRIVACY POLICY</a> | <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> | <a href="faq.html">❓ FAQ</a><br>
-        <span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>
-    </footer>
+    <footer class="footer" id="mainFooter"></footer>
 </div>
 
-<script src="js/common.js"></script>
 <script>
     const API = '/api';
     let currentUser = null;
 
-    async function initPage() {
-        const ok = await initCommon();
-        if (!ok) return;
-        // Sample plans – could be loaded from /api/esim
-        const plans = [
-            { carrier: 'AT&T', duration: '1 month', price: 29, data: '10GB' },
-            { carrier: 'T‑Mobile', duration: '3 months', price: 69, data: '15GB' },
-            { carrier: 'Mint Mobile', duration: '6 months', price: 99, data: '20GB' },
-            { carrier: 'Lyca Mobile', duration: '1 year', price: 159, data: '30GB' },
-            { carrier: 'Flex', duration: 'Unlimited (1 year)', price: 249, data: 'Unlimited' },
-            { carrier: 'AT&T', duration: '1 year', price: 189, data: '50GB' }
-        ];
-        const grid = document.getElementById('plansGrid');
-        grid.innerHTML = plans.map(p => `
-            <div class="plan-card">
-                <h3>${p.carrier}</h3>
-                <div class="carrier">📡 ${p.duration}</div>
-                <div class="price">$${p.price}</div>
-                <p>📶 ${p.data}</p>
-                <button class="btn" onclick="document.getElementById('carrierSelect').value='${p.carrier}'; document.getElementById('durationSelect').value='${p.duration}'; document.getElementById('dataAmount').value='${p.data}'; window.scrollTo({top: document.querySelector('.order-form').offsetTop, behavior:'smooth'});">Select</button>
-            </div>
-        `).join('');
-
-        document.getElementById('orderEsimBtn').addEventListener('click', async () => {
-            const name = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const carrier = document.getElementById('carrierSelect').value;
-            const duration = document.getElementById('durationSelect').value;
-            const data = document.getElementById('dataAmount').value;
-            const phone = document.getElementById('phone').value;
-            const notes = document.getElementById('extraNotes').value;
-            if (!name || !email || !carrier || !duration) {
-                document.getElementById('orderFeedback').innerHTML = '❌ Please fill all required fields.';
-                return;
-            }
-            const message = `eSIM Order:\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nCarrier: ${carrier}\nDuration: ${duration}\nData: ${data}\nNotes: ${notes}`;
-            try {
-                const res = await fetch(`${API}/contact`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, subject: 'New eSIM Order', message, type: 'eSIM' })
-                });
-                const result = await res.json();
-                if (result.success) {
-                    document.getElementById('orderFeedback').innerHTML = '✅ eSIM order received! We will contact you within 24h for payment and activation.';
-                    document.getElementById('orderFeedback').style.color = '#00ff41';
-                    document.getElementById('fullName').value = '';
-                    document.getElementById('email').value = '';
-                    document.getElementById('phone').value = '';
-                    document.getElementById('extraNotes').value = '';
-                } else {
-                    document.getElementById('orderFeedback').innerHTML = '❌ Failed to send order.';
-                }
-            } catch(e) {
-                document.getElementById('orderFeedback').innerHTML = '❌ Connection error.';
-            }
+    async function apiCall(endpoint, options = {}) {
+        const token = localStorage.getItem('ghost_token');
+        const res = await fetch(`${API}${endpoint}`, {
+            ...options,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...options.headers }
         });
+        if (res.status === 401) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; }
+        return res.json();
     }
 
-    initPage();
+    async function loadPlans() {
+        try {
+            const plans = await apiCall('/esim');
+            const container = document.getElementById('plansGrid');
+            if (!plans.length) { container.innerHTML = '<p>No eSIM plans available yet.</p>'; return; }
+            let html = '';
+            plans.forEach(p => {
+                html += `
+                    <div class="plan-card">
+                        <h3>${escapeHtml(p.name)}</h3>
+                        <div class="duration">${escapeHtml(p.duration)}</div>
+                        <div class="carrier">📡 ${escapeHtml(p.carrier || 'Global')}</div>
+                        <div class="price">$${p.price}</div>
+                        <p><strong>Data:</strong> ${escapeHtml(p.data)}</p>
+                        <p><strong>Voice:</strong> ${escapeHtml(p.voice)}</p>
+                        <button class="btn" data-carrier="${escapeHtml(p.carrier)}" data-duration="${escapeHtml(p.duration)}" data-data="${escapeHtml(p.data)}" data-price="${p.price}">Select</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            // Attach select buttons
+            document.querySelectorAll('.plan-card .btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('carrierSelect').value = btn.dataset.carrier || 'AT&T';
+                    document.getElementById('durationSelect').value = btn.dataset.duration || '1 month';
+                    document.getElementById('dataAmount').value = btn.dataset.data || '';
+                    document.querySelector('.order-form').scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+        } catch(e) {
+            document.getElementById('plansGrid').innerHTML = '<p>Failed to load eSIM plans.</p>';
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');
+    }
+
+    function buildHeaderFooter() {
+        const pages = [
+            { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
+            { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
+            { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
+            { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
+            { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+            { name: 'esim', label: '📱 eSIM', href: 'esim-shop.html' },
+            { name: 'virtual', label: '📞 Virtual Numbers', href: 'virtual-numbers.html' },
+            { name: 'logistics', label: '📦 Logistics', href: 'logistics-tracking.html' },
+            { name: 'blog', label: '💀 Blog', href: 'blog.html' }
+        ];
+        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'full_admin')) {
+            pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
+        }
+        const header = document.getElementById('mainHeader');
+        header.innerHTML = `
+            <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
+            <nav class="nav-links">${pages.map(p => `<button class="nav-link ${p.name === 'esim' ? 'active' : ''}" onclick="window.location.href='${p.href}'">${p.label}</button>`).join('')}</nav>
+            <button class="btn" id="themeToggle">🌓</button>
+            <button class="btn" id="logoutBtn">EXIT</button>
+        `;
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            document.getElementById('themeToggle').textContent = document.body.classList.contains('light') ? '☀️' : '🌓';
+            localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; });
+        
+        const footer = document.getElementById('mainFooter');
+        footer.innerHTML = `
+            <a href="disclaimer.html">⚠️ DISCLAIMER</a> | 
+            <a href="privacy.html">🔒 PRIVACY POLICY</a> | 
+            <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> | 
+            <a href="faq.html">❓ FAQ</a><br>
+            <span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>
+        `;
+    }
+
+    (async () => {
+        const token = localStorage.getItem('ghost_token');
+        if (!token) { window.location.href = 'index.html'; return; }
+        try {
+            const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            currentUser = data.user;
+            buildHeaderFooter();
+            await loadPlans();
+
+            // Order submission
+            document.getElementById('orderEsimBtn').addEventListener('click', async () => {
+                const fullName = document.getElementById('fullName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const carrier = document.getElementById('carrierSelect').value;
+                const duration = document.getElementById('durationSelect').value;
+                const dataAmount = document.getElementById('dataAmount').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const notes = document.getElementById('extraNotes').value.trim();
+                if (!fullName || !email || !carrier || !duration) {
+                    document.getElementById('orderFeedback').innerHTML = '❌ Please fill all required fields.';
+                    return;
+                }
+                try {
+                    const contactRes = await fetch(`${API}/contact`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: fullName,
+                            email: email,
+                            subject: 'New eSIM Order',
+                            message: `eSIM Order:\nName: ${fullName}\nEmail: ${email}\nPhone: ${phone}\nCarrier: ${carrier}\nDuration: ${duration}\nData: ${dataAmount}\nNotes: ${notes}`,
+                            type: 'eSIM'
+                        })
+                    });
+                    const contactData = await contactRes.json();
+                    if (contactData.success) {
+                        document.getElementById('orderFeedback').innerHTML = '✅ eSIM order received! We will contact you within 24h for payment and activation.';
+                        document.getElementById('orderFeedback').style.color = '#00ff41';
+                        document.getElementById('fullName').value = '';
+                        document.getElementById('email').value = '';
+                        document.getElementById('phone').value = '';
+                        document.getElementById('dataAmount').value = '';
+                        document.getElementById('extraNotes').value = '';
+                    } else {
+                        document.getElementById('orderFeedback').innerHTML = '❌ Failed to send order. Please try again.';
+                    }
+                } catch(e) {
+                    document.getElementById('orderFeedback').innerHTML = '❌ Connection error.';
+                }
+            });
+        } catch(e) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; }
+    })();
+
+    // Matrix rain
+    (function() {
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, drops = [];
+        const chars = "💀☠️🔪🩸🔥⚡";
+        function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; drops = Array(Math.floor(w/20)).fill(0); }
+        function draw() {
+            ctx.fillStyle = 'rgba(0,0,0,0.07)'; ctx.fillRect(0,0,w,h);
+            ctx.fillStyle = '#aa2a2a'; ctx.font = 'bold 20px monospace';
+            for(let i=0; i<drops.length; i++) { ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*20, drops[i]*22); if(drops[i]*22 > h && Math.random() > 0.98) drops[i] = 0; drops[i]++; }
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('resize', resize); resize(); draw();
+    })();
 </script>
-<script src="js/matrix.js"></script>
-<script src="js/common.js"></script>
-<script src="js/esim-shop.js"></script>
 </body>
 </html>
