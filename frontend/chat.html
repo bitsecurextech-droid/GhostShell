@@ -6,23 +6,37 @@
     <title>GHOST SHELL // SECURE COMMS</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
+    <style>
+        body { background: radial-gradient(circle at 20% 30%, #0a0000, #000000); font-family: 'Courier New', monospace; color: #ccc; margin:0; padding:0; }
+        .admin-wrapper { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 10; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 2px solid #8a0303; padding: 15px 20px; margin-bottom: 30px; }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-img { height: 45px; filter: drop-shadow(0 0 5px red); }
+        .site-name { font-size: 1.6rem; color: #c0392b; text-shadow: 0 0 8px #ff0000; }
+        .btn { background: #1a0000; border: 1px solid #8a0303; color: #ff6666; padding: 6px 14px; cursor: pointer; font-family: monospace; font-weight: bold; margin: 4px; }
+        .btn:hover { background: #5e0000; color: white; box-shadow: 0 0 10px red; }
+        .footer { text-align: center; padding: 20px; border-top: 1px solid #8a0303; margin-top: 40px; font-size: 0.7rem; }
+        .footer a { color: #ff6666; margin: 0 8px; text-decoration: none; }
+        .chat-container { display: flex; height: 65vh; background: #0a0a0a; border: 1px solid var(--red); border-radius: 8px; overflow: hidden; }
+        .chat-sidebar { width: 180px; background: #050505; border-right: 1px solid #1a0000; padding: 10px; }
+        .chat-users-title { font-family: var(--font-mono); font-size: 0.6rem; color: #666; letter-spacing: 2px; margin-bottom: 8px; }
+        .online-user { font-family: var(--font-mono); font-size: 0.7rem; padding: 4px 0; display: flex; align-items: center; gap: 6px; }
+        .chat-main { flex: 1; display: flex; flex-direction: column; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.8rem; background: #010101; }
+        .chat-messages .msg { margin: 4px 0; }
+        .chat-messages .msg .sender { color: var(--red); font-weight: bold; }
+        .chat-messages .msg .time { color: #444; font-size: 0.6rem; margin-left: 8px; }
+        .chat-input-area { display: flex; padding: 10px; background: #000; border-top: 1px solid #222; }
+        .chat-input-area input { flex: 1; margin: 0 10px 0 0; background: #1a0a0a; border: 1px solid #8a0303; color: #ff9999; padding: 8px; }
+        @media (max-width:768px) { .chat-sidebar { display: none; } }
+    </style>
 </head>
 <body>
-<canvas id="matrixCanvas"></canvas>
+<canvas id="matrixCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.3; pointer-events:none;"></canvas>
+<div class="admin-wrapper">
+    <header class="header" id="mainHeader"></header>
 
-<div id="mainDashboard" style="position:relative; z-index:2;">
-    <!-- Unified header (same as dashboard) -->
-    <header class="header">
-        <div class="logo-area">
-            <img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img">
-            <span class="site-name">GHOST SHELL</span>
-        </div>
-        <nav class="nav-links" id="mainNav"></nav>
-        <button class="btn" id="themeToggle">🌓</button>
-        <button class="btn" id="logoutBtn">EXIT</button>
-    </header>
-
-    <div class="page active">
+    <main>
         <h2 style="color:var(--red); font-family:var(--font-mono);">💬 SECURE COMMS</h2>
         <div class="chat-container">
             <div class="chat-sidebar">
@@ -41,68 +55,116 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <a href="disclaimer.html">⚠️ DISCLAIMER</a> |
-        <a href="privacy.html">🔒 PRIVACY POLICY</a> |
-        <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> |
-        <a href="faq.html">❓ FAQ</a> |
-        <span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>
-    </footer>
+    <footer class="footer" id="mainFooter"></footer>
 </div>
 
 <audio id="chatSound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio>
 
 <script src="/socket.io/socket.io.js"></script>
-<script src="js/matrix.js"></script>
-<script src="js/common.js"></script>
 <script>
-    (async () => {
-        // Wait for common initialisation (auth + header)
-        const ok = await initCommon();
-        if (!ok) return;
+    const API = '/api';
+    let currentUser = null;
 
-        // Chat logic
-        const socket = io();
-        const messages = document.getElementById('chatMessages');
-        const input = document.getElementById('chatInput');
-        const sendBtn = document.getElementById('sendChatBtn');
-
-        function addMessage(from, text, isSelf = false) {
-            const div = document.createElement('div');
-            div.className = 'msg';
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            div.innerHTML = `<span class="sender">${isSelf ? 'YOU' : from}:</span> ${text}<span class="time">${time}</span>`;
-            messages.appendChild(div);
-            messages.scrollTop = messages.scrollHeight;
+    function buildHeaderFooter() {
+        const pages = [
+            { name: 'dashboard', label: '⌖ Ops Center', href: 'dashboard.html' },
+            { name: 'tools', label: '⚔️ Cyber Tools', href: 'tools.html' },
+            { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
+            { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
+            { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+            { name: 'esim', label: '📱 eSIM', href: 'esim-shop.html' },
+            { name: 'virtual', label: '📞 Virtual Numbers', href: 'virtual-numbers.html' },
+            { name: 'logistics', label: '📦 Logistics', href: 'logistics-tracking.html' },
+            { name: 'blog', label: '💀 Blog', href: 'blog.html' }
+        ];
+        if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'full_admin')) {
+            pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
         }
+        const header = document.getElementById('mainHeader');
+        header.innerHTML = `
+            <div class="logo-area"><img src="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png" class="logo-img"><span class="site-name">GHOST SHELL</span></div>
+            <nav class="nav-links">${pages.map(p => `<button class="nav-link ${p.name === 'chat' ? 'active' : ''}" onclick="window.location.href='${p.href}'">${p.label}</button>`).join('')}</nav>
+            <button class="btn" id="themeToggle">🌓</button>
+            <button class="btn" id="logoutBtn">EXIT</button>
+        `;
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            document.getElementById('themeToggle').textContent = document.body.classList.contains('light') ? '☀️' : '🌓';
+            localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; });
+        
+        const footer = document.getElementById('mainFooter');
+        footer.innerHTML = `
+            <a href="disclaimer.html">⚠️ DISCLAIMER</a> | 
+            <a href="privacy.html">🔒 PRIVACY POLICY</a> | 
+            <a href="agreement.html">📜 EDUCATIONAL AGREEMENT</a> | 
+            <a href="faq.html">❓ FAQ</a><br>
+            <span style="color:#666;">© GHOST SHELL – Tactical Cyber Operations</span>
+        `;
+    }
 
-        sendBtn.addEventListener('click', () => {
-            const msg = input.value.trim();
-            if (msg) {
-                socket.emit('chat message', msg);
-                addMessage('You', msg, true);
-                input.value = '';
+    (async () => {
+        const token = localStorage.getItem('ghost_token');
+        if (!token) { window.location.href = 'index.html'; return; }
+        try {
+            const res = await fetch(`${API}/verify`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            currentUser = data.user;
+            buildHeaderFooter();
+
+            // Chat logic
+            const socket = io();
+            const messages = document.getElementById('chatMessages');
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendChatBtn');
+
+            function addMessage(from, text, isSelf = false) {
+                const div = document.createElement('div');
+                div.className = 'msg';
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                div.innerHTML = `<span class="sender">${isSelf ? 'YOU' : from}:</span> ${text}<span class="time">${time}</span>`;
+                messages.appendChild(div);
+                messages.scrollTop = messages.scrollHeight;
             }
-        });
 
-        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendBtn.click(); });
+            sendBtn.addEventListener('click', () => {
+                const msg = input.value.trim();
+                if (msg) {
+                    socket.emit('chat message', msg);
+                    addMessage('You', msg, true);
+                    input.value = '';
+                }
+            });
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendBtn.click(); });
+            socket.on('chat message', (data) => {
+                addMessage(data.from, data.text);
+                const sound = document.getElementById('chatSound');
+                if (sound) sound.play().catch(e => {});
+            });
+            addMessage('Cipher', 'Perimeter secure. All nodes green.');
+            addMessage('ZeroDay', 'New CVE-2024 dropped. Patching now.');
+        } catch(e) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; }
+    })();
 
-        socket.on('chat message', (data) => {
-            addMessage(data.from, data.text);
-            const sound = document.getElementById('chatSound');
-            if (sound) sound.play().catch(e => {});
-        });
-
-        // Fake initial messages
-        addMessage('Cipher', 'Perimeter secure. All nodes green.');
-        addMessage('ZeroDay', 'New CVE-2024 dropped. Patching now.');
+    // Matrix rain (identical to other pages)
+    (function() {
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, drops = [];
+        const chars = "💀☠️🔪🩸🔥⚡";
+        function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; drops = Array(Math.floor(w/20)).fill(0); }
+        function draw() {
+            ctx.fillStyle = 'rgba(0,0,0,0.07)'; ctx.fillRect(0,0,w,h);
+            ctx.fillStyle = '#aa2a2a'; ctx.font = 'bold 20px monospace';
+            for(let i=0; i<drops.length; i++) { ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*20, drops[i]*22); if(drops[i]*22 > h && Math.random() > 0.98) drops[i] = 0; drops[i]++; }
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('resize', resize); resize(); draw();
     })();
 </script>
-<script src="js/matrix.js"></script>
-<script src="js/common.js"></script>
-<script src="js/chat.js"></script>
 </body>
 </html>
