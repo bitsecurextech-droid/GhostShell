@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
-        /* ---- AI BOT PANEL (unchanged) ---- */
+        /* AI bot panel (unchanged) */
         .ai-bot-btn {
             position: fixed; bottom: 25px; right: 25px;
             width: 60px; height: 60px; border-radius: 50%;
@@ -124,12 +124,16 @@
                 </div>
             </div>
 
-            <!-- Quick actions -->
+            <!-- Quick actions (updated with all service pages) -->
             <div class="quick-actions">
                 <button class="btn quick-btn" data-href="tools.html">⚔️ Cyber Tools</button>
                 <button class="btn quick-btn" data-href="chat.html">💬 Secure Comms</button>
                 <button class="btn quick-btn" data-href="ai.html">🧠 Ask AI</button>
                 <button class="btn quick-btn" data-href="marketplace.html">🛒 Marketplace</button>
+                <button class="btn quick-btn" data-href="esim-shop.html">📱 eSIM Store</button>
+                <button class="btn quick-btn" data-href="virtual-numbers.html">📞 Virtual Numbers</button>
+                <button class="btn quick-btn" data-href="logistics-tracking.html">📦 Logistics</button>
+                <button class="btn quick-btn" data-href="blog.html">💀 Blog</button>
             </div>
         </div>
     </div>
@@ -226,7 +230,7 @@
                 if (!res.ok) { localStorage.removeItem('ghost_token'); window.location.href = 'index.html'; return; }
                 const data = await res.json();
                 currentUser = data.user;
-                buildNav(); // ✅ builds unified header
+                buildNav(); // builds unified header (now includes all service pages)
                 document.getElementById('accessCodeDisplay').textContent = currentUser.accessCode || 'Pending';
                 document.getElementById('threatLevelDisplay').textContent = currentUser.approved ? 'DELTA' : 'PENDING';
                 setInterval(() => { document.getElementById('uplinkSpeed').textContent = (2 + Math.random() * 3).toFixed(1) + ' Gbps'; }, 2000);
@@ -241,7 +245,7 @@
             } catch(e) { window.location.href = 'index.html'; }
         })();
 
-        // ✅ Unified navigation (includes Marketplace and Admin)
+        // ✅ Updated navigation: includes all service pages (eSIM, Virtual Numbers, Logistics)
         function buildNav() {
             const nav = document.getElementById('mainNav');
             const pages = [
@@ -250,9 +254,14 @@
                 { name: 'chat', label: '💬 Secure Comms', href: 'chat.html' },
                 { name: 'ai', label: '🧠 AI Assistant', href: 'ai.html' },
                 { name: 'marketplace', label: '🛒 Marketplace', href: 'marketplace.html' },
+                { name: 'esim', label: '📱 eSIM', href: 'esim-shop.html' },
+                { name: 'virtual', label: '📞 Virtual Numbers', href: 'virtual-numbers.html' },
+                { name: 'logistics', label: '📦 Logistics', href: 'logistics-tracking.html' },
                 { name: 'blog', label: '💀 Blog', href: 'blog.html' }
             ];
-            if (currentUser && currentUser.role === 'admin') pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
+            if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'full_admin')) {
+                pages.push({ name: 'admin', label: '⚙️ Admin', href: 'admin.html' });
+            }
             nav.innerHTML = '';
             pages.forEach(p => {
                 const btn = document.createElement('button');
