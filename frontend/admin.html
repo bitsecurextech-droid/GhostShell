@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GHOST SHELL • ADMIN</title>
+    <title>GHOST SHELL • ADMIN (LOCALSTORAGE)</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="https://res.cloudinary.com/dkomucpin/image/upload/v1778394573/BDJEUqx_zqkyuc.png">
     <style>
@@ -64,7 +64,7 @@
     </header>
 
     <div style="padding:20px;">
-        <h1 style="color:var(--red);">⚙️ ADMIN COMMAND CENTER (LOCAL)</h1>
+        <h1 style="color:var(--red);">⚙️ ADMIN COMMAND CENTER</h1>
         <div class="admin-nav" id="adminNav"></div>
         <div id="sectionsContainer"></div>
     </div>
@@ -72,7 +72,7 @@
 
 <script src="js/matrix.js"></script>
 <script>
-    // ========== LOCALSTORAGE ADMIN (NO BACKEND NEEDED) ==========
+    // ========== LOCALSTORAGE KEYS ==========
     const STORAGE_KEYS = {
         users: 'ghost_users',
         codes: 'ghost_codes',
@@ -85,9 +85,9 @@
         webrequests: 'ghost_webrequests',
         credforms: 'ghost_credforms',
         cloudreqs: 'ghost_cloudreqs',
+        gifts: 'ghost_gifts',
         visitors: 'ghost_visitors',
-        blog: 'ghost_blog',
-        gifts: 'ghost_gifts'
+        blog: 'ghost_blog'
     };
 
     // Initialize default data
@@ -107,25 +107,20 @@
         if (!localStorage.getItem(STORAGE_KEYS.webrequests)) localStorage.setItem(STORAGE_KEYS.webrequests, '[]');
         if (!localStorage.getItem(STORAGE_KEYS.credforms)) localStorage.setItem(STORAGE_KEYS.credforms, '[]');
         if (!localStorage.getItem(STORAGE_KEYS.cloudreqs)) localStorage.setItem(STORAGE_KEYS.cloudreqs, '[]');
+        if (!localStorage.getItem(STORAGE_KEYS.gifts)) localStorage.setItem(STORAGE_KEYS.gifts, JSON.stringify([
+            { id: 'g1', name: '🍕 Pizza Combo', price: 29, description: 'Hot pizza', imageUrl: 'https://via.placeholder.com/150?text=Pizza' }
+        ]));
         if (!localStorage.getItem(STORAGE_KEYS.visitors)) localStorage.setItem(STORAGE_KEYS.visitors, JSON.stringify([
             { ip: '127.0.0.1', time: new Date().toISOString(), page: '/admin.html' }
         ]));
         if (!localStorage.getItem(STORAGE_KEYS.blog)) localStorage.setItem(STORAGE_KEYS.blog, '[]');
-        if (!localStorage.getItem(STORAGE_KEYS.gifts)) localStorage.setItem(STORAGE_KEYS.gifts, JSON.stringify([
-            { id: 'g1', name: '🍕 Pizza Combo', price: 29, description: 'Hot pizza delivered in 45min', imageUrl: 'https://via.placeholder.com/150?text=Pizza' },
-            { id: 'g2', name: '💐 Flower Bouquet', price: 45, description: 'Fresh roses, same day delivery', imageUrl: 'https://via.placeholder.com/150?text=Flowers' },
-            { id: 'g3', name: '💍 Engagement Ring', price: 199, description: 'Elegant ring with gift box', imageUrl: 'https://via.placeholder.com/150?text=Ring' },
-            { id: 'g4', name: '🖼️ Personalized Frame', price: 35, description: 'Custom engraving available', imageUrl: 'https://via.placeholder.com/150?text=Frame' },
-            { id: 'g5', name: '🧸 Plush Teddy Bear', price: 25, description: 'Soft, huggable bear', imageUrl: 'https://via.placeholder.com/150?text=Teddy' },
-            { id: 'g6', name: '🎁 Custom Gift Basket', price: 75, description: 'Pick your own items', imageUrl: 'https://via.placeholder.com/150?text=Gift' }
-        ]));
     }
     initData();
 
     function get(key) { return JSON.parse(localStorage.getItem(key)); }
     function set(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
-    // -------------------- LOGIN (using localStorage) --------------------
+    // -------------------- LOGIN --------------------
     function login(email, password) {
         const users = get(STORAGE_KEYS.users);
         const user = users.find(u => u.email === email && u.password === password && (u.role === 'full_admin' || u.role === 'admin'));
@@ -136,14 +131,8 @@
         return false;
     }
 
-    function isLoggedIn() {
-        return !!localStorage.getItem('adminLocal');
-    }
-
-    function logout() {
-        localStorage.removeItem('adminLocal');
-        window.location.reload();
-    }
+    function isLoggedIn() { return !!localStorage.getItem('adminLocal'); }
+    function logout() { localStorage.removeItem('adminLocal'); window.location.reload(); }
 
     // -------------------- HEADER & THEME --------------------
     function buildHeaderNav() {
@@ -190,7 +179,7 @@
         buildAdminUI();
     }
 
-    // -------------------- BUILD ADMIN UI (CRUD) --------------------
+    // ==================== BUILD ADMIN UI (ALL SECTIONS WITH WORKING ADD BUTTONS) ====================
     function buildAdminUI() {
         const sections = ['users', 'codes', 'payments', 'tools', 'websites', 'esim', 'logistics', 'virtualnums', 'webrequest', 'credform', 'cloudreq', 'gifts', 'visitors', 'blog'];
         const labels = {
@@ -229,12 +218,12 @@
             <div id="section-webrequest" class="admin-section"><div class="card"><h2>🌍 Web Requests</h2><button class="btn" id="addWebReqBtn">+ Add</button><div id="webReqsTable"></div></div><div id="webReqModal" class="modal"><h3>Request</h3><input id="webClient" placeholder="Client"><input id="webEmail" placeholder="Email"><input id="webType" placeholder="Type"><textarea id="webReqs" rows="3" placeholder="Requirements"></textarea><input id="webBudget" type="number" placeholder="Budget"><button class="btn" id="saveWebReqBtn">Save</button><button class="btn" id="cancelWebReqBtn">Cancel</button><input type="hidden" id="editingWebReqId"></div></div>
             <div id="section-credform" class="admin-section"><div class="card"><h2>📝 Cred Forms</h2><button class="btn" id="addCredFormBtn">+ Add</button><div id="credFormsTable"></div></div><div id="credFormModal" class="modal"><h3>Form</h3><input id="formName" placeholder="Name"><textarea id="formFields" rows="4" placeholder='[{"label":"Name","type":"text"}]'></textarea><button class="btn" id="saveCredFormBtn">Save</button><button class="btn" id="cancelCredFormBtn">Cancel</button><input type="hidden" id="editingCredFormId"></div></div>
             <div id="section-cloudreq" class="admin-section"><div class="card"><h2>☁️ Cloud/Domain Reqs</h2><button class="btn" id="addCloudReqBtn">+ Add</button><div id="cloudReqsTable"></div></div><div id="cloudReqModal" class="modal"><h3>Request</h3><input id="cloudCustomer" placeholder="Customer"><input id="cloudEmail" placeholder="Email"><select id="cloudService"><option>Domain</option><option>Hosting</option><option>VPS</option><option>SSL</option></select><input id="cloudDomain" placeholder="Domain"><textarea id="cloudDetails" rows="3"></textarea><button class="btn" id="saveCloudReqBtn">Save</button><button class="btn" id="cancelCloudReqBtn">Cancel</button><input type="hidden" id="editingCloudReqId"></div></div>
-            <div id="section-gifts" class="admin-section"><div class="card"><h2>🎁 Gifts (for Logistics Store)</h2><button class="btn" id="addGiftBtn">+ Add Gift</button><div id="giftsTable"></div></div><div id="giftModal" class="modal"><h3>Gift</h3><input id="giftName" placeholder="Name"><textarea id="giftDesc" rows="2" placeholder="Description"></textarea><input id="giftPrice" type="number" placeholder="Price"><input id="giftImageUrl" placeholder="Image URL"><button class="btn" id="saveGiftBtn">Save</button><button class="btn" id="cancelGiftBtn">Cancel</button><input type="hidden" id="editingGiftId"></div></div>
+            <div id="section-gifts" class="admin-section"><div class="card"><h2>🎁 Gifts</h2><button class="btn" id="addGiftBtn">+ Add Gift</button><div id="giftsTable"></div></div><div id="giftModal" class="modal"><h3>Gift</h3><input id="giftName" placeholder="Name"><textarea id="giftDesc" rows="2" placeholder="Description"></textarea><input id="giftPrice" type="number" placeholder="Price"><input id="giftImageUrl" placeholder="Image URL"><button class="btn" id="saveGiftBtn">Save</button><button class="btn" id="cancelGiftBtn">Cancel</button><input type="hidden" id="editingGiftId"></div></div>
             <div id="section-visitors" class="admin-section"><div class="card"><h2>🌍 Visitors</h2><div id="visitorsTable"></div></div></div>
             <div id="section-blog" class="admin-section"><div class="card"><h2>📝 Blog Posts</h2><button class="btn" id="addPostBtn">+ Add</button><div id="blogTable"></div></div><div id="blogModal" class="modal"><h3>Post</h3><input id="postTitle" placeholder="Title"><textarea id="postContent" rows="8" placeholder="HTML content"></textarea><button class="btn" id="savePostBtn">Save</button><button class="btn" id="cancelPostBtn">Cancel</button><input type="hidden" id="editingPostId"></div></div>
         `;
 
-        attachModalListeners();
+        attachAllEventListeners();
         refreshSection('users');
         const firstTab = document.querySelector('.admin-nav-btn');
         if (firstTab) firstTab.classList.add('active');
@@ -257,9 +246,9 @@
         if (section === 'blog') renderBlog();
     }
 
-    // -------------------- RENDER FUNCTIONS (all localStorage) --------------------
+    // ==================== RENDER FUNCTIONS ====================
     function renderUsers() {
-        let users = get(STORAGE_KEYS.users);
+        const users = get(STORAGE_KEYS.users);
         let html = '<table class="admin-table"><thead><tr><th>Email</th><th>Role</th><th>Actions</th></tr></thead><tbody>';
         users.forEach(u => {
             html += `<tr>
@@ -273,17 +262,9 @@
     }
     window.deleteUser = (id) => { let users = get(STORAGE_KEYS.users).filter(u => u.id !== id); set(STORAGE_KEYS.users, users); renderUsers(); };
     window.promoteUser = (id) => { let users = get(STORAGE_KEYS.users); let idx = users.findIndex(u => u.id === id); if(idx!==-1) users[idx].role = 'full_admin'; set(STORAGE_KEYS.users, users); renderUsers(); };
-    document.getElementById('addUserBtn')?.addEventListener('click', () => {
-        let email = prompt('Email:'); if(!email) return;
-        let password = prompt('Password:');
-        let users = get(STORAGE_KEYS.users);
-        users.push({ id: Date.now().toString(), email, password, role: 'user', createdAt: new Date().toISOString() });
-        set(STORAGE_KEYS.users, users);
-        renderUsers();
-    });
 
     function renderCodes() {
-        let codes = get(STORAGE_KEYS.codes);
+        const codes = get(STORAGE_KEYS.codes);
         let html = '<table class="admin-table"><thead><tr><th>Code</th><th>Created</th><th>Action</th></tr></thead><tbody>';
         codes.forEach(c => {
             html += `<tr>
@@ -292,19 +273,13 @@
                         <td><button class="btn" onclick="revokeCode('${c.code}')">Revoke</button></td>
                     </tr>`;
         });
-        html += '</tbody></td>';
+        html += '</tbody></table>';
         document.getElementById('codesTable').innerHTML = html;
     }
     window.revokeCode = (code) => { let codes = get(STORAGE_KEYS.codes).filter(c => c.code !== code); set(STORAGE_KEYS.codes, codes); renderCodes(); };
-    document.getElementById('genCodesBtn')?.addEventListener('click', () => {
-        let codes = get(STORAGE_KEYS.codes);
-        for(let i=0; i<50; i++) codes.push({ code: 'GHOST-' + Math.random().toString(36).substring(2,10).toUpperCase(), createdAt: new Date().toISOString() });
-        set(STORAGE_KEYS.codes, codes);
-        renderCodes();
-    });
 
     function renderPayments() {
-        let payments = get(STORAGE_KEYS.payments);
+        const payments = get(STORAGE_KEYS.payments);
         let html = '<table class="admin-table"><thead><tr><th>User</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody>';
         payments.forEach(p => {
             html += `<tr>
@@ -314,21 +289,15 @@
                         <td><button class="btn" onclick="approvePayment('${p.id}')">Approve</button> <button class="btn" onclick="deletePayment('${p.id}')">Delete</button></td>
                     </tr>`;
         });
-        html += '</tbody></td>';
+        html += '</tbody></tr>';
         document.getElementById('paymentsTable').innerHTML = html;
     }
     window.approvePayment = (id) => { let payments = get(STORAGE_KEYS.payments); let idx = payments.findIndex(p=>p.id===id); if(idx!==-1) payments[idx].status = 'approved'; set(STORAGE_KEYS.payments, payments); renderPayments(); };
     window.deletePayment = (id) => { let payments = get(STORAGE_KEYS.payments).filter(p=>p.id!==id); set(STORAGE_KEYS.payments, payments); renderPayments(); };
-    document.getElementById('addPaymentBtn')?.addEventListener('click', () => {
-        let payments = get(STORAGE_KEYS.payments);
-        payments.push({ id: Date.now().toString(), userId: 'guest', amount: 99, status: 'pending' });
-        set(STORAGE_KEYS.payments, payments);
-        renderPayments();
-    });
 
     function renderTools() {
-        let tools = get(STORAGE_KEYS.tools);
-        let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody>';
+        const tools = get(STORAGE_KEYS.tools);
+        let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Price</th><th>Actions</th><tr></thead><tbody>';
         tools.forEach(t => {
             html += `<tr>
                         <td>${t.name}</td>
@@ -336,12 +305,12 @@
                         <td><button class="btn" onclick="editTool('${t.id}')">Edit</button> <button class="btn" onclick="deleteTool('${t.id}')">Delete</button></td>
                     </tr>`;
         });
-        html += '</tbody><tr>';
+        html += '</tbody></table>';
         document.getElementById('toolsTable').innerHTML = html;
     }
     window.editTool = (id) => {
-        let tools = get(STORAGE_KEYS.tools);
-        let t = tools.find(t=>t.id===id);
+        const tools = get(STORAGE_KEYS.tools);
+        const t = tools.find(t=>t.id===id);
         if(t){
             document.getElementById('toolName').value = t.name;
             document.getElementById('toolPrice').value = t.price;
@@ -352,160 +321,637 @@
         }
     };
     window.deleteTool = (id) => { let tools = get(STORAGE_KEYS.tools).filter(t=>t.id!==id); set(STORAGE_KEYS.tools, tools); renderTools(); };
-    document.getElementById('addToolBtn')?.addEventListener('click', () => {
-        document.getElementById('toolModal').style.display = 'block';
-        document.getElementById('editingToolId').value = '';
-        document.getElementById('toolName').value = '';
-        document.getElementById('toolPrice').value = '';
-        document.getElementById('toolDiscount').value = '';
-        document.getElementById('toolDownload').value = '';
-    });
-    document.getElementById('saveToolBtn')?.addEventListener('click', () => {
-        let id = document.getElementById('editingToolId').value;
-        let data = {
-            name: document.getElementById('toolName').value,
-            price: parseFloat(document.getElementById('toolPrice').value),
-            discount: parseInt(document.getElementById('toolDiscount').value)||0,
-            download: document.getElementById('toolDownload').value
-        };
-        if(!data.name) return alert('Name required');
-        let tools = get(STORAGE_KEYS.tools);
-        if(id){
-            let idx = tools.findIndex(t=>t.id===id);
-            if(idx!==-1) tools[idx] = {...tools[idx], ...data};
-        } else {
-            data.id = Date.now().toString();
-            tools.push(data);
-        }
-        set(STORAGE_KEYS.tools, tools);
-        document.getElementById('toolModal').style.display = 'none';
-        renderTools();
-    });
-    document.getElementById('cancelToolBtn')?.addEventListener('click', () => document.getElementById('toolModal').style.display = 'none');
 
-    // Generic CRUD for other sections (websites, esim, logistics, virtualnums, webrequests, credforms, cloudreqs, gifts, blog)
-    function createCRUD(storageKey, renderFn, modalId, fieldMapping, idField) {
-        window[`edit_${storageKey}`] = (id) => {
-            let items = get(storageKey);
-            let item = items.find(i=>i.id===id);
-            if(item){
-                for(let [fieldId, prop] of Object.entries(fieldMapping)){
-                    let el = document.getElementById(fieldId);
-                    if(el) el.value = item[prop] !== undefined ? item[prop] : '';
-                }
-                document.getElementById(idField).value = id;
-                document.getElementById(modalId).style.display = 'block';
-            }
-        };
-        window[`delete_${storageKey}`] = (id) => { set(storageKey, get(storageKey).filter(i=>i.id!==id)); renderFn(); };
-        document.getElementById(`add${modalId.replace('Modal','')}Btn`)?.addEventListener('click', () => {
-            for(let [fieldId] of Object.entries(fieldMapping)) document.getElementById(fieldId).value = '';
-            document.getElementById(idField).value = '';
-            document.getElementById(modalId).style.display = 'block';
-        });
-        document.getElementById(`save${modalId.replace('Modal','')}Btn`)?.addEventListener('click', () => {
-            let id = document.getElementById(idField).value;
-            let data = {};
-            for(let [fieldId, prop] of Object.entries(fieldMapping)){
-                let val = document.getElementById(fieldId).value;
-                if(prop === 'price' || prop === 'budget' || prop === 'weight') val = parseFloat(val) || 0;
-                data[prop] = val;
-            }
-            if(!data.name && !data.domain && !data.number && !data.client && !data.customer && !data.title) return alert('Please fill required fields');
-            let items = get(storageKey);
-            if(id){
-                let idx = items.findIndex(i=>i.id===id);
-                if(idx!==-1) items[idx] = {...items[idx], ...data};
-            } else {
-                data.id = Date.now().toString();
-                items.push(data);
-            }
-            set(storageKey, items);
-            document.getElementById(modalId).style.display = 'none';
-            renderFn();
-        });
-        document.getElementById(`cancel${modalId.replace('Modal','')}Btn`)?.addEventListener('click', () => document.getElementById(modalId).style.display = 'none');
-    }
-
-    function renderWebsites() { let items = get(STORAGE_KEYS.websites); let html = '<table class="admin-table"><thead><tr><th>Domain</th><th>Title</th><th>Price</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr>
- 
+    function renderWebsites() {
+        const items = get(STORAGE_KEYS.websites);
+        let html = '<table class="admin-table"><thead><tr><th>Domain</th><th>Title</th><th>Price</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => {
+            html += `<tr>
                         <td>${i.domain}</td>
                         <td>${i.title}</td>
                         <td>$${i.price}</td>
-                        <td><button class="btn" onclick="edit_websites('${i.id}')">Edit</button> <button class="btn" onclick="delete_websites('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody><table>'; document.getElementById('websitesTable').innerHTML = html; }
-    function renderEsim() { let items = get(STORAGE_KEYS.esim); let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Duration</th><th>Price</th><th>Data</th><th>Voice</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr>
- 
+                        <td><button class="btn" onclick="editWebsite('${i.id}')">Edit</button> <button class="btn" onclick="deleteWebsite('${i.id}')">Delete</button></td>
+                    </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('websitesTable').innerHTML = html;
+    }
+    window.editWebsite = (id) => {
+        const items = get(STORAGE_KEYS.websites);
+        const i = items.find(i => i.id === id);
+        if(i){
+            document.getElementById('websiteDomain').value = i.domain;
+            document.getElementById('websiteTitle').value = i.title;
+            document.getElementById('websitePrice').value = i.price;
+            document.getElementById('editingWebsiteId').value = id;
+            document.getElementById('websiteModal').style.display = 'block';
+        }
+    };
+    window.deleteWebsite = (id) => { let items = get(STORAGE_KEYS.websites).filter(i => i.id !== id); set(STORAGE_KEYS.websites, items); renderWebsites(); };
+
+    function renderEsim() {
+        const items = get(STORAGE_KEYS.esim);
+        let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Duration</th><th>Price</th><th>Data</th><th>Voice</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => {
+            html += `<tr>
                         <td>${i.name}</td>
                         <td>${i.duration}</td>
                         <td>$${i.price}</td>
                         <td>${i.data}</td>
                         <td>${i.voice}</td>
-                        <td><button class="btn" onclick="edit_esim('${i.id}')">Edit</button> <button class="btn" onclick="delete_esim('${i.id}')">Delete</button></div></td></tr>`; }); html += '</tbody></table>'; document.getElementById('esimTable').innerHTML = html; }
-    function renderLogistics() { let items = get(STORAGE_KEYS.logistics); let html = '<table class="admin-table"><thead><tr><th>Sender</th><th>Receiver</th><th>Address</th><th>Package</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr>
- 
+                        <td><button class="btn" onclick="editEsim('${i.id}')">Edit</button> <button class="btn" onclick="deleteEsim('${i.id}')">Delete</button></td>
+                    </tr>`;
+        });
+        html += '</tbody></tr>';
+        document.getElementById('esimTable').innerHTML = html;
+    }
+    window.editEsim = (id) => {
+        const items = get(STORAGE_KEYS.esim);
+        const i = items.find(i => i.id === id);
+        if(i){
+            document.getElementById('esimName').value = i.name;
+            document.getElementById('esimDuration').value = i.duration;
+            document.getElementById('esimPrice').value = i.price;
+            document.getElementById('esimData').value = i.data;
+            document.getElementById('esimVoice').value = i.voice;
+            document.getElementById('editingEsimId').value = id;
+            document.getElementById('esimModal').style.display = 'block';
+        }
+    };
+    window.deleteEsim = (id) => { let items = get(STORAGE_KEYS.esim).filter(i => i.id !== id); set(STORAGE_KEYS.esim, items); renderEsim(); };
+
+    function renderLogistics() {
+        const items = get(STORAGE_KEYS.logistics);
+        let html = '<table class="admin-table"><thead><tr><th>Sender</th><th>Receiver</th><th>Address</th><th>Package</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => {
+            html += `<tr>
                         <td>${i.sender}</td>
                         <td>${i.receiver}</td>
                         <td>${i.address}</td>
                         <td>${i.package}</td>
                         <td>$${i.price}</td>
                         <td>${i.status}</td>
-                        <td><button class="btn" onclick="edit_logistics('${i.id}')">Edit</button> <button class="btn" onclick="delete_logistics('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody><table>'; document.getElementById('logisticsTable').innerHTML = html; }
-    function renderVirtual() { let items = get(STORAGE_KEYS.virtualnums); let html = '<table class="admin-table"><thead><tr><th>Number</th><th>Country</th><th>Service</th><th>Price</th><th>Partner</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr>
- 
+                        <td><button class="btn" onclick="editLogistics('${i.id}')">Edit</button> <button class="btn" onclick="deleteLogistics('${i.id}')">Delete</button></td>
+                    </tr>`;
+        });
+        html += '</tbody></tr>';
+        document.getElementById('logisticsTable').innerHTML = html;
+    }
+    window.editLogistics = (id) => {
+        const items = get(STORAGE_KEYS.logistics);
+        const i = items.find(i => i.id === id);
+        if(i){
+            document.getElementById('logSender').value = i.sender;
+            document.getElementById('logReceiver').value = i.receiver;
+            document.getElementById('logAddress').value = i.address;
+            document.getElementById('logPackage').value = i.package;
+            document.getElementById('logWeight').value = i.weight;
+            document.getElementById('logPrice').value = i.price;
+            document.getElementById('logStatus').value = i.status;
+            document.getElementById('editingLogisticsId').value = id;
+            document.getElementById('logisticsModal').style.display = 'block';
+        }
+    };
+    window.deleteLogistics = (id) => { let items = get(STORAGE_KEYS.logistics).filter(i => i.id !== id); set(STORAGE_KEYS.logistics, items); renderLogistics(); };
+
+    function renderVirtual() {
+        const items = get(STORAGE_KEYS.virtualnums);
+        let html = '<table class="admin-table"><thead><tr><th>Number</th><th>Country</th><th>Service</th><th>Price</th><th>Partner</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => {
+            html += `<tr>
                         <td>${i.number}</td>
                         <td>${i.country}</td>
                         <td>${i.service}</td>
                         <td>$${i.price}</td>
                         <td>${i.partner}</td>
-                        <td><button class="btn" onclick="edit_virtualnums('${i.id}')">Edit</button> <button class="btn" onclick="delete_virtualnums('${i.id}')">Delete</button></div></td></tr>`; }); html += '</tbody><tr>'; document.getElementById('virtualTable').innerHTML = html; }
-    function renderWebReqs() { let items = get(STORAGE_KEYS.webrequests); let html = '<table class="admin-table"><thead><tr><th>Client</th><th>Email</th><th>Type</th><th>Budget</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr>
- 
+                        <td><button class="btn" onclick="editVirtual('${i.id}')">Edit</button> <button class="btn" onclick="deleteVirtual('${i.id}')">Delete</button></td>
+                    </tr>`;
+        });
+        html += '</tbody></tr>';
+        document.getElementById('virtualTable').innerHTML = html;
+    }
+    window.editVirtual = (id) => {
+        const items = get(STORAGE_KEYS.virtualnums);
+        const i = items.find(i => i.id === id);
+        if(i){
+            document.getElementById('virtualNumber').value = i.number;
+            document.getElementById('virtualCountry').value = i.country;
+            document.getElementById('virtualService').value = i.service;
+            document.getElementById('virtualPrice').value = i.price;
+            document.getElementById('virtualPartner').value = i.partner;
+            document.getElementById('editingVirtualId').value = id;
+            document.getElementById('virtualModal').style.display = 'block';
+        }
+    };
+    window.deleteVirtual = (id) => { let items = get(STORAGE_KEYS.virtualnums).filter(i => i.id !== id); set(STORAGE_KEYS.virtualnums, items); renderVirtual(); };
+
+    function renderWebReqs() {
+        const items = get(STORAGE_KEYS.webrequests);
+        let html = '<table class="admin-table"><thead><tr><th>Client</th><th>Email</th><th>Type</th><th>Budget</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => {
+            html += `<tr>
                         <td>${i.client}</td>
                         <td>${i.email}</td>
                         <td>${i.type}</td>
                         <td>$${i.budget}</td>
-                        <td><button class="btn" onclick="edit_webrequests('${i.id}')">Edit</button> <button class="btn" onclick="delete_webrequests('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('webReqsTable').innerHTML = html; }
-    function renderCredForms() { let items = get(STORAGE_KEYS.credforms); let html = '<table class="admin-table"><thead></td><th>Name</th><th>Fields Preview</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr>
- 
+                        <td><button class="btn" onclick="editWebReq('${i.id}')">Edit</button> <button class="btn" onclick="deleteWebReq('${i.id}')">Delete</button></td>
+                    </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('webReqsTable').innerHTML = html;
+    }
+    window.editWebReq = (id) => {
+        const items = get(STORAGE_KEYS.webrequests);
+        const i = items.find(i => i.id === id);
+        if(i){
+            document.getElementById('webClient').value = i.client;
+            document.getElementById('webEmail').value = i.email;
+            document.getElementById('webType').value = i.type;
+            document.getElementById('webReqs').value = i.requirements;
+            document.getElementById('webBudget').value = i.budget;
+            document.getElementById('editingWebReqId').value = id;
+            document.getElementById('webReqModal').style.display = 'block';
+        }
+    };
+    window.deleteWebReq = (id) => { let items = get(STORAGE_KEYS.webrequests).filter(i => i.id !== id); set(STORAGE_KEYS.webrequests, items); renderWebReqs(); };
+
+    function renderCredForms() {
+        const items = get(STORAGE_KEYS.credforms);
+        let html = '<table class="admin-table"><thead><tr><th>Name</th><th>Fields Preview</th><th>Actions</th><tr></thead><tbody>';
+        items.forEach(i => {
+            html += `<tr>
                         <td>${i.name}</td>
                         <td>${i.fields.substring(0,50)}...</td>
-                        <td><button class="btn" onclick="edit_credforms('${i.id}')">Edit</button> <button class="btn" onclick="delete_credforms('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody><tr>'; document.getElementById('credFormsTable').innerHTML = html; }
-    function renderCloudReqs() { let items = get(STORAGE_KEYS.cloudreqs); let html = '<table class="admin-table"><thead><tr><th>Customer</th><th>Service</th><th>Domain</th><th>Telegram</th><th>Actions</th></tr></thead><tbody>'; items.forEach(i => { html += `<tr>
- 
+                        <td><button class="btn" onclick="editCredForm('${i.id}')">Edit</button> <button class="btn" onclick="deleteCredForm('${i.id}')">Delete</button></td>
+                    </tr>`;
+        });
+        html += '</tbody><tr>';
+        document.getElementById('credFormsTable').innerHTML = html;
+    }
+    window.editCredForm = (id) => {
+        const items = get(STORAGE_KEYS.credforms);
+        const i = items.find(i => i.id === id);
+        if(i){
+            document.getElementById('formName').value = i.name;
+            document.getElementById('formFields').value = i.fields;
+            document.getElementById('editingCredFormId').value = id;
+            document.getElementById('credFormModal').style.display = 'block';
+        }
+    };
+    window.deleteCredForm = (id) => { let items = get(STORAGE_KEYS.credforms).filter(i => i.id !== id); set(STORAGE_KEYS.credforms, items); renderCredForms(); };
+
+    function renderCloudReqs() {
+        const items = get(STORAGE_KEYS.cloudreqs);
+        let html = '<table class="admin-table"><thead><tr><th>Customer</th><th>Service</th><th>Domain</th><th>Telegram</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => {
+            html += `</td>
                         <td>${i.customer}</td>
                         <td>${i.serviceType}</td>
                         <td>${i.domain}</td>
                         <td>${i.sentToTelegram ? '✅' : '❌'}</td>
-                        <td><button class="btn" onclick="edit_cloudreqs('${i.id}')">Edit</button> <button class="btn" onclick="delete_cloudreqs('${i.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('cloudReqsTable').innerHTML = html; }
-    function renderGifts() { let items = get(STORAGE_KEYS.gifts); let html = '<table class="admin-table"><thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Actions</th><tr></thead><tbody>'; items.forEach(i => { html += `<tr>
+                        <td><button class="btn" onclick="editCloudReq('${i.id}')">Edit</button> <button class="btn" onclick="deleteCloudReq('${i.id}')">Delete</button></td>
+                    </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('cloudReqsTable').innerHTML = html;
+    }
+    window.editCloudReq = (id) => {
+        const items = get(STORAGE_KEYS.cloudreqs);
+        const i = items.find(i => i.id === id);
+        if(i){
+            document.getElementById('cloudCustomer').value = i.customer;
+            document.getElementById('cloudEmail').value = i.email;
+            document.getElementById('cloudService').value = i.serviceType;
+            document.getElementById('cloudDomain').value = i.domain;
+            document.getElementById('cloudDetails').value = i.details;
+            document.getElementById('editingCloudReqId').value = id;
+            document.getElementById('cloudReqModal').style.display = 'block';
+        }
+    };
+    window.deleteCloudReq = (id) => { let items = get(STORAGE_KEYS.cloudreqs).filter(i => i.id !== id); set(STORAGE_KEYS.cloudreqs, items); renderCloudReqs(); };
+
+    function renderGifts() {
+        const items = get(STORAGE_KEYS.gifts);
+        let html = '<table class="admin-table"><thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(i => {
+            html += `<tr>
                         <td>${i.imageUrl ? `<img src="${i.imageUrl}" style="width:40px; height:40px; object-fit:cover;">` : '—'}</td>
                         <td>${i.name}</td>
                         <td>$${i.price}</td>
-                        <td><button class="btn" onclick="edit_gifts('${i.id}')">Edit</button> <button class="btn" onclick="delete_gifts('${i.id}')">Delete</button></td>
-                    </tr>`; }); html += '</tbody></table>'; document.getElementById('giftsTable').innerHTML = html; }
-    function renderVisitors() { let items = get(STORAGE_KEYS.visitors); let html = '<table class="admin-table"><thead><tr><th>IP</th><th>Time</th><th>Page</th></tr></thead><tbody>'; items.forEach(v => { html += `<tr>
- 
+                        <td><button class="btn" onclick="editGift('${i.id}')">Edit</button> <button class="btn" onclick="deleteGift('${i.id}')">Delete</button></td>
+                    </tr>`;
+        });
+        html += '</tbody><tr>';
+        document.getElementById('giftsTable').innerHTML = html;
+    }
+    window.editGift = (id) => {
+        const items = get(STORAGE_KEYS.gifts);
+        const i = items.find(i => i.id === id);
+        if(i){
+            document.getElementById('giftName').value = i.name;
+            document.getElementById('giftDesc').value = i.description || '';
+            document.getElementById('giftPrice').value = i.price;
+            document.getElementById('giftImageUrl').value = i.imageUrl || '';
+            document.getElementById('editingGiftId').value = id;
+            document.getElementById('giftModal').style.display = 'block';
+        }
+    };
+    window.deleteGift = (id) => { let items = get(STORAGE_KEYS.gifts).filter(i => i.id !== id); set(STORAGE_KEYS.gifts, items); renderGifts(); };
+
+    function renderVisitors() {
+        const items = get(STORAGE_KEYS.visitors);
+        let html = '<table class="admin-table"><thead><tr><th>IP</th><th>Time</th><th>Page</th></tr></thead><tbody>';
+        items.forEach(v => {
+            html += `<tr>
                         <td>${v.ip}</td>
                         <td>${new Date(v.time).toLocaleString()}</td>
                         <td>${v.page}</td>
-                    </tr>`; }); html += '</tbody></table>'; document.getElementById('visitorsTable').innerHTML = html; }
-    function renderBlog() { let items = get(STORAGE_KEYS.blog); let html = '<table class="admin-table"><thead><tr><th>Title</th><th>Date</th><th>Actions</th></tr></thead><tbody>'; items.forEach(p => { html += `<tr>
- 
+                    </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('visitorsTable').innerHTML = html;
+    }
+
+    function renderBlog() {
+        const items = get(STORAGE_KEYS.blog);
+        let html = '<table class="admin-table"><thead><tr><th>Title</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
+        items.forEach(p => {
+            html += `<tr>
                         <td>${p.title}</td>
                         <td>${new Date(p.createdAt).toLocaleDateString()}</td>
-                        <td><button class="btn" onclick="edit_blog('${p.id}')">Edit</button> <button class="btn" onclick="delete_blog('${p.id}')">Delete</button></td></tr>`; }); html += '</tbody></table>'; document.getElementById('blogTable').innerHTML = html; }
+                        <td><button class="btn" onclick="editPost('${p.id}')">Edit</button> <button class="btn" onclick="deletePost('${p.id}')">Delete</button></td>
+                    </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('blogTable').innerHTML = html;
+    }
+    window.editPost = (id) => {
+        const items = get(STORAGE_KEYS.blog);
+        const p = items.find(i => i.id === id);
+        if(p){
+            document.getElementById('postTitle').value = p.title;
+            document.getElementById('postContent').value = p.content;
+            document.getElementById('editingPostId').value = id;
+            document.getElementById('blogModal').style.display = 'block';
+        }
+    };
+    window.deletePost = (id) => { let items = get(STORAGE_KEYS.blog).filter(i => i.id !== id); set(STORAGE_KEYS.blog, items); renderBlog(); };
 
-    createCRUD(STORAGE_KEYS.websites, renderWebsites, 'websiteModal', { websiteDomain:'domain', websiteTitle:'title', websitePrice:'price' }, 'editingWebsiteId');
-    createCRUD(STORAGE_KEYS.esim, renderEsim, 'esimModal', { esimName:'name', esimDuration:'duration', esimPrice:'price', esimData:'data', esimVoice:'voice' }, 'editingEsimId');
-    createCRUD(STORAGE_KEYS.logistics, renderLogistics, 'logisticsModal', { logSender:'sender', logReceiver:'receiver', logAddress:'address', logPackage:'package', logWeight:'weight', logPrice:'price', logStatus:'status' }, 'editingLogisticsId');
-    createCRUD(STORAGE_KEYS.virtualnums, renderVirtual, 'virtualModal', { virtualNumber:'number', virtualCountry:'country', virtualService:'service', virtualPrice:'price', virtualPartner:'partner' }, 'editingVirtualId');
-    createCRUD(STORAGE_KEYS.webrequests, renderWebReqs, 'webReqModal', { webClient:'client', webEmail:'email', webType:'type', webReqs:'requirements', webBudget:'budget' }, 'editingWebReqId');
-    createCRUD(STORAGE_KEYS.credforms, renderCredForms, 'credFormModal', { formName:'name', formFields:'fields' }, 'editingCredFormId');
-    createCRUD(STORAGE_KEYS.cloudreqs, renderCloudReqs, 'cloudReqModal', { cloudCustomer:'customer', cloudEmail:'email', cloudService:'serviceType', cloudDomain:'domain', cloudDetails:'details' }, 'editingCloudReqId');
-    createCRUD(STORAGE_KEYS.gifts, renderGifts, 'giftModal', { giftName:'name', giftDesc:'description', giftPrice:'price', giftImageUrl:'imageUrl' }, 'editingGiftId');
-    createCRUD(STORAGE_KEYS.blog, renderBlog, 'blogModal', { postTitle:'title', postContent:'content' }, 'editingPostId');
+    // ==================== ADD BUTTON HANDLERS (ALL WORKING) ====================
+    function attachAllEventListeners() {
+        // Users
+        document.getElementById('addUserBtn')?.addEventListener('click', () => {
+            let email = prompt('Email:'); if(!email) return;
+            let password = prompt('Password:');
+            let users = get(STORAGE_KEYS.users);
+            users.push({ id: Date.now().toString(), email, password, role: 'user', createdAt: new Date().toISOString() });
+            set(STORAGE_KEYS.users, users);
+            renderUsers();
+        });
 
-    function attachModalListeners() {
+        // Codes
+        document.getElementById('genCodesBtn')?.addEventListener('click', () => {
+            let codes = get(STORAGE_KEYS.codes);
+            for(let i=0; i<50; i++) codes.push({ code: 'GHOST-' + Math.random().toString(36).substring(2,10).toUpperCase(), createdAt: new Date().toISOString() });
+            set(STORAGE_KEYS.codes, codes);
+            renderCodes();
+        });
+
+        // Payments
+        document.getElementById('addPaymentBtn')?.addEventListener('click', () => {
+            let payments = get(STORAGE_KEYS.payments);
+            payments.push({ id: Date.now().toString(), userId: 'guest', amount: 99, status: 'pending' });
+            set(STORAGE_KEYS.payments, payments);
+            renderPayments();
+        });
+
+        // Tools
+        document.getElementById('addToolBtn')?.addEventListener('click', () => {
+            document.getElementById('toolModal').style.display = 'block';
+            document.getElementById('editingToolId').value = '';
+            document.getElementById('toolName').value = '';
+            document.getElementById('toolPrice').value = '';
+            document.getElementById('toolDiscount').value = '';
+            document.getElementById('toolDownload').value = '';
+        });
+        document.getElementById('saveToolBtn')?.addEventListener('click', () => {
+            const id = document.getElementById('editingToolId').value;
+            const data = {
+                name: document.getElementById('toolName').value,
+                price: parseFloat(document.getElementById('toolPrice').value),
+                discount: parseInt(document.getElementById('toolDiscount').value)||0,
+                download: document.getElementById('toolDownload').value,
+                id: id || Date.now().toString()
+            };
+            if(!data.name) return alert('Name required');
+            let tools = get(STORAGE_KEYS.tools);
+            if(id){
+                let idx = tools.findIndex(t=>t.id===id);
+                if(idx!==-1) tools[idx] = data;
+            } else {
+                tools.push(data);
+            }
+            set(STORAGE_KEYS.tools, tools);
+            document.getElementById('toolModal').style.display = 'none';
+            renderTools();
+        });
+        document.getElementById('cancelToolBtn')?.addEventListener('click', () => document.getElementById('toolModal').style.display = 'none');
+
+        // Websites
+        document.getElementById('addWebsiteBtn')?.addEventListener('click', () => {
+            document.getElementById('websiteModal').style.display = 'block';
+            document.getElementById('editingWebsiteId').value = '';
+            document.getElementById('websiteDomain').value = '';
+            document.getElementById('websiteTitle').value = '';
+            document.getElementById('websitePrice').value = '';
+        });
+        document.getElementById('saveWebsiteBtn')?.addEventListener('click', () => {
+            const id = document.getElementById('editingWebsiteId').value;
+            const data = {
+                domain: document.getElementById('websiteDomain').value,
+                title: document.getElementById('websiteTitle').value,
+                price: parseFloat(document.getElementById('websitePrice').value),
+                id: id || Date.now().toString()
+            };
+            if(!data.domain) return alert('Domain required');
+            let items = get(STORAGE_KEYS.websites);
+            if(id){
+                let idx = items.findIndex(i=>i.id===id);
+                if(idx!==-1) items[idx] = data;
+            } else {
+                items.push(data);
+            }
+            set(STORAGE_KEYS.websites, items);
+            document.getElementById('websiteModal').style.display = 'none';
+            renderWebsites();
+        });
+        document.getElementById('cancelWebsiteBtn')?.addEventListener('click', () => document.getElementById('websiteModal').style.display = 'none');
+
+        // eSIM
+        document.getElementById('addEsimBtn')?.addEventListener('click', () => {
+            document.getElementById('esimModal').style.display = 'block';
+            document.getElementById('editingEsimId').value = '';
+            document.getElementById('esimName').value = '';
+            document.getElementById('esimDuration').value = '1 month';
+            document.getElementById('esimPrice').value = '';
+            document.getElementById('esimData').value = '';
+            document.getElementById('esimVoice').value = '';
+        });
+        document.getElementById('saveEsimBtn')?.addEventListener('click', () => {
+            const id = document.getElementById('editingEsimId').value;
+            const data = {
+                name: document.getElementById('esimName').value,
+                duration: document.getElementById('esimDuration').value,
+                price: parseFloat(document.getElementById('esimPrice').value),
+                data: document.getElementById('esimData').value,
+                voice: document.getElementById('esimVoice').value,
+                id: id || Date.now().toString()
+            };
+            if(!data.name) return alert('Name required');
+            let items = get(STORAGE_KEYS.esim);
+            if(id){
+                let idx = items.findIndex(i=>i.id===id);
+                if(idx!==-1) items[idx] = data;
+            } else {
+                items.push(data);
+            }
+            set(STORAGE_KEYS.esim, items);
+            document.getElementById('esimModal').style.display = 'none';
+            renderEsim();
+        });
+        document.getElementById('cancelEsimBtn')?.addEventListener('click', () => document.getElementById('esimModal').style.display = 'none');
+
+        // Logistics
+        document.getElementById('addLogisticsBtn')?.addEventListener('click', () => {
+            document.getElementById('logisticsModal').style.display = 'block';
+            document.getElementById('editingLogisticsId').value = '';
+            document.getElementById('logSender').value = '';
+            document.getElementById('logReceiver').value = '';
+            document.getElementById('logAddress').value = '';
+            document.getElementById('logPackage').value = '';
+            document.getElementById('logWeight').value = '';
+            document.getElementById('logPrice').value = '';
+            document.getElementById('logStatus').value = 'pending';
+        });
+        document.getElementById('saveLogisticsBtn')?.addEventListener('click', () => {
+            const id = document.getElementById('editingLogisticsId').value;
+            const data = {
+                sender: document.getElementById('logSender').value,
+                receiver: document.getElementById('logReceiver').value,
+                address: document.getElementById('logAddress').value,
+                package: document.getElementById('logPackage').value,
+                weight: parseFloat(document.getElementById('logWeight').value),
+                price: parseFloat(document.getElementById('logPrice').value),
+                status: document.getElementById('logStatus').value,
+                id: id || Date.now().toString()
+            };
+            if(!data.sender) return alert('Sender required');
+            let items = get(STORAGE_KEYS.logistics);
+            if(id){
+                let idx = items.findIndex(i=>i.id===id);
+                if(idx!==-1) items[idx] = data;
+            } else {
+                items.push(data);
+            }
+            set(STORAGE_KEYS.logistics, items);
+            document.getElementById('logisticsModal').style.display = 'none';
+            renderLogistics();
+        });
+        document.getElementById('cancelLogisticsBtn')?.addEventListener('click', () => document.getElementById('logisticsModal').style.display = 'none');
+
+        // Virtual Numbers
+        document.getElementById('addVirtualBtn')?.addEventListener('click', () => {
+            document.getElementById('virtualModal').style.display = 'block';
+            document.getElementById('editingVirtualId').value = '';
+            document.getElementById('virtualNumber').value = '';
+            document.getElementById('virtualCountry').value = '';
+            document.getElementById('virtualService').value = '';
+            document.getElementById('virtualPrice').value = '';
+            document.getElementById('virtualPartner').value = '';
+        });
+        document.getElementById('saveVirtualBtn')?.addEventListener('click', () => {
+            const id = document.getElementById('editingVirtualId').value;
+            const data = {
+                number: document.getElementById('virtualNumber').value,
+                country: document.getElementById('virtualCountry').value,
+                service: document.getElementById('virtualService').value,
+                price: parseFloat(document.getElementById('virtualPrice').value),
+                partner: document.getElementById('virtualPartner').value,
+                id: id || Date.now().toString()
+            };
+            if(!data.number) return alert('Number required');
+            let items = get(STORAGE_KEYS.virtualnums);
+            if(id){
+                let idx = items.findIndex(i=>i.id===id);
+                if(idx!==-1) items[idx] = data;
+            } else {
+                items.push(data);
+            }
+            set(STORAGE_KEYS.virtualnums, items);
+            document.getElementById('virtualModal').style.display = 'none';
+            renderVirtual();
+        });
+        document.getElementById('cancelVirtualBtn')?.addEventListener('click', () => document.getElementById('virtualModal').style.display = 'none');
+
+        // Web Requests
+        document.getElementById('addWebReqBtn')?.addEventListener('click', () => {
+            document.getElementById('webReqModal').style.display = 'block';
+            document.getElementById('editingWebReqId').value = '';
+            document.getElementById('webClient').value = '';
+            document.getElementById('webEmail').value = '';
+            document.getElementById('webType').value = '';
+            document.getElementById('webReqs').value = '';
+            document.getElementById('webBudget').value = '';
+        });
+        document.getElementById('saveWebReqBtn')?.addEventListener('click', () => {
+            const id = document.getElementById('editingWebReqId').value;
+            const data = {
+                client: document.getElementById('webClient').value,
+                email: document.getElementById('webEmail').value,
+                type: document.getElementById('webType').value,
+                requirements: document.getElementById('webReqs').value,
+                budget: parseFloat(document.getElementById('webBudget').value),
+                id: id || Date.now().toString()
+            };
+            if(!data.client) return alert('Client required');
+            let items = get(STORAGE_KEYS.webrequests);
+            if(id){
+                let idx = items.findIndex(i=>i.id===id);
+                if(idx!==-1) items[idx] = data;
+            } else {
+                items.push(data);
+            }
+            set(STORAGE_KEYS.webrequests, items);
+            document.getElementById('webReqModal').style.display = 'none';
+            renderWebReqs();
+        });
+        document.getElementById('cancelWebReqBtn')?.addEventListener('click', () => document.getElementById('webReqModal').style.display = 'none');
+
+        // Cred Forms
+        document.getElementById('addCredFormBtn')?.addEventListener('click', () => {
+            document.getElementById('credFormModal').style.display = 'block';
+            document.getElementById('editingCredFormId').value = '';
+            document.getElementById('formName').value = '';
+            document.getElementById('formFields').value = '';
+        });
+        document.getElementById('saveCredFormBtn')?.addEventListener('click', () => {
+            const id = document.getElementById('editingCredFormId').value;
+            const data = {
+                name: document.getElementById('formName').value,
+                fields: document.getElementById('formFields').value,
+                id: id || Date.now().toString()
+            };
+            if(!data.name) return alert('Name required');
+            let items = get(STORAGE_KEYS.credforms);
+            if(id){
+                let idx = items.findIndex(i=>i.id===id);
+                if(idx!==-1) items[idx] = data;
+            } else {
+                items.push(data);
+            }
+            set(STORAGE_KEYS.credforms, items);
+            document.getElementById('credFormModal').style.display = 'none';
+            renderCredForms();
+        });
+        document.getElementById('cancelCredFormBtn')?.addEventListener('click', () => document.getElementById('credFormModal').style.display = 'none');
+
+        // Cloud Reqs
+        document.getElementById('addCloudReqBtn')?.addEventListener('click', () => {
+            document.getElementById('cloudReqModal').style.display = 'block';
+            document.getElementById('editingCloudReqId').value = '';
+            document.getElementById('cloudCustomer').value = '';
+            document.getElementById('cloudEmail').value = '';
+            document.getElementById('cloudService').value = 'Domain';
+            document.getElementById('cloudDomain').value = '';
+            document.getElementById('cloudDetails').value = '';
+        });
+        document.getElementById('saveCloudReqBtn')?.addEventListener('click', () => {
+            const id = document.getElementById('editingCloudReqId').value;
+            const data = {
+                customer: document.getElementById('cloudCustomer').value,
+                email: document.getElementById('cloudEmail').value,
+                serviceType: document.getElementById('cloudService').value,
+                domain: document.getElementById('cloudDomain').value,
+                details: document.getElementById('cloudDetails').value,
+                sentToTelegram: true,
+                id: id || Date.now().toString()
+            };
+            if(!data.customer) return alert('Customer required');
+            let items = get(STORAGE_KEYS.cloudreqs);
+            if(id){
+                let idx = items.findIndex(i=>i.id===id);
+                if(idx!==-1) items[idx] = data;
+            } else {
+                items.push(data);
+            }
+            set(STORAGE_KEYS.cloudreqs, items);
+            document.getElementById('cloudReqModal').style.display = 'none';
+            renderCloudReqs();
+        });
+        document.getElementById('cancelCloudReqBtn')?.addEventListener('click', () => document.getElementById('cloudReqModal').style.display = 'none');
+
+        // Gifts
+        document.getElementById('addGiftBtn')?.addEventListener('click', () => {
+            document.getElementById('giftModal').style.display = 'block';
+            document.getElementById('editingGiftId').value = '';
+            document.getElementById('giftName').value = '';
+            document.getElementById('giftDesc').value = '';
+            document.getElementById('giftPrice').value = '';
+            document.getElementById('giftImageUrl').value = '';
+        });
+        document.getElementById('saveGiftBtn')?.addEventListener('click', () => {
+            const id = document.getElementById('editingGiftId').value;
+            const data = {
+                name: document.getElementById('giftName').value,
+                description: document.getElementById('giftDesc').value,
+                price: parseFloat(document.getElementById('giftPrice').value),
+                imageUrl: document.getElementById('giftImageUrl').value,
+                id: id || Date.now().toString()
+            };
+            if(!data.name || isNaN(data.price)) return alert('Name and price required');
+            let items = get(STORAGE_KEYS.gifts);
+            if(id){
+                let idx = items.findIndex(i=>i.id===id);
+                if(idx!==-1) items[idx] = data;
+            } else {
+                items.push(data);
+            }
+            set(STORAGE_KEYS.gifts, items);
+            document.getElementById('giftModal').style.display = 'none';
+            renderGifts();
+        });
+        document.getElementById('cancelGiftBtn')?.addEventListener('click', () => document.getElementById('giftModal').style.display = 'none');
+
+        // Blog
+        document.getElementById('addPostBtn')?.addEventListener('click', () => {
+            document.getElementById('blogModal').style.display = 'block';
+            document.getElementById('editingPostId').value = '';
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postContent').value = '';
+        });
+        document.getElementById('savePostBtn')?.addEventListener('click', () => {
+            const id = document.getElementById('editingPostId').value;
+            const data = {
+                title: document.getElementById('postTitle').value,
+                content: document.getElementById('postContent').value,
+                createdAt: new Date().toISOString(),
+                id: id || Date.now().toString()
+            };
+            if(!data.title) return alert('Title required');
+            let items = get(STORAGE_KEYS.blog);
+            if(id){
+                let idx = items.findIndex(i=>i.id===id);
+                if(idx!==-1) items[idx] = data;
+            } else {
+                items.push(data);
+            }
+            set(STORAGE_KEYS.blog, items);
+            document.getElementById('blogModal').style.display = 'none';
+            renderBlog();
+        });
+        document.getElementById('cancelPostBtn')?.addEventListener('click', () => document.getElementById('blogModal').style.display = 'none');
+
+        // Theme and logout already handled
         const themeBtn = document.getElementById('themeToggle');
         if (localStorage.getItem('theme') === 'light') document.body.classList.add('light');
         themeBtn.addEventListener('click', () => {
@@ -527,10 +973,7 @@
         }
     });
 
-    // Auto-show dashboard if already logged in
-    if (isLoggedIn()) {
-        showDashboard();
-    }
+    if (isLoggedIn()) showDashboard();
 </script>
 </body>
 </html>
